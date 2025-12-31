@@ -13,14 +13,20 @@ public class EnduranceMetrics {
     private int id;
 
     // Type of endurance activity
-    private EnduranceType enduranceType; // CARDIO, AEROBIC, ANAEROBIC, HIIT
+    private EnduranceType enduranceType; // CARDIO, AEROBIC, ANAEROBIC, HIIT Enum
 
     // Metrics tracking
     private boolean trackDistance;
-    private boolean trackDuration;
-    private boolean trackPace;
-    private boolean trackHeartRate;
-    private boolean trackPower; // For cycling, rowing
+    private boolean trackDuration; // In seconds
+    private boolean trackPace; // In seconds
+    private boolean trackAverageHeartRate;
+    private boolean trackMinHeartRate;
+    private boolean trackMaxHeartRate;
+    private boolean trackTargetHeartRate;
+    private boolean trackAveragePower;
+    private boolean trackMinPower;
+    private boolean trackMaxPower;
+    private boolean trackTargetPower; // For cycling, rowing
 
     // Units
     private String distanceUnit; // "km", "miles", "meters"

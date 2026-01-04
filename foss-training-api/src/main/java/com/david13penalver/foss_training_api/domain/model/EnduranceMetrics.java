@@ -78,14 +78,57 @@ public class EnduranceMetrics {
     private String powerUnit; // "W"
 
     // Performance recommendations
-    private int recommendedDuration; // seconds
-    private double recommendedDistance;
-    private double recommendedRest; // seconds
-    private String recommendedTargetHeartRateZone; // "Zone 2", "Zone 3", etc.
-
     private int recommendedBlocks;
     private int recommendedRepetitions;
     private int recommendedRestBetweenBlocks;
     private int recommendedRestBetweenRepetitions;
+
+    private double recommendedTrackDistance;
+    private int recommendedTrackDuration; // In seconds
+    private int recommendedTrackPace; // In seconds
+
+    private int recommendedTrackAverageHeartRate;
+    private int recommendedTrackMinHeartRate;
+    private int recommendedTrackMaxHeartRate;
+    private int recommendedTrackTargetHeartRate;
+
+    private double recommendedTrackAveragePower;
+    private double recommendedTrackMinPower;
+    private double recommendedTrackMaxPower;
+    private double recommendedTrackTargetPower;
+
+    private double recommendedTrackAverageCadence;
+    private double recommendedTrackMinCadence;
+    private double recommendedTrackMaxCadence;
+    private double recommendedTrackTargetCadence;
+
+    private double recommendedTrackAverageSpeed;
+    private double recommendedTrackMinSpeed;
+    private double recommendedTrackMaxSpeed;
+    private double recommendedTrackTargetSpeed;
+
+    private double recommendedRestTrackDistance;
+    private int recommendedRestTrackDuration; // In seconds
+    private int recommendedRestTrackPace; // In seconds
+
+    private int recommendedRestTrackAverageHeartRate;
+    private int recommendedRestTrackMinHeartRate;
+    private int recommendedRestTrackMaxHeartRate;
+    private int recommendedRestTrackTargetHeartRate;
+
+    private double recommendedRestTrackAveragePower;
+    private double recommendedRestTrackMinPower;
+    private double recommendedRestTrackMaxPower;
+    private double recommendedRestTrackTargetPower;
+
+    private double recommendedRestTrackAverageCadence;
+    private double recommendedRestTrackMinCadence;
+    private double recommendedRestTrackMaxCadence;
+    private double recommendedRestTrackTargetCadence;
+
+    private double recommendedRestTrackAverageSpeed;
+    private double recommendedRestTrackMinSpeed;
+    private double recommendedRestTrackMaxSpeed;
+    private double recommendedRestTrackTargetSpeed;
 
 }

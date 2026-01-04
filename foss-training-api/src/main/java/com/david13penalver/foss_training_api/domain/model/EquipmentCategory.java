@@ -9,13 +9,13 @@ public enum EquipmentCategory {
     FUNCTIONAL("Functional Training"),
     ACCESSORIES("Accessories & Tools");
 
-    private final String displayName;
+    private final String name;
 
-    EquipmentCategory(String displayName) {
-        this.displayName = displayName;
+    EquipmentCategory(String name) {
+        this.name = name;
     }
 
-    public String getDisplayName() {
-        return displayName;
+    public String getName() {
+        return name;
     }
 }

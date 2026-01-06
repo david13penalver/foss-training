@@ -1,4 +1,4 @@
-package com.david13penalver.foss_training_api.domain.model;
+package com.david13penalver.foss_training_api.domain.model.exercise.mobility;
 
 public enum MovementPattern {
 

@@ -1,8 +1,10 @@
-package com.david13penalver.foss_training_api.domain.model;
+package com.david13penalver.foss_training_api.domain.model.exercise.resistance;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.david13penalver.foss_training_api.domain.model.exercise.MuscleCategory;
 
 public enum MuscleGroup {
 

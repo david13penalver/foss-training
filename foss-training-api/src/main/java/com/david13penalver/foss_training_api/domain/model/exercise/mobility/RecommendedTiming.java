@@ -1,4 +1,4 @@
-package com.david13penalver.foss_training_api.domain.model;
+package com.david13penalver.foss_training_api.domain.model.exercise.mobility;
 
 public enum RecommendedTiming {
 
@@ -27,18 +27,18 @@ public enum RecommendedTiming {
             "On rest days to promote circulation and reduce soreness",
             "Gentle yoga, foam rolling, light mobility work");
 
-    private final String displayName;
+    private final String name;
     private final String description;
     private final String suitableActivities;
 
-    RecommendedTiming(String displayName, String description, String suitableActivities) {
-        this.displayName = displayName;
+    RecommendedTiming(String name, String description, String suitableActivities) {
+        this.name = name;
         this.description = description;
         this.suitableActivities = suitableActivities;
     }
 
-    public String getDisplayName() {
-        return displayName;
+    public String getName() {
+        return name;
     }
 
     public String getDescription() {

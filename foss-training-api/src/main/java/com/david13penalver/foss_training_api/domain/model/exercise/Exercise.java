@@ -1,7 +1,14 @@
-package com.david13penalver.foss_training_api.domain.model;
+package com.david13penalver.foss_training_api.domain.model.exercise;
 
 import java.time.LocalDateTime;
 import java.util.List;
+
+import com.david13penalver.foss_training_api.domain.model.DifficultyLevel;
+import com.david13penalver.foss_training_api.domain.model.EnduranceMetrics;
+import com.david13penalver.foss_training_api.domain.model.Equipment;
+import com.david13penalver.foss_training_api.domain.model.ExerciseCategory;
+import com.david13penalver.foss_training_api.domain.model.MobilityMetrics;
+import com.david13penalver.foss_training_api.domain.model.ResistanceMetrics;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

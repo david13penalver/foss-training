@@ -18,8 +18,8 @@ public class EnduranceMetrics {
     // Metrics tracking
     private int blocks;
     private int repetitions;
-    private int restBetweenBlocks;
-    private int restBetweenRepetitions;
+    private int restBetweenBlocks; // In seconds
+    private int restBetweenRepetitions; // In seconds
 
     // Metrics per each repetition
     private double trackDistance;
@@ -30,6 +30,11 @@ public class EnduranceMetrics {
     private int trackMinHeartRate;
     private int trackMaxHeartRate;
     private int trackTargetHeartRate;
+
+    private int trackAveragePace; // In seconds
+    private int trackMinPace; // In seconds
+    private int trackMaxPace; // In seconds
+    private int trackTargetPace; // In seconds
 
     private double trackAveragePower;
     private double trackMinPower;

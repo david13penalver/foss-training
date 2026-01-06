@@ -11,8 +11,8 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import com.david13penalver.foss_training_api.domain.model.DifficultyLevel;
-import com.david13penalver.foss_training_api.domain.model.Exercise;
 import com.david13penalver.foss_training_api.domain.model.ExerciseCategory;
+import com.david13penalver.foss_training_api.domain.model.exercise.Exercise;
 
 class ExerciseTest {
 

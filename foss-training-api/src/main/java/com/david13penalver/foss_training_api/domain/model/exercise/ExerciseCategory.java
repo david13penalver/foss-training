@@ -1,5 +1,8 @@
 package com.david13penalver.foss_training_api.domain.model.exercise;
 
+import lombok.Getter;
+
+@Getter
 public enum ExerciseCategory {
 
         // ============================================
@@ -94,15 +97,7 @@ public enum ExerciseCategory {
                 this.description = description;
         }
 
-        public String getName() {
-                return name;
-        }
-
-        public String getDescription() {
-                return description;
-        }
-
-        // Helper methods for filtering
+    // Helper methods for filtering
         public boolean isPrimaryCategory() {
                 return this == RESISTANCE || this == ENDURANCE || this == MOBILITY;
         }

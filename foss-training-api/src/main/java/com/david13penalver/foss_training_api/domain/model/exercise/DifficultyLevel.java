@@ -1,5 +1,8 @@
 package com.david13penalver.foss_training_api.domain.model.exercise;
 
+import lombok.Getter;
+
+@Getter
 public enum DifficultyLevel {
 
     BEGINNER(
@@ -24,7 +27,7 @@ public enum DifficultyLevel {
 
     private final String name;
     private final String description;
-    private final int level;
+    private final Integer level;
 
     DifficultyLevel(String name, String description, int level) {
         this.name = name;
@@ -32,29 +35,17 @@ public enum DifficultyLevel {
         this.level = level;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public int getLevel() {
-        return level;
-    }
-
     public boolean isEasierThan(DifficultyLevel other) {
-        return this.level < other.level;
+        return this.level.compareTo(other.level) < 0;
     }
 
     public boolean isHarderThan(DifficultyLevel other) {
-        return this.level > other.level;
+        return this.level.compareTo(other.level) > 0;
     }
 
-    public static DifficultyLevel fromLevel(int level) {
+    public static DifficultyLevel fromLevel(Integer level) {
         for (DifficultyLevel difficulty : DifficultyLevel.values()) {
-            if (difficulty.level == level) {
+            if (difficulty.level.equals(level)) {
                 return difficulty;
             }
         }

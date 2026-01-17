@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 public class ResistanceMetrics {
 
     // Common fields
-    private int id;
+    private Integer id;
 
     // Muscle groups and biomechanics
     private List<MuscleGroup> primaryMuscles;

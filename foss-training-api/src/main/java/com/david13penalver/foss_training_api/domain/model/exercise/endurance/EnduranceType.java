@@ -1,5 +1,8 @@
 package com.david13penalver.foss_training_api.domain.model.exercise.endurance;
 
+import lombok.Getter;
+
+@Getter
 public enum EnduranceType {
 
     AEROBIC(
@@ -60,22 +63,6 @@ public enum EnduranceType {
         this.scientificObjective = scientificObjective;
         this.description = description;
         this.examples = examples;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getScientificObjective() {
-        return scientificObjective;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public String getExamples() {
-        return examples;
     }
 
     public boolean isHighIntensity() {

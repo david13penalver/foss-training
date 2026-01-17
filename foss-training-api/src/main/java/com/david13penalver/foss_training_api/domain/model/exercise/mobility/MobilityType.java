@@ -1,5 +1,8 @@
 package com.david13penalver.foss_training_api.domain.model.exercise.mobility;
 
+import lombok.Getter;
+
+@Getter
 public enum MobilityType {
 
     STATIC_STRETCHING(
@@ -36,14 +39,6 @@ public enum MobilityType {
     MobilityType(String name, String description) {
         this.name = name;
         this.description = description;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getDescription() {
-        return description;
     }
 
     public static MobilityType fromString(String text) {

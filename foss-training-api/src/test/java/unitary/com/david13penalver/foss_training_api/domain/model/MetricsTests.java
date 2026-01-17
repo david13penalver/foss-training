@@ -3,15 +3,14 @@ package unitary.com.david13penalver.foss_training_api.domain.model;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import com.david13penalver.foss_training_api.domain.model.exercise.endurance.EnduranceMetrics;
+import com.david13penalver.foss_training_api.domain.model.exercise.endurance.EnduranceType;
+import com.david13penalver.foss_training_api.domain.model.exercise.mobility.MobilityMetrics;
+import com.david13penalver.foss_training_api.domain.model.exercise.mobility.MobilityType;
+import com.david13penalver.foss_training_api.domain.model.exercise.mobility.MovementPattern;
+import com.david13penalver.foss_training_api.domain.model.exercise.resistance.MuscleGroup;
+import com.david13penalver.foss_training_api.domain.model.exercise.resistance.ResistanceMetrics;
 import org.junit.jupiter.api.Test;
-
-import com.david13penalver.foss_training_api.domain.model.EnduranceMetrics;
-import com.david13penalver.foss_training_api.domain.model.EnduranceType;
-import com.david13penalver.foss_training_api.domain.model.MobilityMetrics;
-import com.david13penalver.foss_training_api.domain.model.MobilityType;
-import com.david13penalver.foss_training_api.domain.model.MovementPattern;
-import com.david13penalver.foss_training_api.domain.model.MuscleGroup;
-import com.david13penalver.foss_training_api.domain.model.ResistanceMetrics;
 
 import java.util.Collections;
 import java.util.List;

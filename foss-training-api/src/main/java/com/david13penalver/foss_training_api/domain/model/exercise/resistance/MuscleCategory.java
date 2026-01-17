@@ -1,5 +1,8 @@
-package com.david13penalver.foss_training_api.domain.model.exercise;
+package com.david13penalver.foss_training_api.domain.model.exercise.resistance;
 
+import lombok.Getter;
+
+@Getter
 public enum MuscleCategory {
     UPPER_BODY("Upper Body"),
     CORE("Core"),
@@ -12,7 +15,4 @@ public enum MuscleCategory {
         this.name = name;
     }
 
-    public String getName() {
-        return name;
-    }
 }

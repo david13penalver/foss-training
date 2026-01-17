@@ -1,5 +1,8 @@
 package com.david13penalver.foss_training_api.domain.model.exercise;
 
+import lombok.Getter;
+
+@Getter
 public enum EquipmentCategory {
     BODYWEIGHT("Bodyweight Only"),
     FREE_WEIGHTS("Free Weights"),
@@ -15,7 +18,4 @@ public enum EquipmentCategory {
         this.name = name;
     }
 
-    public String getName() {
-        return name;
-    }
 }

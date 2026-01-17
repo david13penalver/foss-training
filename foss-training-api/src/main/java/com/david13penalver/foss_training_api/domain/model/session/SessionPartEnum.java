@@ -1,5 +1,8 @@
 package com.david13penalver.foss_training_api.domain.model.session;
 
+import lombok.Getter;
+
+@Getter
 public enum SessionPartEnum {
 
     ACTIVATION(
@@ -71,26 +74,6 @@ public enum SessionPartEnum {
         this.examples = examples;
         this.recommendedMinDuration = recommendedMinDuration;
         this.recommendedMaxDuration = recommendedMaxDuration;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public String getExamples() {
-        return examples;
-    }
-
-    public int getRecommendedMinDuration() {
-        return recommendedMinDuration;
-    }
-
-    public int getRecommendedMaxDuration() {
-        return recommendedMaxDuration;
     }
 
     // Helper methods

@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 public class MobilityMetrics {
 
     // Common fields
-    private int id;
+    private Integer id;
 
     // Type of mobility work
     private MobilityType mobilityType; // STRETCHING, DYNAMIC_MOBILITY, FOAM_ROLLING, YOGA

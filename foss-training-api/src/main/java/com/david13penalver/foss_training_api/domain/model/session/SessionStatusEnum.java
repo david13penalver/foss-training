@@ -1,5 +1,8 @@
 package com.david13penalver.foss_training_api.domain.model.session;
 
+import lombok.Getter;
+
+@Getter
 public enum SessionStatusEnum {
 
     PLANNED(
@@ -79,22 +82,6 @@ public enum SessionStatusEnum {
         this.description = description;
         this.isEditable = isEditable;
         this.isFinal = isFinal;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public boolean isEditable() {
-        return isEditable;
-    }
-
-    public boolean isFinal() {
-        return isFinal;
     }
 
     // Helper methods for session lifecycle management

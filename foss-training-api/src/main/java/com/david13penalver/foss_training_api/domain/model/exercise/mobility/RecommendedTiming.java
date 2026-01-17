@@ -1,5 +1,8 @@
 package com.david13penalver.foss_training_api.domain.model.exercise.mobility;
 
+import lombok.Getter;
+
+@Getter
 public enum RecommendedTiming {
 
     PRE_WORKOUT(
@@ -35,18 +38,6 @@ public enum RecommendedTiming {
         this.name = name;
         this.description = description;
         this.suitableActivities = suitableActivities;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public String getSuitableActivities() {
-        return suitableActivities;
     }
 
     public static RecommendedTiming fromString(String text) {

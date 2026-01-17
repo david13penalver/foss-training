@@ -12,65 +12,65 @@ import lombok.NoArgsConstructor;
 public class EnduranceSessionExercise extends SessionExercise {
 
     // Metrics tracking
-    private int blocks;
-    private int repetitions;
-    private int restBetweenBlocks; // In seconds
-    private int restBetweenRepetitions; // In seconds
+    private Integer blocks;
+    private Integer repetitions;
+    private Integer restBetweenBlocks; // In seconds
+    private Integer restBetweenRepetitions; // In seconds
 
     // Metrics per each repetition
-    private double trackDistance;
-    private int trackDuration; // In seconds
-    private int trackPace; // In seconds
+    private Double trackDistance;
+    private Integer trackDuration; // In seconds
+    private Integer trackPace; // In seconds
 
-    private int trackAverageHeartRate;
-    private int trackMinHeartRate;
-    private int trackMaxHeartRate;
-    private int trackTargetHeartRate;
+    private Integer trackAverageHeartRate;
+    private Integer trackMinHeartRate;
+    private Integer trackMaxHeartRate;
+    private Integer trackTargetHeartRate;
 
-    private int trackAveragePace; // In seconds
-    private int trackMinPace; // In seconds
-    private int trackMaxPace; // In seconds
-    private int trackTargetPace; // In seconds
+    private Integer trackAveragePace; // In seconds
+    private Integer trackMinPace; // In seconds
+    private Integer trackMaxPace; // In seconds
+    private Integer trackTargetPace; // In seconds
 
-    private double trackAveragePower;
-    private double trackMinPower;
-    private double trackMaxPower;
-    private double trackTargetPower;
+    private Double trackAveragePower;
+    private Double trackMinPower;
+    private Double trackMaxPower;
+    private Double trackTargetPower;
 
-    private double trackAverageCadence;
-    private double trackMinCadence;
-    private double trackMaxCadence;
-    private double trackTargetCadence;
+    private Double trackAverageCadence;
+    private Double trackMinCadence;
+    private Double trackMaxCadence;
+    private Double trackTargetCadence;
 
-    private double trackAverageSpeed;
-    private double trackMinSpeed;
-    private double trackMaxSpeed;
-    private double trackTargetSpeed;
+    private Double trackAverageSpeed;
+    private Double trackMinSpeed;
+    private Double trackMaxSpeed;
+    private Double trackTargetSpeed;
 
     // Metrics per each rest per repetition
-    private double restTrackDistance;
-    private int restTrackDuration; // In seconds
-    private int restTrackPace; // In seconds
+    private Double restTrackDistance;
+    private Integer restTrackDuration; // In seconds
+    private Integer restTrackPace; // In seconds
 
-    private int restTrackAverageHeartRate;
-    private int restTrackMinHeartRate;
-    private int restTrackMaxHeartRate;
-    private int restTrackTargetHeartRate;
+    private Integer restTrackAverageHeartRate;
+    private Integer restTrackMinHeartRate;
+    private Integer restTrackMaxHeartRate;
+    private Integer restTrackTargetHeartRate;
 
-    private double restTrackAveragePower;
-    private double restTrackMinPower;
-    private double restTrackMaxPower;
-    private double restTrackTargetPower;
+    private Double restTrackAveragePower;
+    private Double restTrackMinPower;
+    private Double restTrackMaxPower;
+    private Double restTrackTargetPower;
 
-    private double restTrackAverageCadence;
-    private double restTrackMinCadence;
-    private double restTrackMaxCadence;
-    private double restTrackTargetCadence;
+    private Double restTrackAverageCadence;
+    private Double restTrackMinCadence;
+    private Double restMaxCadence;
+    private Double restTrackTargetCadence;
 
-    private double restTrackAverageSpeed;
-    private double restTrackMinSpeed;
-    private double restTrackMaxSpeed;
-    private double restTrackTargetSpeed;
+    private Double restTrackAverageSpeed;
+    private Double restTrackMinSpeed;
+    private Double restTrackMaxSpeed;
+    private Double restTrackTargetSpeed;
 
     // Units
     private String distanceUnit; // "miles", "meters"

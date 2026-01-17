@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class SessionPart {
 
-    private int id;
+    private Integer id;
     private Session session;
     private SessionPartEnum sessionPartEnum;
 

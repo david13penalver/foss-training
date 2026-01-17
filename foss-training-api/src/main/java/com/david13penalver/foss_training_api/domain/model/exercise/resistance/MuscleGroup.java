@@ -1,11 +1,12 @@
 package com.david13penalver.foss_training_api.domain.model.exercise.resistance;
 
+import lombok.Getter;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.david13penalver.foss_training_api.domain.model.exercise.MuscleCategory;
-
+@Getter
 public enum MuscleGroup {
 
     // Upper Body - Chest & Back

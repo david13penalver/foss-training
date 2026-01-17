@@ -9,72 +9,72 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class EnduranceMetrics {
 
-    // Common fields
-    private int id;
+// Common fields
+    private Integer id;
 
     // Type of endurance activity
     private EnduranceType enduranceType; // CARDIO, AEROBIC, ANAEROBIC, HIIT Enum
 
     // Metrics tracking
-    private int blocks;
-    private int repetitions;
-    private int restBetweenBlocks; // In seconds
-    private int restBetweenRepetitions; // In seconds
+    private Integer blocks;
+    private Integer repetitions;
+    private Integer restBetweenBlocks; // In seconds
+    private Integer restBetweenRepetitions; // In seconds
 
     // Metrics per each repetition
-    private double trackDistance;
-    private int trackDuration; // In seconds
-    private int trackPace; // In seconds
+    private Double trackDistance;
+    private Integer trackDuration; // In seconds
+    private Integer trackPace; // In seconds
 
-    private int trackAverageHeartRate;
-    private int trackMinHeartRate;
-    private int trackMaxHeartRate;
-    private int trackTargetHeartRate;
+    private Integer trackAverageHeartRate;
+    private Integer trackMinHeartRate;
+    private Integer trackMaxHeartRate;
+    private Integer trackTargetHeartRate;
 
-    private int trackAveragePace; // In seconds
-    private int trackMinPace; // In seconds
-    private int trackMaxPace; // In seconds
-    private int trackTargetPace; // In seconds
+    private Integer trackAveragePace; // In seconds
+    private Integer trackMinPace; // In seconds
+    private Integer trackMaxPace; // In seconds
+    private Integer trackTargetPace; // In seconds
 
-    private double trackAveragePower;
-    private double trackMinPower;
-    private double trackMaxPower;
-    private double trackTargetPower;
+    private Double trackAveragePower;
+    private Double trackMinPower;
+    private Double trackMaxPower;
+    private Double trackTargetPower;
 
-    private double trackAverageCadence;
-    private double trackMinCadence;
-    private double trackMaxCadence;
-    private double trackTargetCadence;
+    private Double trackAverageCadence;
+    private Double trackMinCadence;
+    private Double trackMaxCadence;
+    private Double trackTargetCadence;
 
-    private double trackAverageSpeed;
-    private double trackMinSpeed;
-    private double trackMaxSpeed;
-    private double trackTargetSpeed;
+    private Double trackAverageSpeed;
+    private Double trackMinSpeed;
+    private Double trackMaxSpeed;
+    private Double trackTargetSpeed;
 
     // Metrics per each rest per repetition
-    private double restTrackDistance;
-    private int restTrackDuration; // In seconds
-    private int restTrackPace; // In seconds
+    private Double restTrackDistance;
+    private Integer restTrackDuration; // In seconds
+    private Integer restTrackPace; // In seconds
 
-    private int restTrackAverageHeartRate;
-    private int restTrackMinHeartRate;
-    private int restTrackMaxHeartRate;
-    private int restTrackTargetHeartRate;
+    private Integer restTrackAverageHeartRate;
+    private Integer restTrackMinHeartRate;
+    private Integer restTrackMaxHeartRate;
+    private Integer restTrackTargetHeartRate;
 
-    private double restTrackAveragePower;
-    private double restTrackMinPower;
-    private double restTrackMaxPower;
-    private double restTrackTargetPower;
+    private Double restTrackAveragePower;
+    private Double restTrackMinPower;
+    private Double restTrackMaxPower;
+    private Double restTrackTargetPower;
 
-    private double restTrackAverageCadence;
-    private double restTrackMinCadence;
-    private double restTrackMaxCadence;
-    private double restTrackTargetCadence;
+    private Double restTrackAverageCadence;
+    private Double restTrackMinCadence;
+    private Double restTrackMaxCadence;
+    private Double restTrackTargetCadence;
 
-    private double restTrackAverageSpeed;
-    private double restTrackMinSpeed;
-    private double restTrackMaxSpeed;
-    private double restTrackTargetSpeed;
+    private Double restTrackAverageSpeed;
+    private Double restTrackMinSpeed;
+    private Double restTrackMaxSpeed;
+    private Double restTrackTargetSpeed;
 
     // Units
     private String distanceUnit; // "miles", "meters"
@@ -83,57 +83,57 @@ public class EnduranceMetrics {
     private String powerUnit; // "W"
 
     // Performance recommendations
-    private int recommendedBlocks;
-    private int recommendedRepetitions;
-    private int recommendedRestBetweenBlocks;
-    private int recommendedRestBetweenRepetitions;
+    private Integer recommendedBlocks;
+    private Integer recommendedRepetitions;
+    private Integer recommendedRestBetweenBlocks;
+    private Integer recommendedRestBetweenRepetitions;
 
-    private double recommendedTrackDistance;
-    private int recommendedTrackDuration; // In seconds
-    private int recommendedTrackPace; // In seconds
+    private Double recommendedTrackDistance;
+    private Integer recommendedTrackDuration; // In seconds
+    private Integer recommendedTrackPace; // In seconds
 
-    private int recommendedTrackAverageHeartRate;
-    private int recommendedTrackMinHeartRate;
-    private int recommendedTrackMaxHeartRate;
-    private int recommendedTrackTargetHeartRate;
+    private Integer recommendedTrackAverageHeartRate;
+    private Integer recommendedTrackMinHeartRate;
+    private Integer recommendedTrackMaxHeartRate;
+    private Integer recommendedTrackTargetHeartRate;
 
-    private double recommendedTrackAveragePower;
-    private double recommendedTrackMinPower;
-    private double recommendedTrackMaxPower;
-    private double recommendedTrackTargetPower;
+    private Double recommendedTrackAveragePower;
+    private Double recommendedTrackMinPower;
+    private Double recommendedTrackMaxPower;
+    private Double recommendedTrackTargetPower;
 
-    private double recommendedTrackAverageCadence;
-    private double recommendedTrackMinCadence;
-    private double recommendedTrackMaxCadence;
-    private double recommendedTrackTargetCadence;
+    private Double recommendedTrackAverageCadence;
+    private Double recommendedTrackMinCadence;
+    private Double recommendedTrackMaxCadence;
+    private Double recommendedTrackTargetCadence;
 
-    private double recommendedTrackAverageSpeed;
-    private double recommendedTrackMinSpeed;
-    private double recommendedTrackMaxSpeed;
-    private double recommendedTrackTargetSpeed;
+    private Double recommendedTrackAverageSpeed;
+    private Double recommendedTrackMinSpeed;
+    private Double recommendedTrackMaxSpeed;
+    private Double recommendedTrackTargetSpeed;
 
-    private double recommendedRestTrackDistance;
-    private int recommendedRestTrackDuration; // In seconds
-    private int recommendedRestTrackPace; // In seconds
+    private Double recommendedRestTrackDistance;
+    private Integer recommendedRestTrackDuration; // In seconds
+    private Integer recommendedRestTrackPace; // In seconds
 
-    private int recommendedRestTrackAverageHeartRate;
-    private int recommendedRestTrackMinHeartRate;
-    private int recommendedRestTrackMaxHeartRate;
-    private int recommendedRestTrackTargetHeartRate;
+    private Integer recommendedRestTrackAverageHeartRate;
+    private Integer recommendedRestTrackMinHeartRate;
+    private Integer recommendedRestTrackMaxHeartRate;
+    private Integer recommendedRestTrackTargetHeartRate;
 
-    private double recommendedRestTrackAveragePower;
-    private double recommendedRestTrackMinPower;
-    private double recommendedRestTrackMaxPower;
-    private double recommendedRestTrackTargetPower;
+    private Double recommendedRestTrackAveragePower;
+    private Double recommendedRestTrackMinPower;
+    private Double recommendedRestTrackMaxPower;
+    private Double recommendedRestTrackTargetPower;
 
-    private double recommendedRestTrackAverageCadence;
-    private double recommendedRestTrackMinCadence;
-    private double recommendedRestTrackMaxCadence;
-    private double recommendedRestTrackTargetCadence;
+    private Double recommendedRestTrackAverageCadence;
+    private Double recommendedRestTrackMinCadence;
+    private Double recommendedRestTrackMaxCadence;
+    private Double recommendedRestTrackTargetCadence;
 
-    private double recommendedRestTrackAverageSpeed;
-    private double recommendedRestTrackMinSpeed;
-    private double recommendedRestTrackMaxSpeed;
-    private double recommendedRestTrackTargetSpeed;
+    private Double recommendedRestTrackAverageSpeed;
+    private Double recommendedRestTrackMinSpeed;
+    private Double recommendedRestTrackMaxSpeed;
+    private Double recommendedRestTrackTargetSpeed;
 
 }

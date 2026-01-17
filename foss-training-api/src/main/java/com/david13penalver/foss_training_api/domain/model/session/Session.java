@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Session {
 
-    private int id;
+    private Integer id;
     private String name;
     private String description;
     private SessionStatusEnum sessionStatus;

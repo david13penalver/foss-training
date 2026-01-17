@@ -11,8 +11,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class MobilitySessionExercise extends SessionExercise {
 
-    private int durationSeconds;
-    private int repetitions; // For dynamic movements
+    private Integer durationSeconds;
+    private Integer repetitions; // For dynamic movements
     private boolean isBilateral;
 
 }

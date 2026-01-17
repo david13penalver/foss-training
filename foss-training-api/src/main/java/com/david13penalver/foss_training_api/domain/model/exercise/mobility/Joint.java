@@ -1,5 +1,8 @@
 package com.david13penalver.foss_training_api.domain.model.exercise.mobility;
 
+import lombok.Getter;
+
+@Getter
 public enum Joint {
 
     // Upper Body Joints
@@ -28,11 +31,4 @@ public enum Joint {
         this.description = description;
     }
 
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    public String getDescription() {
-        return description;
-    }
 }

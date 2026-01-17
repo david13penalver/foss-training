@@ -1,5 +1,8 @@
 package com.david13penalver.foss_training_api.domain.model.exercise.mobility;
 
+import lombok.Getter;
+
+@Getter
 public enum MovementPattern {
 
         PUSH(
@@ -57,19 +60,7 @@ public enum MovementPattern {
                 this.examples = examples;
         }
 
-        public String getDisplayName() {
-                return displayName;
-        }
-
-        public String getDescription() {
-                return description;
-        }
-
-        public String getExamples() {
-                return examples;
-        }
-
-        public boolean isCompound() {
+    public boolean isCompound() {
                 return this == PUSH || this == PULL || this == SQUAT ||
                                 this == HINGE || this == LUNGE || this == COMPOUND;
         }

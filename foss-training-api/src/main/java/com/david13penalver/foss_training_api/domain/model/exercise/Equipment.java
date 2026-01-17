@@ -1,5 +1,8 @@
 package com.david13penalver.foss_training_api.domain.model.exercise;
 
+import lombok.Getter;
+
+@Getter
 public enum Equipment {
 
         // No Equipment
@@ -119,19 +122,7 @@ public enum Equipment {
                 this.category = category;
         }
 
-        public String getName() {
-                return name;
-        }
-
-        public String getDescription() {
-                return description;
-        }
-
-        public EquipmentCategory getCategory() {
-                return category;
-        }
-
-        public static Equipment fromString(String text) {
+    public static Equipment fromString(String text) {
                 for (Equipment equipment : Equipment.values()) {
                         if (equipment.name().equalsIgnoreCase(text)) {
                                 return equipment;

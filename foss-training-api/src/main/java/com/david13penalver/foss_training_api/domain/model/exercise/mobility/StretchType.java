@@ -1,5 +1,8 @@
 package com.david13penalver.foss_training_api.domain.model.exercise.mobility;
 
+import lombok.Getter;
+
+@Getter
 public enum StretchType {
 
     STATIC(
@@ -40,18 +43,6 @@ public enum StretchType {
         this.name = name;
         this.description = description;
         this.examples = examples;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public String getExamples() {
-        return examples;
     }
 
     public boolean isRecommendedForWarmup() {

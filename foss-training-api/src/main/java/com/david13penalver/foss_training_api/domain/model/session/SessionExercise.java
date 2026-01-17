@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public abstract class SessionExercise {
 
-    private int id;
+    private Integer id;
     private SessionPart sessionPart;
     private Session session;
     private Exercise exercise;

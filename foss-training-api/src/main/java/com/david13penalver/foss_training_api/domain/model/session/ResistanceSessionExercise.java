@@ -11,11 +11,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ResistanceSessionExercise extends SessionExercise {
 
-    private int id;
-    private double weight;
-    private int repetitions;
-    private double rpe; // 1-10 rate of perceived exertion
-    private int restSeconds; // Rest taken AFTER this set
+    private Integer id;
+    private Double weight;
+    private Integer repetitions;
+    private Double rpe; // 1-10 rate of perceived exertion
+    private Integer restSeconds; // Rest taken AFTER this set
     private boolean isWarmup;
     private boolean isFailure;
     private String notes;

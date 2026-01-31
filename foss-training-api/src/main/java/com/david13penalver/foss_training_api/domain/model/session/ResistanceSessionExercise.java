@@ -6,10 +6,9 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Data
-@EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
 @NoArgsConstructor
-public class ResistanceSessionExercise extends SessionExercise {
+public class ResistanceSessionExercise {
 
     private Integer id;
     private Double weight;

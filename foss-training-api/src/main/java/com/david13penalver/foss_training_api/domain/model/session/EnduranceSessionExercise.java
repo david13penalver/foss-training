@@ -6,10 +6,9 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Data
-@EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
 @NoArgsConstructor
-public class EnduranceSessionExercise extends SessionExercise {
+public class EnduranceSessionExercise {
 
     // Metrics tracking
     private Integer blocks;

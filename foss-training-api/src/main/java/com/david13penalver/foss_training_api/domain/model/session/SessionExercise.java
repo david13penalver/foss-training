@@ -16,5 +16,8 @@ public abstract class SessionExercise {
     private Session session;
     private Exercise exercise;
     private String notes;
+    private ResistanceSessionExercise resistanceSessionExercise;
+    private EnduranceSessionExercise enduranceSessionExercise;
+    private MobilitySessionExercise mobilitySessionExercise;
 
 }

@@ -6,10 +6,9 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Data
-@EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
 @NoArgsConstructor
-public class MobilitySessionExercise extends SessionExercise {
+public class MobilitySessionExercise {
 
     private Integer durationSeconds;
     private Integer repetitions; // For dynamic movements

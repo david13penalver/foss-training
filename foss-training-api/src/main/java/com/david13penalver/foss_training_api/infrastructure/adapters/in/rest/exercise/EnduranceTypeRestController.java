@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -51,6 +52,13 @@ public class EnduranceTypeRestController {
         return ResponseEntity.ok(savedEnduranceType);
     }
 
+    @PutMapping("/{name}")
+    public ResponseEntity<EnduranceType> updateEnduranceType(@PathVariable String name, @RequestBody EnduranceType enduranceType) {
+        // TODO: Set the name from the path variable to ensure we're updating the correct entity
+        EnduranceType savedEnduranceType = saveEnduranceTypeUseCase.execute(enduranceType);
+        return ResponseEntity.ok(savedEnduranceType);
+    }
+
     @DeleteMapping("/{name}")
     public ResponseEntity<Void> deleteEnduranceType(@PathVariable String name) {
         if (!enduranceTypeExistsUseCase.execute(name)) {
@@ -66,4 +74,3 @@ public class EnduranceTypeRestController {
         return ResponseEntity.ok(exists);
     }
 }
-

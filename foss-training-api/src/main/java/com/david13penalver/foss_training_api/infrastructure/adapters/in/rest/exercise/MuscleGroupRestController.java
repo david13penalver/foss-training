@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -51,6 +52,13 @@ public class MuscleGroupRestController {
         return ResponseEntity.ok(savedMuscleGroup);
     }
 
+    @PutMapping("/{name}")
+    public ResponseEntity<MuscleGroup> updateMuscleGroup(@PathVariable String name, @RequestBody MuscleGroup muscleGroup) {
+        // TODO: Set the name from the path variable to ensure we're updating the correct entity
+        MuscleGroup savedMuscleGroup = saveMuscleGroupUseCase.execute(muscleGroup);
+        return ResponseEntity.ok(savedMuscleGroup);
+    }
+
     @DeleteMapping("/{name}")
     public ResponseEntity<Void> deleteMuscleGroup(@PathVariable String name) {
         if (!muscleGroupExistsUseCase.execute(name)) {
@@ -66,4 +74,3 @@ public class MuscleGroupRestController {
         return ResponseEntity.ok(exists);
     }
 }
-

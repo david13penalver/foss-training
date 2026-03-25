@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -51,6 +52,13 @@ public class MobilityTypeRestController {
         return ResponseEntity.ok(savedMobilityType);
     }
 
+    @PutMapping("/{name}")
+    public ResponseEntity<MobilityType> updateMobilityType(@PathVariable String name, @RequestBody MobilityType mobilityType) {
+        // TODO: Set the name from the path variable to ensure we're updating the correct entity
+        MobilityType savedMobilityType = saveMobilityTypeUseCase.execute(mobilityType);
+        return ResponseEntity.ok(savedMobilityType);
+    }
+
     @DeleteMapping("/{name}")
     public ResponseEntity<Void> deleteMobilityType(@PathVariable String name) {
         if (!mobilityTypeExistsUseCase.execute(name)) {
@@ -66,4 +74,3 @@ public class MobilityTypeRestController {
         return ResponseEntity.ok(exists);
     }
 }
-

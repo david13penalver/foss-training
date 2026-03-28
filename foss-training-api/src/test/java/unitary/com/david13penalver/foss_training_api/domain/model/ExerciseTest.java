@@ -8,10 +8,10 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
+import com.david13penalver.foss_training_api.domain.model.exercise.DifficultyLevel;
+import com.david13penalver.foss_training_api.domain.model.exercise.ExerciseCategory;
 import org.junit.jupiter.api.Test;
 
-import com.david13penalver.foss_training_api.domain.model.DifficultyLevel;
-import com.david13penalver.foss_training_api.domain.model.ExerciseCategory;
 import com.david13penalver.foss_training_api.domain.model.exercise.Exercise;
 
 class ExerciseTest {

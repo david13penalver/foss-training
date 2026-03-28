@@ -6,12 +6,11 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.david13penalver.foss_training_api.domain.model.exercise.DifficultyLevel;
+import com.david13penalver.foss_training_api.domain.model.exercise.Equipment;
+import com.david13penalver.foss_training_api.domain.model.exercise.endurance.EnduranceType;
+import com.david13penalver.foss_training_api.domain.model.exercise.mobility.MovementPattern;
 import org.junit.jupiter.api.Test;
-
-import com.david13penalver.foss_training_api.domain.model.DifficultyLevel;
-import com.david13penalver.foss_training_api.domain.model.EnduranceType;
-import com.david13penalver.foss_training_api.domain.model.Equipment;
-import com.david13penalver.foss_training_api.domain.model.MovementPattern;
 
 class EnumsTest {
 

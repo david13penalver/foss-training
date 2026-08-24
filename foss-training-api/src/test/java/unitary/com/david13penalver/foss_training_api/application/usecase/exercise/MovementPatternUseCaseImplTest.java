@@ -13,11 +13,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.david13penalver.foss_training_api.application.usecases.exercise.movementpattern.impl.DeleteMovementPatternUseCaseImpl;
 import com.david13penalver.foss_training_api.application.usecases.exercise.movementpattern.impl.FindAllMovementPatternsUseCaseImpl;
 import com.david13penalver.foss_training_api.application.usecases.exercise.movementpattern.impl.FindMovementPatternByNameUseCaseImpl;
-import com.david13penalver.foss_training_api.application.usecases.exercise.movementpattern.impl.MovementPatternExistsUseCaseImpl;
-import com.david13penalver.foss_training_api.application.usecases.exercise.movementpattern.impl.SaveMovementPatternUseCaseImpl;
 import com.david13penalver.foss_training_api.domain.model.exercise.mobility.MovementPattern;
 
 @ExtendWith(MockitoExtension.class)
@@ -32,15 +29,6 @@ class MovementPatternUseCaseImplTest {
     @InjectMocks
     private FindMovementPatternByNameUseCaseImpl findMovementPatternByNameUseCase;
 
-    @InjectMocks
-    private SaveMovementPatternUseCaseImpl saveMovementPatternUseCase;
-
-    @InjectMocks
-    private DeleteMovementPatternUseCaseImpl deleteMovementPatternUseCase;
-
-    @InjectMocks
-    private MovementPatternExistsUseCaseImpl movementPatternExistsUseCase;
-
     @Test
     void testFindAll() {
         List<MovementPattern> expected = List.of(MovementPattern.PUSH);
@@ -54,43 +42,13 @@ class MovementPatternUseCaseImplTest {
 
     @Test
     void testFindByName() {
-        MovementPattern expected = MovementPattern.SQUAT;
-        when(movementPatternService.findById("SQUAT")).thenReturn(Optional.of(expected));
+        MovementPattern expected = MovementPattern.PUSH;
+        when(movementPatternService.findById("PUSH")).thenReturn(Optional.of(expected));
 
-        Optional<MovementPattern> result = findMovementPatternByNameUseCase.execute("SQUAT");
+        Optional<MovementPattern> result = findMovementPatternByNameUseCase.execute("PUSH");
 
         assertTrue(result.isPresent());
         assertSame(expected, result.get());
-        verify(movementPatternService).findById("SQUAT");
-    }
-
-    @Test
-    void testSave() {
-        MovementPattern pattern = MovementPattern.PUSH;
-        when(movementPatternService.save(pattern)).thenReturn(pattern);
-
-        MovementPattern result = saveMovementPatternUseCase.execute(pattern);
-
-        assertSame(pattern, result);
-        verify(movementPatternService).save(pattern);
-    }
-
-    @Test
-    void testDeleteByName() {
-        doNothing().when(movementPatternService).deleteById("PULL");
-
-        deleteMovementPatternUseCase.execute("PULL");
-
-        verify(movementPatternService).deleteById("PULL");
-    }
-
-    @Test
-    void testExistsByName() {
-        when(movementPatternService.existsById("PUSH")).thenReturn(true);
-
-        boolean result = movementPatternExistsUseCase.execute("PUSH");
-
-        assertTrue(result);
-        verify(movementPatternService).existsById("PUSH");
+        verify(movementPatternService).findById("PUSH");
     }
 }

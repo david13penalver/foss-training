@@ -10,10 +10,4 @@ public interface MovementPatternService {
     List<MovementPattern> findAll();
     
     Optional<MovementPattern> findById(String name);
-    
-    MovementPattern save(MovementPattern movementPattern);
-    
-    void deleteById(String name);
-    
-    boolean existsById(String name);
 }

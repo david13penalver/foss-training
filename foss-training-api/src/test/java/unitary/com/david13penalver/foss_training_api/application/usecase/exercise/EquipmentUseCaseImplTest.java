@@ -13,11 +13,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.david13penalver.foss_training_api.application.usecases.exercise.equipment.impl.DeleteEquipmentUseCaseImpl;
-import com.david13penalver.foss_training_api.application.usecases.exercise.equipment.impl.EquipmentExistsUseCaseImpl;
 import com.david13penalver.foss_training_api.application.usecases.exercise.equipment.impl.FindAllEquipmentUseCaseImpl;
 import com.david13penalver.foss_training_api.application.usecases.exercise.equipment.impl.FindEquipmentByNameUseCaseImpl;
-import com.david13penalver.foss_training_api.application.usecases.exercise.equipment.impl.SaveEquipmentUseCaseImpl;
 import com.david13penalver.foss_training_api.domain.model.exercise.Equipment;
 
 @ExtendWith(MockitoExtension.class)
@@ -32,15 +29,6 @@ class EquipmentUseCaseImplTest {
     @InjectMocks
     private FindEquipmentByNameUseCaseImpl findEquipmentByNameUseCase;
 
-    @InjectMocks
-    private SaveEquipmentUseCaseImpl saveEquipmentUseCase;
-
-    @InjectMocks
-    private DeleteEquipmentUseCaseImpl deleteEquipmentUseCase;
-
-    @InjectMocks
-    private EquipmentExistsUseCaseImpl equipmentExistsUseCase;
-
     @Test
     void testFindAll() {
         List<Equipment> expected = List.of(Equipment.BARBELL);
@@ -54,43 +42,13 @@ class EquipmentUseCaseImplTest {
 
     @Test
     void testFindByName() {
-        Equipment expected = Equipment.DUMBBELL;
-        when(equipmentService.findById("DUMBBELL")).thenReturn(Optional.of(expected));
+        Equipment expected = Equipment.BARBELL;
+        when(equipmentService.findById("BARBELL")).thenReturn(Optional.of(expected));
 
-        Optional<Equipment> result = findEquipmentByNameUseCase.execute("DUMBBELL");
+        Optional<Equipment> result = findEquipmentByNameUseCase.execute("BARBELL");
 
         assertTrue(result.isPresent());
         assertSame(expected, result.get());
-        verify(equipmentService).findById("DUMBBELL");
-    }
-
-    @Test
-    void testSave() {
-        Equipment equipment = Equipment.BARBELL;
-        when(equipmentService.save(equipment)).thenReturn(equipment);
-
-        Equipment result = saveEquipmentUseCase.execute(equipment);
-
-        assertSame(equipment, result);
-        verify(equipmentService).save(equipment);
-    }
-
-    @Test
-    void testDeleteByName() {
-        doNothing().when(equipmentService).deleteById("BARBELL");
-
-        deleteEquipmentUseCase.execute("BARBELL");
-
-        verify(equipmentService).deleteById("BARBELL");
-    }
-
-    @Test
-    void testExistsByName() {
-        when(equipmentService.existsById("BARBELL")).thenReturn(true);
-
-        boolean result = equipmentExistsUseCase.execute("BARBELL");
-
-        assertTrue(result);
-        verify(equipmentService).existsById("BARBELL");
+        verify(equipmentService).findById("BARBELL");
     }
 }

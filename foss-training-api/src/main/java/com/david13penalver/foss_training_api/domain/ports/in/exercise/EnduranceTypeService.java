@@ -10,10 +10,4 @@ public interface EnduranceTypeService {
     List<EnduranceType> findAll();
     
     Optional<EnduranceType> findById(String name);
-    
-    EnduranceType save(EnduranceType enduranceType);
-    
-    void deleteById(String name);
-    
-    boolean existsById(String name);
 }

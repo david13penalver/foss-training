@@ -10,10 +10,4 @@ public interface JointService {
     List<Joint> findAll();
     
     Optional<Joint> findById(String name);
-    
-    Joint save(Joint joint);
-    
-    void deleteById(String name);
-    
-    boolean existsById(String name);
 }

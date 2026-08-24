@@ -10,10 +10,4 @@ public interface MobilityTypeService {
     List<MobilityType> findAll();
     
     Optional<MobilityType> findById(String name);
-    
-    MobilityType save(MobilityType mobilityType);
-    
-    void deleteById(String name);
-    
-    boolean existsById(String name);
 }

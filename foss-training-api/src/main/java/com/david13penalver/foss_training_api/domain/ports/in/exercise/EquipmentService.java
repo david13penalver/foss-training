@@ -10,10 +10,4 @@ public interface EquipmentService {
     List<Equipment> findAll();
     
     Optional<Equipment> findById(String name);
-    
-    Equipment save(Equipment equipment);
-    
-    void deleteById(String name);
-    
-    boolean existsById(String name);
 }

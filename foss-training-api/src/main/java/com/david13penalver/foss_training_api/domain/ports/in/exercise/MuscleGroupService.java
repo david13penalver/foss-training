@@ -10,10 +10,4 @@ public interface MuscleGroupService {
     List<MuscleGroup> findAll();
     
     Optional<MuscleGroup> findById(String name);
-    
-    MuscleGroup save(MuscleGroup muscleGroup);
-    
-    void deleteById(String name);
-    
-    boolean existsById(String name);
 }

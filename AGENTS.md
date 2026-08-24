@@ -18,18 +18,16 @@ Java 21 target (JDK 26 runtime), Spring Boot 3.4.4, Maven wrapper (`mvnw`).
 ```
 domain/          — pure Java, no framework annotations
   model/         — entities (Exercise, Session, metrics, enums)
-  ports/in/      — inbound port interfaces (e.g., ExerciseService)
   ports/out/     — outbound port interfaces (e.g., ExerciseRepository)
 application/     — depends on domain only
-  usecases/      — single-action interfaces + impls, each with execute()
-  services/      — implement domain ports/in interfaces
+  usecases/      — single-action use case interfaces (inbound ports) + service impls (e.g. SaveExerciseUseCase & impl/SaveExerciseService)
 infrastructure/  — framework glue (Spring, JPA, etc.)
   adapters/in/rest/   — @RestController classes
   adapters/out/       — @Repository impls (currently stubs)
   configuration/      — @Configuration beans (currently empty)
 ```
 
-**Conventions**: Use cases are interfaces in `usecases/<entity>/` with impls under `usecases/<entity>/impl/`. Controllers inject use case interfaces (not services directly). Domain layer must not import Spring/DB annotations.
+**Conventions**: Inbound use cases are interfaces in `usecases/<entity>/` (e.g. `SaveExerciseUseCase`) with service implementations under `usecases/<entity>/impl/` (e.g. `SaveExerciseService`). Controllers inject use case interfaces. Domain layer must not import Spring/DB annotations.
 
 ## Quirks & gotchas
 

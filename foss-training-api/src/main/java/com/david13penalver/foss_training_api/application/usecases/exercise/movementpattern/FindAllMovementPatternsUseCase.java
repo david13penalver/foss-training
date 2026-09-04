@@ -2,7 +2,7 @@ package com.david13penalver.foss_training_api.application.usecases.exercise.move
 
 import java.util.List;
 
-import com.david13penalver.foss_training_api.domain.model.exercise.mobility.MovementPattern;
+import com.david13penalver.foss_training_api.domain.model.exercise.MovementPattern;
 
 public interface FindAllMovementPatternsUseCase {
     

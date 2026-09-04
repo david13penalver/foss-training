@@ -12,7 +12,7 @@ import com.david13penalver.foss_training_api.domain.model.exercise.endurance.End
 import com.david13penalver.foss_training_api.domain.model.exercise.mobility.Joint;
 import com.david13penalver.foss_training_api.domain.model.exercise.mobility.MobilityMetrics;
 import com.david13penalver.foss_training_api.domain.model.exercise.mobility.MobilityType;
-import com.david13penalver.foss_training_api.domain.model.exercise.mobility.MovementPattern;
+import com.david13penalver.foss_training_api.domain.model.exercise.MovementPattern;
 import com.david13penalver.foss_training_api.domain.model.exercise.resistance.MuscleGroup;
 import com.david13penalver.foss_training_api.domain.model.exercise.resistance.ResistanceMetrics;
 import com.david13penalver.foss_training_api.domain.model.exercise.mobility.StretchType;

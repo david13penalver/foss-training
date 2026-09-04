@@ -1,80 +1,86 @@
 package com.david13penalver.foss_training_api.domain.model.session;
 
-import lombok.AllArgsConstructor;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import com.david13penalver.foss_training_api.domain.model.common.Distance;
+import com.david13penalver.foss_training_api.domain.model.common.DistanceUnit;
+import com.david13penalver.foss_training_api.domain.model.common.Duration;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
-public class EnduranceSessionExercise {
+public class EnduranceSessionExercise extends SessionExercise {
 
-    // Metrics tracking
-    private Integer blocks;
-    private Integer repetitions;
-    private Integer restBetweenBlocks; // In seconds
-    private Integer restBetweenRepetitions; // In seconds
+    private List<EnduranceInterval> intervals = new ArrayList<>();
 
-    // Metrics per each repetition
-    private Double trackDistance;
-    private Integer trackDuration; // In seconds
-    private Integer trackPace; // In seconds
+    /**
+     * Adds an interval and assigns its interval number automatically.
+     */
+    public void addInterval(EnduranceInterval interval) {
+        if (interval.getIntervalNumber() == null) {
+            interval.setIntervalNumber(intervals.size() + 1);
+        }
+        intervals.add(interval);
+    }
 
-    private Integer trackAverageHeartRate;
-    private Integer trackMinHeartRate;
-    private Integer trackMaxHeartRate;
-    private Integer trackTargetHeartRate;
+    /**
+     * Returns an unmodifiable view of the intervals.
+     */
+    public List<EnduranceInterval> getIntervals() {
+        return Collections.unmodifiableList(intervals);
+    }
 
-    private Integer trackAveragePace; // In seconds
-    private Integer trackMinPace; // In seconds
-    private Integer trackMaxPace; // In seconds
-    private Integer trackTargetPace; // In seconds
+    /**
+     * Calculates total distance across all intervals.
+     *
+     * @return total distance in meters, or zero if no intervals have distance data
+     */
+    public Distance calculateTotalDistance() {
+        Distance total = Distance.zero(DistanceUnit.METERS);
+        for (EnduranceInterval interval : intervals) {
+            if (interval.getDistance() != null) {
+                total = total.plus(interval.getDistance());
+            }
+        }
+        return total;
+    }
 
-    private Double trackAveragePower;
-    private Double trackMinPower;
-    private Double trackMaxPower;
-    private Double trackTargetPower;
+    /**
+     * Calculates total active duration across all intervals (excluding rest).
+     *
+     * @return total active duration
+     */
+    public Duration calculateTotalDuration() {
+        int totalSeconds = intervals.stream()
+                .filter(i -> i.getDuration() != null)
+                .mapToInt(i -> i.getDuration().getTotalSeconds())
+                .sum();
+        return Duration.seconds(totalSeconds);
+    }
 
-    private Double trackAverageCadence;
-    private Double trackMinCadence;
-    private Double trackMaxCadence;
-    private Double trackTargetCadence;
+    /**
+     * Returns the total number of intervals.
+     */
+    public int getIntervalsCount() {
+        return intervals.size();
+    }
 
-    private Double trackAverageSpeed;
-    private Double trackMinSpeed;
-    private Double trackMaxSpeed;
-    private Double trackTargetSpeed;
-
-    // Metrics per each rest per repetition
-    private Double restTrackDistance;
-    private Integer restTrackDuration; // In seconds
-    private Integer restTrackPace; // In seconds
-
-    private Integer restTrackAverageHeartRate;
-    private Integer restTrackMinHeartRate;
-    private Integer restTrackMaxHeartRate;
-    private Integer restTrackTargetHeartRate;
-
-    private Double restTrackAveragePower;
-    private Double restTrackMinPower;
-    private Double restTrackMaxPower;
-    private Double restTrackTargetPower;
-
-    private Double restTrackAverageCadence;
-    private Double restTrackMinCadence;
-    private Double restMaxCadence;
-    private Double restTrackTargetCadence;
-
-    private Double restTrackAverageSpeed;
-    private Double restTrackMinSpeed;
-    private Double restTrackMaxSpeed;
-    private Double restTrackTargetSpeed;
-
-    // Units
-    private String distanceUnit; // "miles", "meters"
-    private String paceUnit; // "min/km", "min/mile" (to convert from trackPace in seconds)
-    private String heartRateUnit; // "bpm"
-    private String powerUnit; // "W"
-
+    /**
+     * Calculates the average heart rate across all intervals that have HR data.
+     *
+     * @return average heart rate, or 0 if no HR data
+     */
+    public int calculateAverageHeartRate() {
+        return (int) intervals.stream()
+                .filter(i -> i.getAvgHeartRate() != null)
+                .mapToInt(EnduranceInterval::getAvgHeartRate)
+                .average()
+                .orElse(0);
+    }
 }

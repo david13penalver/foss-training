@@ -11,7 +11,7 @@ import com.david13penalver.foss_training_api.domain.model.exercise.Equipment;
 import com.david13penalver.foss_training_api.domain.model.exercise.ExerciseCategory;
 import com.david13penalver.foss_training_api.domain.model.exercise.EquipmentCategory;
 import com.david13penalver.foss_training_api.domain.model.exercise.endurance.EnduranceType;
-import com.david13penalver.foss_training_api.domain.model.exercise.mobility.MovementPattern;
+import com.david13penalver.foss_training_api.domain.model.exercise.MovementPattern;
 import com.david13penalver.foss_training_api.domain.model.exercise.mobility.MobilityType;
 import com.david13penalver.foss_training_api.domain.model.exercise.mobility.StretchType;
 import com.david13penalver.foss_training_api.domain.model.exercise.mobility.Joint;

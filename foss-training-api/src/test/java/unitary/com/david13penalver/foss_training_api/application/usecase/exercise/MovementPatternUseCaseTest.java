@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import com.david13penalver.foss_training_api.application.usecases.exercise.movementpattern.impl.FindAllMovementPatternsService;
 import com.david13penalver.foss_training_api.application.usecases.exercise.movementpattern.impl.FindMovementPatternByNameService;
-import com.david13penalver.foss_training_api.domain.model.exercise.mobility.MovementPattern;
+import com.david13penalver.foss_training_api.domain.model.exercise.MovementPattern;
 
 class MovementPatternUseCaseTest {
 

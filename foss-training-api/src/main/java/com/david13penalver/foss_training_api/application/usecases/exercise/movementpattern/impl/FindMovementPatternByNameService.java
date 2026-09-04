@@ -6,7 +6,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 import com.david13penalver.foss_training_api.application.usecases.exercise.movementpattern.FindMovementPatternByNameUseCase;
-import com.david13penalver.foss_training_api.domain.model.exercise.mobility.MovementPattern;
+import com.david13penalver.foss_training_api.domain.model.exercise.MovementPattern;
 
 import lombok.extern.slf4j.Slf4j;
 

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.david13penalver.foss_training_api.application.usecases.exercise.movementpattern.FindAllMovementPatternsUseCase;
 import com.david13penalver.foss_training_api.application.usecases.exercise.movementpattern.FindMovementPatternByNameUseCase;
-import com.david13penalver.foss_training_api.domain.model.exercise.mobility.MovementPattern;
+import com.david13penalver.foss_training_api.domain.model.exercise.MovementPattern;
 
 import lombok.RequiredArgsConstructor;
 

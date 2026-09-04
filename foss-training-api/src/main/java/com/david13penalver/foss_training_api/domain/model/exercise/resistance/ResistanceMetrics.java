@@ -2,7 +2,7 @@ package com.david13penalver.foss_training_api.domain.model.exercise.resistance;
 
 import java.util.List;
 
-import com.david13penalver.foss_training_api.domain.model.exercise.mobility.MovementPattern;
+import com.david13penalver.foss_training_api.domain.model.exercise.MovementPattern;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -2,12 +2,16 @@ package com.david13penalver.foss_training_api.domain.model.common;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public final class Distance implements Comparable<Distance> {
 
     private final double value;
     private final DistanceUnit unit;
 
-    public Distance(double value, DistanceUnit unit) {
+    @JsonCreator
+    public Distance(@JsonProperty("value") double value, @JsonProperty("unit") DistanceUnit unit) {
         if (value < 0) {
             throw new IllegalArgumentException("Distance value cannot be negative: " + value);
         }

@@ -2,12 +2,16 @@ package com.david13penalver.foss_training_api.domain.model.common;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public final class Weight implements Comparable<Weight> {
 
     private final double value;
     private final WeightUnit unit;
 
-    public Weight(double value, WeightUnit unit) {
+    @JsonCreator
+    public Weight(@JsonProperty("value") double value, @JsonProperty("unit") WeightUnit unit) {
         if (value < 0) {
             throw new IllegalArgumentException("Weight value cannot be negative: " + value);
         }

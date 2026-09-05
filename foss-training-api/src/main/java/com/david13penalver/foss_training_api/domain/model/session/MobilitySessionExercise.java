@@ -6,6 +6,8 @@ import java.util.List;
 
 import com.david13penalver.foss_training_api.domain.model.common.Duration;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -37,6 +39,7 @@ public class MobilitySessionExercise extends SessionExercise {
     /**
      * Returns the total number of sets.
      */
+    @JsonIgnore
     public int getTotalSetsCount() {
         return sets.size();
     }

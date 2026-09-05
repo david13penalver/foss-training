@@ -2,12 +2,17 @@ package com.david13penalver.foss_training_api.domain.model.common;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public final class Pace {
 
     private final int secondsPerUnit;
     private final DistanceUnit unit;
 
-    public Pace(int secondsPerUnit, DistanceUnit unit) {
+    @JsonCreator
+    public Pace(@JsonProperty("secondsPerUnit") int secondsPerUnit,
+            @JsonProperty("unit") DistanceUnit unit) {
         if (secondsPerUnit < 0) {
             throw new IllegalArgumentException("Pace seconds per unit cannot be negative");
         }

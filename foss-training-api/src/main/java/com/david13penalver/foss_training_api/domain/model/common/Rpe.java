@@ -2,11 +2,15 @@ package com.david13penalver.foss_training_api.domain.model.common;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public final class Rpe implements Comparable<Rpe> {
 
     private final double value;
 
-    public Rpe(double value) {
+    @JsonCreator
+    public Rpe(@JsonProperty("value") double value) {
         if (value < 1.0 || value > 10.0) {
             throw new IllegalArgumentException("RPE must be between 1.0 and 10.0: " + value);
         }

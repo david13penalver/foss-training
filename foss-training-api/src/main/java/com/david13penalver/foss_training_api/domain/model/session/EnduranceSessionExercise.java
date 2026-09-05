@@ -8,6 +8,8 @@ import com.david13penalver.foss_training_api.domain.model.common.Distance;
 import com.david13penalver.foss_training_api.domain.model.common.DistanceUnit;
 import com.david13penalver.foss_training_api.domain.model.common.Duration;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -67,6 +69,7 @@ public class EnduranceSessionExercise extends SessionExercise {
     /**
      * Returns the total number of intervals.
      */
+    @JsonIgnore
     public int getIntervalsCount() {
         return intervals.size();
     }

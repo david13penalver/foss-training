@@ -7,12 +7,10 @@ import com.david13penalver.foss_training_api.domain.model.exercise.endurance.End
 import com.david13penalver.foss_training_api.domain.model.exercise.mobility.MobilityMetrics;
 import com.david13penalver.foss_training_api.domain.model.exercise.resistance.ResistanceMetrics;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 public class Exercise {
 
@@ -48,6 +46,51 @@ public class Exercise {
     private LocalDateTime updatedAt;
     private boolean isActive; // Soft delete flag
     private List<String> tags; // For search and filtering
+
+    public Exercise(Integer id, String name, String description, List<String> images, String video,
+            ExerciseCategory primaryCategory, List<ExerciseCategory> secondaryCategories,
+            ResistanceMetrics resistanceMetrics, EnduranceMetrics enduranceMetrics, MobilityMetrics mobilityMetrics,
+            List<Equipment> equipmentRequired, DifficultyLevel difficultyLevel,
+            List<String> stepByStepInstructions, List<String> commonMistakes, List<String> safetyTips,
+            List<String> alternativeExercises, String createdBy, LocalDateTime createdAt, LocalDateTime updatedAt,
+            boolean isActive, List<String> tags) {
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("Exercise name cannot be blank");
+        }
+        if (primaryCategory == null) {
+            throw new IllegalArgumentException("Exercise primaryCategory cannot be null");
+        }
+        if (primaryCategory == ExerciseCategory.RESISTANCE && resistanceMetrics == null) {
+            throw new IllegalArgumentException("Exercise with RESISTANCE category requires resistanceMetrics");
+        }
+        if (primaryCategory == ExerciseCategory.ENDURANCE && enduranceMetrics == null) {
+            throw new IllegalArgumentException("Exercise with ENDURANCE category requires enduranceMetrics");
+        }
+        if (primaryCategory == ExerciseCategory.MOBILITY && mobilityMetrics == null) {
+            throw new IllegalArgumentException("Exercise with MOBILITY category requires mobilityMetrics");
+        }
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.images = images;
+        this.video = video;
+        this.primaryCategory = primaryCategory;
+        this.secondaryCategories = secondaryCategories;
+        this.resistanceMetrics = resistanceMetrics;
+        this.enduranceMetrics = enduranceMetrics;
+        this.mobilityMetrics = mobilityMetrics;
+        this.equipmentRequired = equipmentRequired;
+        this.difficultyLevel = difficultyLevel;
+        this.stepByStepInstructions = stepByStepInstructions;
+        this.commonMistakes = commonMistakes;
+        this.safetyTips = safetyTips;
+        this.alternativeExercises = alternativeExercises;
+        this.createdBy = createdBy;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.isActive = isActive;
+        this.tags = tags;
+    }
 
     public boolean isResistance() {
         return primaryCategory == ExerciseCategory.RESISTANCE;

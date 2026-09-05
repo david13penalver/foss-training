@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -41,7 +42,7 @@ class ExerciseTest {
                 "video_url",
                 ExerciseCategory.RESISTANCE,
                 Collections.emptyList(),
-                null,
+                new ResistanceMetrics(),
                 null,
                 null,
                 Collections.emptyList(),
@@ -78,14 +79,14 @@ class ExerciseTest {
         LocalDateTime now = LocalDateTime.now();
         Exercise exercise1 = new Exercise(
                 1, "Push Up", "Basic push up", Collections.emptyList(), "video_url",
-                ExerciseCategory.RESISTANCE, Collections.emptyList(), null, null, null,
+                ExerciseCategory.RESISTANCE, Collections.emptyList(), new ResistanceMetrics(), null, null,
                 Collections.emptyList(), DifficultyLevel.BEGINNER, Collections.emptyList(),
                 Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
                 "admin", now, now, true, Collections.emptyList());
 
         Exercise exercise2 = new Exercise(
                 1, "Push Up", "Basic push up", Collections.emptyList(), "video_url",
-                ExerciseCategory.RESISTANCE, Collections.emptyList(), null, null, null,
+                ExerciseCategory.RESISTANCE, Collections.emptyList(), new ResistanceMetrics(), null, null,
                 Collections.emptyList(), DifficultyLevel.BEGINNER, Collections.emptyList(),
                 Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
                 "admin", now, now, true, Collections.emptyList());
@@ -95,7 +96,7 @@ class ExerciseTest {
 
         Exercise exercise3 = new Exercise(
                 2, "Push Up", "Basic push up", Collections.emptyList(), "video_url",
-                ExerciseCategory.RESISTANCE, Collections.emptyList(), null, null, null,
+                ExerciseCategory.RESISTANCE, Collections.emptyList(), new ResistanceMetrics(), null, null,
                 Collections.emptyList(), DifficultyLevel.BEGINNER, Collections.emptyList(),
                 Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
                 "admin", now, now, true, Collections.emptyList());
@@ -192,7 +193,7 @@ class ExerciseTest {
     void testWithEmptyLists() {
         Exercise exercise = new Exercise(
                 1, "Test", "Desc", Collections.emptyList(), "url",
-                ExerciseCategory.ENDURANCE, Collections.emptyList(), null, null, null,
+                ExerciseCategory.ENDURANCE, Collections.emptyList(), null, new EnduranceMetrics(), null,
                 Collections.emptyList(), DifficultyLevel.BEGINNER, Collections.emptyList(),
                 Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
                 "admin", LocalDateTime.now(), LocalDateTime.now(), true, Collections.emptyList());
@@ -321,5 +322,84 @@ class ExerciseTest {
         assertFalse(e.isActive());
         e.activate();
         assertTrue(e.isActive());
+    }
+
+    @Test
+    void testConstructorRejectsBlankName() {
+        LocalDateTime now = LocalDateTime.now();
+        assertThrows(IllegalArgumentException.class, () -> new Exercise(
+                1, "   ", "Desc", Collections.emptyList(), "url",
+                ExerciseCategory.RESISTANCE, Collections.emptyList(), new ResistanceMetrics(), null, null,
+                Collections.emptyList(), DifficultyLevel.BEGINNER, Collections.emptyList(),
+                Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
+                "admin", now, now, true, Collections.emptyList()));
+    }
+
+    @Test
+    void testConstructorRejectsNullName() {
+        LocalDateTime now = LocalDateTime.now();
+        assertThrows(IllegalArgumentException.class, () -> new Exercise(
+                1, null, "Desc", Collections.emptyList(), "url",
+                ExerciseCategory.RESISTANCE, Collections.emptyList(), new ResistanceMetrics(), null, null,
+                Collections.emptyList(), DifficultyLevel.BEGINNER, Collections.emptyList(),
+                Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
+                "admin", now, now, true, Collections.emptyList()));
+    }
+
+    @Test
+    void testConstructorRejectsNullPrimaryCategory() {
+        LocalDateTime now = LocalDateTime.now();
+        assertThrows(IllegalArgumentException.class, () -> new Exercise(
+                1, "Push Up", "Desc", Collections.emptyList(), "url",
+                null, Collections.emptyList(), null, null, null,
+                Collections.emptyList(), DifficultyLevel.BEGINNER, Collections.emptyList(),
+                Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
+                "admin", now, now, true, Collections.emptyList()));
+    }
+
+    @Test
+    void testConstructorRejectsMismatchedResistanceMetrics() {
+        LocalDateTime now = LocalDateTime.now();
+        assertThrows(IllegalArgumentException.class, () -> new Exercise(
+                1, "Push Up", "Desc", Collections.emptyList(), "url",
+                ExerciseCategory.RESISTANCE, Collections.emptyList(), null, null, null,
+                Collections.emptyList(), DifficultyLevel.BEGINNER, Collections.emptyList(),
+                Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
+                "admin", now, now, true, Collections.emptyList()));
+    }
+
+    @Test
+    void testConstructorRejectsMismatchedEnduranceMetrics() {
+        LocalDateTime now = LocalDateTime.now();
+        assertThrows(IllegalArgumentException.class, () -> new Exercise(
+                1, "Run", "Desc", Collections.emptyList(), "url",
+                ExerciseCategory.ENDURANCE, Collections.emptyList(), null, null, null,
+                Collections.emptyList(), DifficultyLevel.BEGINNER, Collections.emptyList(),
+                Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
+                "admin", now, now, true, Collections.emptyList()));
+    }
+
+    @Test
+    void testConstructorRejectsMismatchedMobilityMetrics() {
+        LocalDateTime now = LocalDateTime.now();
+        assertThrows(IllegalArgumentException.class, () -> new Exercise(
+                1, "Stretch", "Desc", Collections.emptyList(), "url",
+                ExerciseCategory.MOBILITY, Collections.emptyList(), null, null, null,
+                Collections.emptyList(), DifficultyLevel.BEGINNER, Collections.emptyList(),
+                Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
+                "admin", now, now, true, Collections.emptyList()));
+    }
+
+    @Test
+    void testConstructorAllowsNonPrimaryCategoryWithNoMetrics() {
+        LocalDateTime now = LocalDateTime.now();
+        Exercise exercise = new Exercise(
+                1, "Jump", "Desc", Collections.emptyList(), "url",
+                ExerciseCategory.POWER, Collections.emptyList(), null, null, null,
+                Collections.emptyList(), DifficultyLevel.BEGINNER, Collections.emptyList(),
+                Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
+                "admin", now, now, true, Collections.emptyList());
+        assertNotNull(exercise);
+        assertEquals(ExerciseCategory.POWER, exercise.getPrimaryCategory());
     }
 }

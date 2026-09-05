@@ -225,4 +225,101 @@ class ExerciseTest {
         exercise.setUpdatedAt(future);
         assertEquals(future, exercise.getUpdatedAt());
     }
+
+    @Test
+    void testIsResistance() {
+        Exercise res = new Exercise();
+        res.setPrimaryCategory(ExerciseCategory.RESISTANCE);
+        assertTrue(res.isResistance());
+        assertFalse(res.isEndurance());
+        assertFalse(res.isMobility());
+    }
+
+    @Test
+    void testIsEndurance() {
+        Exercise end = new Exercise();
+        end.setPrimaryCategory(ExerciseCategory.ENDURANCE);
+        assertFalse(end.isResistance());
+        assertTrue(end.isEndurance());
+        assertFalse(end.isMobility());
+    }
+
+    @Test
+    void testIsMobility() {
+        Exercise mob = new Exercise();
+        mob.setPrimaryCategory(ExerciseCategory.MOBILITY);
+        assertFalse(mob.isResistance());
+        assertFalse(mob.isEndurance());
+        assertTrue(mob.isMobility());
+    }
+
+    @Test
+    void testIsResistanceEnduranceMobilityWithNullCategory() {
+        Exercise e = new Exercise();
+        assertFalse(e.isResistance());
+        assertFalse(e.isEndurance());
+        assertFalse(e.isMobility());
+    }
+
+    @Test
+    void testHasMatchingMetricsResistance() {
+        Exercise res = new Exercise();
+        res.setPrimaryCategory(ExerciseCategory.RESISTANCE);
+        assertFalse(res.hasMatchingMetrics());
+        res.setResistanceMetrics(new ResistanceMetrics());
+        assertTrue(res.hasMatchingMetrics());
+        res.setResistanceMetrics(null);
+        assertFalse(res.hasMatchingMetrics());
+    }
+
+    @Test
+    void testHasMatchingMetricsEndurance() {
+        Exercise end = new Exercise();
+        end.setPrimaryCategory(ExerciseCategory.ENDURANCE);
+        assertFalse(end.hasMatchingMetrics());
+        end.setEnduranceMetrics(new EnduranceMetrics());
+        assertTrue(end.hasMatchingMetrics());
+    }
+
+    @Test
+    void testHasMatchingMetricsMobility() {
+        Exercise mob = new Exercise();
+        mob.setPrimaryCategory(ExerciseCategory.MOBILITY);
+        assertFalse(mob.hasMatchingMetrics());
+        mob.setMobilityMetrics(new MobilityMetrics());
+        assertTrue(mob.hasMatchingMetrics());
+    }
+
+    @Test
+    void testHasMatchingMetricsNullCategory() {
+        Exercise e = new Exercise();
+        e.setResistanceMetrics(new ResistanceMetrics());
+        assertFalse(e.hasMatchingMetrics());
+    }
+
+    @Test
+    void testHasMatchingMetricsNonPrimaryCategory() {
+        Exercise e = new Exercise();
+        e.setPrimaryCategory(ExerciseCategory.POWER);
+        e.setResistanceMetrics(new ResistanceMetrics());
+        assertFalse(e.hasMatchingMetrics());
+    }
+
+    @Test
+    void testDeactivate() {
+        Exercise e = new Exercise();
+        e.setActive(true);
+        assertTrue(e.isActive());
+        e.deactivate();
+        assertFalse(e.isActive());
+    }
+
+    @Test
+    void testActivate() {
+        Exercise e = new Exercise();
+        e.setActive(false);
+        assertFalse(e.isActive());
+        e.activate();
+        assertTrue(e.isActive());
+    }
 }

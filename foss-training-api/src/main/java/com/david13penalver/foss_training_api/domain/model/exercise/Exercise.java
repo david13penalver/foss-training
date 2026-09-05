@@ -48,4 +48,36 @@ public class Exercise {
     private LocalDateTime updatedAt;
     private boolean isActive; // Soft delete flag
     private List<String> tags; // For search and filtering
+
+    public boolean isResistance() {
+        return primaryCategory == ExerciseCategory.RESISTANCE;
+    }
+
+    public boolean isEndurance() {
+        return primaryCategory == ExerciseCategory.ENDURANCE;
+    }
+
+    public boolean isMobility() {
+        return primaryCategory == ExerciseCategory.MOBILITY;
+    }
+
+    public boolean hasMatchingMetrics() {
+        if (primaryCategory == null) {
+            return false;
+        }
+        return switch (primaryCategory) {
+            case RESISTANCE -> resistanceMetrics != null;
+            case ENDURANCE -> enduranceMetrics != null;
+            case MOBILITY -> mobilityMetrics != null;
+            default -> false;
+        };
+    }
+
+    public void deactivate() {
+        this.isActive = false;
+    }
+
+    public void activate() {
+        this.isActive = true;
+    }
 }

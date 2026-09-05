@@ -12,8 +12,6 @@ import lombok.NoArgsConstructor;
 public abstract class SessionExercise {
 
     private Integer id;
-    private SessionPart sessionPart;
-    private Session session;
     private Exercise exercise;
     private Integer orderIndex;
     private String notes;

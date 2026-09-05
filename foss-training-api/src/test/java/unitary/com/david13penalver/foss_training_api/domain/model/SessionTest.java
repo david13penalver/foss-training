@@ -447,6 +447,26 @@ class SessionTest {
     }
 
     @Test
+    void testSessionPartReorderLeavesUnmatchedExerciseWithNullOrderIndexAtEnd() {
+        SessionPart sessionPart = new SessionPart();
+        SessionExercise ex1 = new SessionExercise() {};
+        ex1.setId(1);
+        SessionExercise ex2 = new SessionExercise() {};
+        ex2.setId(2);
+        sessionPart.addExercise(ex1);
+        sessionPart.addExercise(ex2);
+        ex2.setOrderIndex(null);
+
+        sessionPart.reorderExercises(List.of(1));
+
+        assertEquals(Integer.valueOf(1), ex1.getOrderIndex());
+        assertNull(ex2.getOrderIndex());
+        assertEquals(2, sessionPart.getExercises().size());
+        assertEquals(ex1, sessionPart.getExercises().get(0));
+        assertEquals(ex2, sessionPart.getExercises().get(1));
+    }
+
+    @Test
     void testSessionPartRemoveExercise() {
         SessionPart sessionPart = new SessionPart();
         SessionExercise ex1 = new SessionExercise() {};

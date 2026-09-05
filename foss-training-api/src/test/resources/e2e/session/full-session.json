@@ -1,0 +1,63 @@
+{
+  "name": "Push Day",
+  "description": "Chest and triceps focused workout",
+  "sessionStatus": "PLANNED",
+  "sessionExercises": [
+    {
+      "exerciseType": "resistance",
+      "orderIndex": 1,
+      "exercise": {
+        "name": "Bench Press",
+        "primaryCategory": "RESISTANCE"
+      },
+      "sets": [
+        {
+          "setNumber": 1,
+          "setType": "WARMUP",
+          "weight": { "value": 60.0, "unit": "KG" },
+          "repetitions": 10,
+          "rpe": { "value": 6.0 }
+        },
+        {
+          "setNumber": 2,
+          "setType": "WORKING",
+          "weight": { "value": 100.0, "unit": "KG" },
+          "repetitions": 5,
+          "rpe": { "value": 8.0 },
+          "restSeconds": 120
+        }
+      ]
+    },
+    {
+      "exerciseType": "endurance",
+      "orderIndex": 2,
+      "exercise": {
+        "name": "Interval Run",
+        "primaryCategory": "ENDURANCE"
+      },
+      "intervals": [
+        {
+          "intervalNumber": 1,
+          "distance": { "value": 400.0, "unit": "METERS" },
+          "duration": { "totalSeconds": 90 }
+        }
+      ]
+    },
+    {
+      "exerciseType": "mobility",
+      "orderIndex": 3,
+      "exercise": {
+        "name": "Shoulder Stretch",
+        "primaryCategory": "MOBILITY"
+      },
+      "sets": [
+        {
+          "setNumber": 1,
+          "holdDuration": { "totalSeconds": 30 },
+          "repetitions": 2,
+          "bilateral": true
+        }
+      ]
+    }
+  ]
+}

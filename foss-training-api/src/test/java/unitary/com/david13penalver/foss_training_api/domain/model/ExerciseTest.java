@@ -391,6 +391,19 @@ class ExerciseTest {
     }
 
     @Test
+    void testConstructorAcceptsMobilityWithMobilityMetrics() {
+        LocalDateTime now = LocalDateTime.now();
+        Exercise exercise = new Exercise(
+                1, "Stretch", "Desc", Collections.emptyList(), "url",
+                ExerciseCategory.MOBILITY, Collections.emptyList(), null, null, new MobilityMetrics(),
+                Collections.emptyList(), DifficultyLevel.BEGINNER, Collections.emptyList(),
+                Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
+                "admin", now, now, true, Collections.emptyList());
+        assertNotNull(exercise);
+        assertNotNull(exercise.getMobilityMetrics());
+    }
+
+    @Test
     void testConstructorAllowsNonPrimaryCategoryWithNoMetrics() {
         LocalDateTime now = LocalDateTime.now();
         Exercise exercise = new Exercise(

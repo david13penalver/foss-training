@@ -1,0 +1,6 @@
+{
+  "name": "Interval Run",
+  "description": "Track interval session",
+  "primaryCategory": "ENDURANCE",
+  "equipmentRequired": ["TREADMILL"]
+}

@@ -258,6 +258,15 @@ class SessionExerciseMetricsTest {
     }
 
     @Test
+    void testResistanceSessionExerciseGetHeaviestWeightIgnoresNullWeights() {
+        ResistanceSessionExercise rse = new ResistanceSessionExercise();
+        rse.addSet(new ResistanceSet(null, SetType.WORKING, null, 10, null, null));
+        rse.addSet(new ResistanceSet(null, SetType.WORKING, Weight.kg(80.0), 10, null, null));
+        Weight heaviest = rse.getHeaviestWeight();
+        assertEquals(80.0, heaviest.toKg().getValue(), 0.0001);
+    }
+
+    @Test
     void testResistanceSessionExerciseGetTotalRepsWorkingOnlyWithNullDefault() {
         ResistanceSessionExercise rse = new ResistanceSessionExercise();
         rse.addSet(new ResistanceSet(null, SetType.WARMUP, Weight.kg(40.0), 10, null, null));

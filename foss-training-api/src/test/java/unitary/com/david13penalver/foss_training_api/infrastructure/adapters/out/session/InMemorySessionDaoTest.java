@@ -114,6 +114,11 @@ class InMemorySessionDaoTest {
     }
 
     @Test
+    void deleteById_doesNothing_whenNull() {
+        assertDoesNotThrow(() -> dao.deleteById(null));
+    }
+
+    @Test
     void findAll_returnsAllInInsertionOrder() {
         dao.save(buildSession("Push Day"));
         dao.save(buildSession("Pull Day"));

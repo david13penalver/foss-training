@@ -1,0 +1,8 @@
+{
+  "name": "Barbell Squat",
+  "description": "Compound lower body exercise",
+  "primaryCategory": "RESISTANCE",
+  "difficultyLevel": "INTERMEDIATE",
+  "equipmentRequired": ["BARBELL"],
+  "tags": ["legs", "compound"]
+}

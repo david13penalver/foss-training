@@ -114,6 +114,11 @@ class InMemoryExerciseDaoTest {
     }
 
     @Test
+    void deleteById_doesNothing_whenNull() {
+        assertDoesNotThrow(() -> dao.deleteById(null));
+    }
+
+    @Test
     void findAll_returnsAllInInsertionOrder() {
         dao.save(buildExercise("Squat"));
         dao.save(buildExercise("Bench Press"));

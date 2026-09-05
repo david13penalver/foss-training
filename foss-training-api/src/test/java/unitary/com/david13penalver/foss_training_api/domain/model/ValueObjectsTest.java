@@ -22,6 +22,75 @@ import org.junit.jupiter.api.Test;
 class ValueObjectsTest {
 
     @Test
+    void testEquals_selfReference_returnsTrueForAllVOs() {
+        Weight weight = Weight.kg(50.0);
+        Distance distance = Distance.kilometers(5.0);
+        Duration duration = Duration.minutes(30);
+        Pace pace = Pace.from(distance, duration);
+        Rpe rpe = Rpe.of(8.0);
+        Tempo tempo = Tempo.parse("3-1-1-0");
+
+        assertTrue(weight.equals(weight));
+        assertTrue(distance.equals(distance));
+        assertTrue(duration.equals(duration));
+        assertTrue(pace.equals(pace));
+        assertTrue(rpe.equals(rpe));
+        assertTrue(tempo.equals(tempo));
+    }
+
+    @Test
+    void testEquals_differentClass_returnsFalseForAllVOs() {
+        Weight weight = Weight.kg(50.0);
+        Distance distance = Distance.kilometers(5.0);
+        Duration duration = Duration.minutes(30);
+        Pace pace = Pace.from(distance, duration);
+        Rpe rpe = Rpe.of(8.0);
+        Tempo tempo = Tempo.parse("3-1-1-0");
+
+assertFalse(weight.equals("50kg"));
+        assertFalse(distance.equals("5km"));
+        assertFalse(duration.equals("30min"));
+        assertFalse(pace.equals("6:00"));
+        assertFalse(rpe.equals("8.0"));
+        assertFalse(tempo.equals("3-1-1-0"));
+        assertFalse(weight.equals(new Object()));
+        assertFalse(distance.equals(new Object()));
+        assertFalse(duration.equals(new Object()));
+        assertFalse(pace.equals(new Object()));
+        assertFalse(rpe.equals(new Object()));
+        assertFalse(tempo.equals(new Object()));
+    }
+
+    @Test
+    void testEquals_symmetricForAllVOs() {
+        Weight a = Weight.kg(50.0), b = Weight.kg(50.0);
+        Distance d1 = new Distance(5000.0, DistanceUnit.METERS), d2 = new Distance(5.0, DistanceUnit.KILOMETERS);
+        Duration u1 = Duration.minutes(30), u2 = new Duration(1800);
+        Pace p1 = Pace.from(Distance.kilometers(5.0), u1), p2 = Pace.from(Distance.kilometers(5.0), u2);
+        Rpe r1 = Rpe.of(8.0), r2 = Rpe.of(8.0);
+        Tempo t1 = new Tempo(3, 1, 1, 0), t2 = new Tempo(3, 1, 1, 0);
+
+        assertEquals(a.equals(b), b.equals(a));
+        assertTrue(a.equals(b));
+        assertTrue(b.equals(a));
+        assertEquals(d1.equals(d2), d2.equals(d1));
+        assertTrue(d1.equals(d2));
+        assertTrue(d2.equals(d1));
+        assertEquals(u1.equals(u2), u2.equals(u1));
+        assertTrue(u1.equals(u2));
+        assertTrue(u2.equals(u1));
+        assertEquals(p1.equals(p2), p2.equals(p1));
+        assertTrue(p1.equals(p2));
+        assertTrue(p2.equals(p1));
+        assertEquals(r1.equals(r2), r2.equals(r1));
+        assertTrue(r1.equals(r2));
+        assertTrue(r2.equals(r1));
+        assertEquals(t1.equals(t2), t2.equals(t1));
+        assertTrue(t1.equals(t2));
+        assertTrue(t2.equals(t1));
+    }
+
+    @Test
     void testWeightUnitEnumValues() {
         assertEquals(2, WeightUnit.values().length);
     }
@@ -873,6 +942,21 @@ class ValueObjectsTest {
     @Test
     void testTempoNotEquals() {
         assertNotEquals(new Tempo(3, 1, 1, 0), new Tempo(3, 1, 2, 0));
+    }
+
+    @Test
+    void testTempoNotEqualsDifferentPauseEccentric() {
+        assertNotEquals(new Tempo(3, 1, 1, 0), new Tempo(3, 2, 1, 0));
+    }
+
+    @Test
+    void testTempoNotEqualsDifferentConcentric() {
+        assertNotEquals(new Tempo(3, 1, 1, 0), new Tempo(3, 1, 2, 1));
+    }
+
+    @Test
+    void testTempoNotEqualsDifferentPauseConcentric() {
+        assertNotEquals(new Tempo(3, 1, 1, 0), new Tempo(3, 1, 1, 5));
     }
 
     @Test

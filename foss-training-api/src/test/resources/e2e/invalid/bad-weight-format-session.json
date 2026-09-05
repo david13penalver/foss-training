@@ -1,0 +1,22 @@
+{
+  "name": "Bad Weight Session",
+  "sessionStatus": "DRAFT",
+  "sessionExercises": [
+    {
+      "exerciseType": "resistance",
+      "orderIndex": 1,
+      "exercise": {
+        "name": "Bench Press",
+        "primaryCategory": "RESISTANCE"
+      },
+      "sets": [
+        {
+          "setNumber": 1,
+          "setType": "WORKING",
+          "weight": "heavy",
+          "repetitions": 5
+        }
+      ]
+    }
+  ]
+}

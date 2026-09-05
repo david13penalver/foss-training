@@ -1,0 +1,32 @@
+{
+  "name": "Strength Session",
+  "sessionStatus": "DRAFT",
+  "sessionExercises": [
+    {
+      "exerciseType": "resistance",
+      "orderIndex": 1,
+      "exercise": {
+        "name": "Deadlift",
+        "primaryCategory": "RESISTANCE"
+      },
+      "sets": [
+        {
+          "setNumber": 1,
+          "setType": "WORKING",
+          "weight": { "value": 140.0, "unit": "KG" },
+          "repetitions": 3,
+          "rpe": { "value": 9.0 },
+          "restSeconds": 180
+        },
+        {
+          "setNumber": 2,
+          "setType": "WORKING",
+          "weight": { "value": 140.0, "unit": "KG" },
+          "repetitions": 3,
+          "rpe": { "value": 9.0 },
+          "restSeconds": 180
+        }
+      ]
+    }
+  ]
+}

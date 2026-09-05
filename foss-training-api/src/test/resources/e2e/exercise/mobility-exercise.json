@@ -1,0 +1,9 @@
+{
+  "name": "Hamstring Stretch",
+  "description": "Static hamstring mobility",
+  "primaryCategory": "MOBILITY",
+  "mobilityMetrics": {
+    "mobilityType": "STATIC_STRETCHING",
+    "timing": "POST_WORKOUT"
+  }
+}

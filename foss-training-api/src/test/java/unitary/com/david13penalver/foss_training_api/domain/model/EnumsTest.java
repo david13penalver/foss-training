@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.EnumSet;
+
 import com.david13penalver.foss_training_api.domain.model.exercise.DifficultyLevel;
 import com.david13penalver.foss_training_api.domain.model.exercise.Equipment;
 import com.david13penalver.foss_training_api.domain.model.exercise.ExerciseCategory;
@@ -152,5 +154,126 @@ class EnumsTest {
     void testMuscleCategory() {
         MuscleCategory upperBody = MuscleCategory.UPPER_BODY;
         assertEquals("Upper Body", upperBody.getName());
+    }
+
+    @Test
+    void testEnduranceType_exhaustivePredicates() {
+        for (EnduranceType t : EnduranceType.values()) {
+            boolean highIntensity = t == EnduranceType.HIIT || t == EnduranceType.ANAEROBIC
+                    || t == EnduranceType.SIT || t == EnduranceType.TEMPO;
+            boolean lowIntensity = t == EnduranceType.LISS || t == EnduranceType.AEROBIC
+                    || t == EnduranceType.STEADY_STATE;
+            boolean timeEfficient = t == EnduranceType.SIT || t == EnduranceType.HIIT;
+
+            assertEquals(highIntensity, t.isHighIntensity());
+            assertEquals(lowIntensity, t.isLowIntensity());
+            assertEquals(timeEfficient, t.isTimeEfficient());
+            assertEquals(t, EnduranceType.fromString(t.name()));
+        }
+        assertThrows(IllegalArgumentException.class, () -> EnduranceType.fromString("invalid"));
+    }
+
+    @Test
+    void testEnduranceType_expectsMixedOutcomes() {
+        assertTrue(EnduranceType.HIIT.isHighIntensity());
+        assertFalse(EnduranceType.AEROBIC.isHighIntensity());
+        assertTrue(EnduranceType.LISS.isLowIntensity());
+        assertFalse(EnduranceType.HIIT.isLowIntensity());
+        assertTrue(EnduranceType.SIT.isTimeEfficient());
+        assertFalse(EnduranceType.LISS.isTimeEfficient());
+    }
+
+    @Test
+    void testExerciseCategory_exhaustivePredicates() {
+        for (ExerciseCategory c : ExerciseCategory.values()) {
+            boolean primary = c == ExerciseCategory.RESISTANCE || c == ExerciseCategory.ENDURANCE
+                    || c == ExerciseCategory.MOBILITY;
+            boolean requiresEquipment = c != ExerciseCategory.CALISTHENICS
+                    && c != ExerciseCategory.BALANCE && c != ExerciseCategory.AGILITY
+                    && c != ExerciseCategory.SPEED;
+            boolean performance = c == ExerciseCategory.POWER || c == ExerciseCategory.PLYOMETRICS
+                    || c == ExerciseCategory.SPEED || c == ExerciseCategory.AGILITY
+                    || c == ExerciseCategory.SPORT_SPECIFIC;
+            boolean therapeutic = c == ExerciseCategory.REHABILITATION
+                    || c == ExerciseCategory.STABILIZATION || c == ExerciseCategory.PILATES;
+
+            assertEquals(primary, c.isPrimaryCategory());
+            assertEquals(requiresEquipment, c.requiresEquipment());
+            assertEquals(performance, c.isPerformanceOriented());
+            assertEquals(therapeutic, c.isTherapeutic());
+            assertEquals(c, ExerciseCategory.fromString(c.name()));
+        }
+        assertThrows(IllegalArgumentException.class, () -> ExerciseCategory.fromString("invalid"));
+    }
+
+    @Test
+    void testExerciseCategory_expectsMixedOutcomes() {
+        assertFalse(ExerciseCategory.CALISTHENICS.isPrimaryCategory());
+        assertTrue(ExerciseCategory.RESISTANCE.isPrimaryCategory());
+        assertFalse(ExerciseCategory.SPEED.requiresEquipment());
+        assertTrue(ExerciseCategory.RESISTANCE.requiresEquipment());
+        assertFalse(ExerciseCategory.ISOMETRIC.isPerformanceOriented());
+        assertTrue(ExerciseCategory.POWER.isPerformanceOriented());
+        assertFalse(ExerciseCategory.POWER.isTherapeutic());
+        assertTrue(ExerciseCategory.STABILIZATION.isTherapeutic());
+    }
+
+    @Test
+    void testStretchType_exhaustivePredicates() {
+        for (StretchType s : StretchType.values()) {
+            boolean warmup = s == StretchType.DYNAMIC || s == StretchType.ACTIVE;
+            boolean cooldown = s == StretchType.STATIC || s == StretchType.PNF
+                    || s == StretchType.PASSIVE;
+
+            assertEquals(warmup, s.isRecommendedForWarmup());
+            assertEquals(cooldown, s.isRecommendedForCooldown());
+            assertEquals(s, StretchType.fromString(s.name()));
+        }
+        assertThrows(IllegalArgumentException.class, () -> StretchType.fromString("invalid"));
+    }
+
+    @Test
+    void testMovementPattern_exhaustivePredicates() {
+        EnumSet<MovementPattern> compound = EnumSet.of(MovementPattern.PUSH, MovementPattern.PULL,
+                MovementPattern.SQUAT, MovementPattern.HINGE, MovementPattern.LUNGE,
+                MovementPattern.COMPOUND);
+
+        for (MovementPattern p : MovementPattern.values()) {
+            assertEquals(compound.contains(p), p.isCompound());
+            assertEquals(p, MovementPattern.fromString(p.name()));
+        }
+        assertThrows(IllegalArgumentException.class, () -> MovementPattern.fromString("invalid"));
+    }
+
+    @Test
+    void testMovementPattern_expectsMixedOutcomes() {
+        assertTrue(MovementPattern.PUSH.isCompound());
+        assertFalse(MovementPattern.ISOLATION.isCompound());
+        assertFalse(MovementPattern.CARRY.isCompound());
+    }
+
+    @Test
+    void testDifficultyLevel_exhaustive() {
+        assertTrue(DifficultyLevel.BEGINNER.isEasierThan(DifficultyLevel.EXPERT));
+        assertTrue(DifficultyLevel.EXPERT.isHarderThan(DifficultyLevel.BEGINNER));
+        assertFalse(DifficultyLevel.BEGINNER.isHarderThan(DifficultyLevel.BEGINNER));
+        assertFalse(DifficultyLevel.BEGINNER.isEasierThan(DifficultyLevel.BEGINNER));
+
+        for (DifficultyLevel d : DifficultyLevel.values()) {
+            assertEquals(d, DifficultyLevel.fromLevel(d.getLevel()));
+            assertEquals(d, DifficultyLevel.fromString(d.name()));
+        }
+        assertThrows(IllegalArgumentException.class, () -> DifficultyLevel.fromString("invalid"));
+    }
+
+    @Test
+    void testEquipment_exhaustiveRoundTrip() {
+        for (Equipment e : Equipment.values()) {
+            assertNotNull(e.getName());
+            assertNotNull(e.getDescription());
+            assertNotNull(e.getCategory());
+            assertEquals(e, Equipment.fromString(e.name()));
+        }
+        assertThrows(IllegalArgumentException.class, () -> Equipment.fromString("invalid"));
     }
 }

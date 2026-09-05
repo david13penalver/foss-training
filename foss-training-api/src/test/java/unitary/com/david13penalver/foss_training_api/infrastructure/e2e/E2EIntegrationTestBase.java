@@ -12,7 +12,8 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.resttestclient.TestRestTemplate;
+import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpEntity;
@@ -29,6 +30,7 @@ import com.jayway.jsonpath.JsonPath;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         classes = FossTrainingApiApplication.class)
+@AutoConfigureTestRestTemplate
 public abstract class E2EIntegrationTestBase {
 
     private static final HttpHeaders JSON_HEADERS = new HttpHeaders();

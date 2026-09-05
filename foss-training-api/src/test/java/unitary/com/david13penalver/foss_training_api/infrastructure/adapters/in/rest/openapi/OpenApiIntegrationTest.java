@@ -11,7 +11,7 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -75,20 +75,41 @@ class OpenApiIntegrationTest {
         Map<String, Object> doc = MAPPER.readValue(body, new TypeReference<>() {});
         Map<String, Object> schemas = cast(cast(doc.get("components")).get("schemas"));
 
-        Map<String, Object> sessionPart = cast(schemas.get("SessionPart"));
-        assertTrue(sessionPart.containsKey("properties"), "SessionPart should expose its properties");
-
         Map<String, Object> sessionExercise = cast(schemas.get("SessionExercise"));
         Map<String, Object> discriminator = cast(sessionExercise.get("discriminator"));
         assertEquals("exerciseType", discriminator.get("propertyName"));
-        List<?> oneOf = (List<?>) sessionExercise.get("oneOf");
-        assertEquals(3, oneOf.size());
+
+        Map<String, Object> sessionProperties = cast(cast(schemas.get("Session")).get("properties"));
+        List<?> oneOf = (List<?>) ((Map<?, ?>) ((Map<?, ?>) sessionProperties.get("sessionExercises"))
+                .get("items")).get("oneOf");
+        assertEquals(3, oneOf.size(), "Session.sessionExercises should reference the three subtypes via oneOf");
 
         assertTrue(schemas.containsKey("ResistanceSessionExercise"));
         assertTrue(schemas.containsKey("EnduranceSessionExercise"));
         assertTrue(schemas.containsKey("MobilitySessionExercise"));
-        assertTrue(schemas.containsKey("Exercise"));
-        assertTrue(schemas.containsKey("Session"));
+
+        Map<String, Object> resistance = cast(schemas.get("ResistanceSessionExercise"));
+        List<?> allOf = (List<?>) resistance.get("allOf");
+        assertEquals("#/components/schemas/SessionExercise", ((Map<?, ?>) allOf.getFirst()).get("$ref"),
+                "ResistanceSessionExercise should inherit from SessionExercise via allOf");
+        assertTrue(refersTo((Map<?, ?>) allOf.get(1), "ResistanceSet"),
+                "ResistanceSessionExercise should carry its own sets property");
+    }
+
+    private static boolean refersTo(Map<?, ?> node, String schemaName) {
+        Object ref = node.get("$ref");
+        if (ref != null) {
+            return ref.equals("#/components/schemas/" + schemaName);
+        }
+        Object properties = node.get("properties");
+        if (properties instanceof Map<?, ?> map) {
+            for (Object value : map.values()) {
+                if (value instanceof Map<?, ?> nested && refersTo(nested, schemaName)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     @Test

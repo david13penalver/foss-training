@@ -11,7 +11,7 @@ Single-module Maven project at `foss-training-api/`. Future modules (frontend/KM
 ./mvnw test -Dtest=ExerciseTest  # single test class
 ```
 
-Java 21 target (JDK 26 runtime), Spring Boot 3.4.4, Maven wrapper (`mvnw`).
+Java 26 target (JDK 26), Spring Boot 3.4.4, Maven wrapper (`mvnw`).
 
 ## Architecture (Hexagonal / Ports & Adapters)
 

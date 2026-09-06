@@ -19,7 +19,11 @@ import com.david13penalver.foss_training_api.application.usecases.session.FindSe
 import com.david13penalver.foss_training_api.application.usecases.session.SaveSessionUseCase;
 import com.david13penalver.foss_training_api.application.usecases.session.SessionExistsUseCase;
 import com.david13penalver.foss_training_api.domain.model.session.Session;
+import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.session.SessionDtoMapper;
+import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.session.SessionRequestDto;
+import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.session.SessionResponseDto;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -32,31 +36,35 @@ public class SessionRestController {
     private final SaveSessionUseCase saveSessionUseCase;
     private final DeleteSessionUseCase deleteSessionUseCase;
     private final SessionExistsUseCase sessionExistsUseCase;
+    private final SessionDtoMapper sessionDtoMapper;
 
     @GetMapping
-    public ResponseEntity<List<Session>> getAllSessions() {
+    public ResponseEntity<List<SessionResponseDto>> getAllSessions() {
         List<Session> sessions = findAllSessionsUseCase.execute();
-        return ResponseEntity.ok(sessions);
+        return ResponseEntity.ok(sessionDtoMapper.toResponseDtoList(sessions));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Session> getSessionById(@PathVariable Integer id) {
+    public ResponseEntity<SessionResponseDto> getSessionById(@PathVariable Integer id) {
         Optional<Session> session = findSessionByIdUseCase.execute(id);
-        return session.map(ResponseEntity::ok)
+        return session.map(sessionDtoMapper::toResponseDto)
+                      .map(ResponseEntity::ok)
                       .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ResponseEntity<Session> createSession(@RequestBody Session session) {
+    public ResponseEntity<SessionResponseDto> createSession(@Valid @RequestBody SessionRequestDto requestDto) {
+        Session session = sessionDtoMapper.toEntity(requestDto);
         Session savedSession = saveSessionUseCase.execute(session);
-        return ResponseEntity.ok(savedSession);
+        return ResponseEntity.ok(sessionDtoMapper.toResponseDto(savedSession));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Session> updateSession(@PathVariable Integer id, @RequestBody Session session) {
-        session.setId(id);
+    public ResponseEntity<SessionResponseDto> updateSession(@PathVariable Integer id, @Valid @RequestBody SessionRequestDto requestDto) {
+        requestDto.setId(id);
+        Session session = sessionDtoMapper.toEntity(requestDto);
         Session savedSession = saveSessionUseCase.execute(session);
-        return ResponseEntity.ok(savedSession);
+        return ResponseEntity.ok(sessionDtoMapper.toResponseDto(savedSession));
     }
 
     @DeleteMapping("/{id}")

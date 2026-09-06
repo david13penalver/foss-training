@@ -106,17 +106,17 @@ class ExerciseE2ETest extends E2EIntegrationTestBase {
     }
 
     @Test
-    void createExercise_withBlankName_isAccepted_currentBehavior() {
+    void createExercise_withBlankName_returns400() {
         ResponseEntity<String> response = post(BASE, fixture("invalid/blank-name-exercise.json"));
 
-        assertStatus(response, 200);
+        assertStatus(response, 400);
     }
 
     @Test
-    void createExercise_withoutPrimaryCategory_isAccepted_currentBehavior() {
+    void createExercise_withoutPrimaryCategory_returns400() {
         ResponseEntity<String> response = post(BASE, fixture("invalid/null-category-exercise.json"));
 
-        assertStatus(response, 200);
+        assertStatus(response, 400);
     }
 
     @Test

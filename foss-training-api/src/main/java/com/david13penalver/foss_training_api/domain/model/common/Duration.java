@@ -2,16 +2,11 @@ package com.david13penalver.foss_training_api.domain.model.common;
 
 import java.util.Objects;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 public final class Duration implements Comparable<Duration> {
 
     private final int totalSeconds;
 
-    @JsonCreator
-    public Duration(@JsonProperty("totalSeconds") int totalSeconds) {
+    public Duration(int totalSeconds) {
         if (totalSeconds < 0) {
             throw new IllegalArgumentException("Duration cannot be negative: " + totalSeconds);
         }
@@ -38,12 +33,10 @@ public final class Duration implements Comparable<Duration> {
         return totalSeconds;
     }
 
-    @JsonIgnore
     public int getMinutes() {
         return totalSeconds / 60;
     }
 
-    @JsonIgnore
     public int getHours() {
         return totalSeconds / 3600;
     }

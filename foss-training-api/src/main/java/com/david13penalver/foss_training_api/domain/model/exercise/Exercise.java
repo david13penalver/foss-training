@@ -7,7 +7,6 @@ import com.david13penalver.foss_training_api.domain.model.exercise.endurance.End
 import com.david13penalver.foss_training_api.domain.model.exercise.mobility.MobilityMetrics;
 import com.david13penalver.foss_training_api.domain.model.exercise.resistance.ResistanceMetrics;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -49,11 +48,6 @@ public class Exercise {
     private boolean isActive; // Soft delete flag
     private List<String> tags; // For search and filtering
 
-    // Jackson 3 auto-detects this as an implicit creator and would re-enable
-    // constructor validation during JSON binding (metrics required per category)
-    // plus reject id-stub references. Excluding it restores the lenient
-    // @NoArgsConstructor + setter binding used since Jackson 2.
-    @JsonIgnore
     public Exercise(Integer id, String name, String description, List<String> images, String video,
             ExerciseCategory primaryCategory, List<ExerciseCategory> secondaryCategories,
             ResistanceMetrics resistanceMetrics, EnduranceMetrics enduranceMetrics, MobilityMetrics mobilityMetrics,

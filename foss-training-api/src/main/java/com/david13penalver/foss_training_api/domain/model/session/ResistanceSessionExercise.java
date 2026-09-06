@@ -7,8 +7,6 @@ import java.util.List;
 import com.david13penalver.foss_training_api.domain.model.common.Weight;
 import com.david13penalver.foss_training_api.domain.model.common.WeightUnit;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -40,7 +38,6 @@ public class ResistanceSessionExercise extends SessionExercise {
     /**
      * Returns the total number of sets.
      */
-    @JsonIgnore
     public int getTotalSetsCount() {
         return sets.size();
     }
@@ -48,7 +45,6 @@ public class ResistanceSessionExercise extends SessionExercise {
     /**
      * Returns the number of working (non-warmup) sets.
      */
-    @JsonIgnore
     public int getWorkingSetsCount() {
         return (int) sets.stream()
                 .filter(ResistanceSet::isWorkingVolume)
@@ -72,7 +68,6 @@ public class ResistanceSessionExercise extends SessionExercise {
      *
      * @return the heaviest Weight, or Weight.zero(KG) if no sets
      */
-    @JsonIgnore
     public Weight getHeaviestWeight() {
         return sets.stream()
                 .map(ResistanceSet::getWeight)
@@ -84,7 +79,6 @@ public class ResistanceSessionExercise extends SessionExercise {
     /**
      * Returns the total number of repetitions across all working sets.
      */
-    @JsonIgnore
     public int getTotalReps() {
         return sets.stream()
                 .filter(ResistanceSet::isWorkingVolume)

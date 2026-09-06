@@ -1,6 +1,5 @@
 package com.david13penalver.foss_training_api.domain.model.session;
 
-import com.fasterxml.jackson.annotation.JsonValue;
 
 import lombok.Getter;
 
@@ -149,10 +148,5 @@ public enum SessionStatusEnum {
     @Override
     public String toString() {
         return this.name;
-    }
-
-    @JsonValue
-    public String getSerializationValue() {
-        return name();
     }
 }

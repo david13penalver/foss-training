@@ -101,6 +101,10 @@ class OpenApiIntegrationTest {
         if (ref != null) {
             return ref.equals("#/components/schemas/" + schemaName);
         }
+        Object items = node.get("items");
+        if (items instanceof Map<?, ?> itemsMap && refersTo(itemsMap, schemaName)) {
+            return true;
+        }
         Object properties = node.get("properties");
         if (properties instanceof Map<?, ?> map) {
             for (Object value : map.values()) {

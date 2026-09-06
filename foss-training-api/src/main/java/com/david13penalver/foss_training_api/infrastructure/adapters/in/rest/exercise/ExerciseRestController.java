@@ -19,7 +19,11 @@ import com.david13penalver.foss_training_api.application.usecases.exercise.exerc
 import com.david13penalver.foss_training_api.application.usecases.exercise.exercise.FindExerciseByIdUseCase;
 import com.david13penalver.foss_training_api.application.usecases.exercise.exercise.SaveExerciseUseCase;
 import com.david13penalver.foss_training_api.domain.model.exercise.Exercise;
+import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.exercise.ExerciseDtoMapper;
+import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.exercise.ExerciseRequestDto;
+import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.exercise.ExerciseResponseDto;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -32,32 +36,35 @@ public class ExerciseRestController {
     private final SaveExerciseUseCase saveExerciseUseCase;
     private final DeleteExerciseUseCase deleteExerciseUseCase;
     private final ExerciseExistsUseCase exerciseExistsUseCase;
+    private final ExerciseDtoMapper exerciseDtoMapper;
 
     @GetMapping
-    public ResponseEntity<List<Exercise>> getAllExercises() {
+    public ResponseEntity<List<ExerciseResponseDto>> getAllExercises() {
         List<Exercise> exercises = findAllExercisesUseCase.execute();
-        return ResponseEntity.ok(exercises);
+        return ResponseEntity.ok(exerciseDtoMapper.toResponseDtoList(exercises));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Exercise> getExerciseById(@PathVariable Integer id) {
+    public ResponseEntity<ExerciseResponseDto> getExerciseById(@PathVariable Integer id) {
         Optional<Exercise> exercise = findExerciseByIdUseCase.execute(id);
-        return exercise.map(ResponseEntity::ok)
+        return exercise.map(exerciseDtoMapper::toResponseDto)
+                      .map(ResponseEntity::ok)
                       .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ResponseEntity<Exercise> createExercise(@RequestBody Exercise exercise) {
+    public ResponseEntity<ExerciseResponseDto> createExercise(@Valid @RequestBody ExerciseRequestDto requestDto) {
+        Exercise exercise = exerciseDtoMapper.toEntity(requestDto);
         Exercise savedExercise = saveExerciseUseCase.execute(exercise);
-        return ResponseEntity.ok(savedExercise);
+        return ResponseEntity.ok(exerciseDtoMapper.toResponseDto(savedExercise));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Exercise> updateExercise(@PathVariable Integer id, @RequestBody Exercise exercise) {
-        // Set the ID from the path variable to ensure we're updating the correct entity
-        exercise.setId(id);
+    public ResponseEntity<ExerciseResponseDto> updateExercise(@PathVariable Integer id, @Valid @RequestBody ExerciseRequestDto requestDto) {
+        requestDto.setId(id);
+        Exercise exercise = exerciseDtoMapper.toEntity(requestDto);
         Exercise savedExercise = saveExerciseUseCase.execute(exercise);
-        return ResponseEntity.ok(savedExercise);
+        return ResponseEntity.ok(exerciseDtoMapper.toResponseDto(savedExercise));
     }
 
     @DeleteMapping("/{id}")

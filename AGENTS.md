@@ -22,18 +22,18 @@ domain/          — pure Java, no framework annotations
 application/     — depends on domain only
   usecases/      — single-action use case interfaces (inbound ports) + service impls (e.g. SaveExerciseUseCase & impl/SaveExerciseService)
 infrastructure/  — framework glue (Spring, JPA, etc.)
-  adapters/in/rest/   — @RestController classes
+  adapters/in/rest/   — @RestController classes and DTOs (dto/)
   adapters/out/       — @Repository impls delegating to in-memory DAOs
-  configuration/      — @Configuration beans (currently empty)
+  configuration/      — @Configuration beans (Jackson, OpenAPI)
 ```
 
-**Conventions**: Inbound use cases are interfaces in `usecases/<entity>/` (e.g. `SaveExerciseUseCase`) with service implementations under `usecases/<entity>/impl/` (e.g. `SaveExerciseService`). Controllers inject use case interfaces. Domain layer must not import Spring/DB annotations.
+**Conventions**: Inbound use cases are interfaces in `usecases/<entity>/` (e.g. `SaveExerciseUseCase`) with service implementations under `usecases/<entity>/impl/` (e.g. `SaveExerciseService`). Controllers inject use case interfaces and map to/from DTOs using Mappers in `dto/`. Domain layer is pure Java without any Spring, DB, or Jackson framework annotations.
 
 ## Quirks & gotchas
 
 - **Test packages** use `package unitary.com.david13penalver...` (not the standard `src/test/java/com/...` convention). Because the test package differs from the production package, tests MUST import the classes under test explicitly (no same-package access). Controller/DAO integration tests that live outside `com.david13penalver...` also need `@SpringBootTest(classes = FossTrainingApiApplication.class)` — Spring can't auto-discover `@SpringBootConfiguration` from the `unitary` package.
 - **In-memory DAOs** back the repository adapters (`InMemoryExerciseDao`, `InMemorySessionDao` — `@Component`, `LinkedHashMap` + `AtomicInteger`, synchronized methods). They simulate the future PostgreSQL DB; `save()` assigns an ID when null and upserts otherwise. Repository impls (`@Repository`) delegate to the DAO. **Do not mock the concrete DAO classes** with Mockito inline mocks — they cannot be instrumented on JDK 26; use real instances or mock the port interface.
-- **Jackson annotations live in the domain** (JSON crosses the HTTP boundary directly, no DTO layer yet): abstract `SessionExercise` uses `@JsonTypeInfo`/`@JsonSubTypes` with discriminator `exerciseType` (resistance/endurance/mobility); immutable value objects (`Weight`, `Rpe`, `Distance`, `Duration`, `Pace`) carry `@JsonCreator`/`@JsonProperty` on constructors, and derived getters (`Duration.getMinutes/getHours`, `*SessionExercise.getTotalSetsCount`/`getWorkingSetsCount`/`getTotalReps`/`getHeaviestWeight`/`getIntervalsCount`) are `@JsonIgnore`d so GET output round-trips through strict POST deserialization.
+- **DTOs decouple the domain from Jackson**: Request and response DTOs in `infrastructure/adapters/in/rest/dto/` carry Bean Validation (`@Valid`, `@NotBlank`, `@NotNull`), Jackson annotations (`@JsonTypeInfo`, `@JsonSubTypes`), and OpenAPI schemas (`@Schema`). Mappers (`ExerciseDtoMapper`, `SessionDtoMapper`) handle domain translation. The domain layer has zero Jackson dependencies.
 - **Enums serialize as their `name()`** by default; `@Getter`-generated display fields (`getName`, etc.) make GET output noisy but are ignored on deserialization. Enum endpoints return plain name strings (e.g. `GET /api/equipment` → `["BODYWEIGHT", ...]`).
 - **Lombok** is used extensively (`@Data`, `@AllArgsConstructor`, `@NoArgsConstructor`, `@RequiredArgsConstructor`, `@Slf4j`). Needs annotation processor configured in IDE. Lombok version is explicitly overridden to 1.18.46 in `pom.xml` for JDK 26 compatibility.
 - **application.properties** only has `spring.application.name`; most config (DB connection, etc.) is absent.

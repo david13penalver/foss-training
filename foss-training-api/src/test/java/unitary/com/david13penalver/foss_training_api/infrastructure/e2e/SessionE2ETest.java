@@ -15,9 +15,11 @@ class SessionE2ETest extends E2EIntegrationTestBase {
     void createSession_withAllExerciseTypes_roundTrips() {
         ResponseEntity<String> response = post(BASE, fixture("session/full-session.json"));
 
-        assertStatus(response, 200);
+        assertStatus(response, 201);
+        int id = jsonInt(response.getBody(), "$.id");
+        assertTrue(id > 0);
+        assertEquals("/api/sessions/" + id, response.getHeaders().getLocation().getPath());
         assertEquals("Push Day", jsonString(response.getBody(), "$.name"));
-        assertTrue(jsonInt(response.getBody(), "$.id") > 0);
         assertEquals(3, jsonArraySize(response.getBody(), "$.sessionExercises"));
         assertEquals("resistance", jsonString(response.getBody(), "$.sessionExercises[0].exerciseType"));
         assertEquals("endurance", jsonString(response.getBody(), "$.sessionExercises[1].exerciseType"));
@@ -71,6 +73,14 @@ class SessionE2ETest extends E2EIntegrationTestBase {
 
         ResponseEntity<String> fetched = get(BASE + "/" + id);
         assertEquals("Push Day", jsonString(fetched.getBody(), "$.name"));
+    }
+
+    @Test
+    void updateSession_withUnknownId_returns404() {
+        ResponseEntity<String> response = put(BASE + "/999",
+                fixture("session/full-session.json"));
+
+        assertStatus(response, 404);
     }
 
     @Test

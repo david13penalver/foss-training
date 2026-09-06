@@ -46,7 +46,8 @@ class ExerciseControllerIntegrationTest {
         mockMvc.perform(post("/api/exercises")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
+                .andExpect(header().string("Location", "/api/exercises/1"))
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.name").value("Squat"))
                 .andExpect(jsonPath("$.primaryCategory").value("RESISTANCE"));
@@ -125,6 +126,18 @@ class ExerciseControllerIntegrationTest {
         assertExists("1", true);
     }
 
+    @Test
+    void updateExercise_whenNotFound_returns404() throws Exception {
+        String body = """
+                {"name":"Unknown","primaryCategory":"RESISTANCE"}
+                """;
+
+        mockMvc.perform(put("/api/exercises/999")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isNotFound());
+    }
+
     private void createExercise() throws Exception {
         createExercise("Squat", "RESISTANCE");
     }
@@ -136,7 +149,7 @@ class ExerciseControllerIntegrationTest {
         mockMvc.perform(post("/api/exercises")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
     }
 
     private void assertExists(String id, boolean expected) throws Exception {

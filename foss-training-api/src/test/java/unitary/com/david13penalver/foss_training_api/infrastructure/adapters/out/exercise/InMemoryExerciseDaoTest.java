@@ -141,4 +141,28 @@ class InMemoryExerciseDaoTest {
         assertTrue(dao.findAll().isEmpty());
         assertEquals(1, dao.save(buildExercise("Squat")).getId());
     }
+
+    @Test
+    void save_withExplicitId_updatesSequenceToPreventCollision() {
+        Exercise explicit = buildExercise("Overhead Press");
+        explicit.setId(10);
+        dao.save(explicit);
+
+        Exercise nextAuto = dao.save(buildExercise("Squat"));
+        assertEquals(11, nextAuto.getId());
+    }
+
+    @Test
+    void save_withSmallerExplicitId_doesNotLowerSequence() {
+        Exercise first = dao.save(buildExercise("Squat"));
+        Exercise second = dao.save(buildExercise("Bench Press"));
+        assertEquals(2, second.getId());
+
+        Exercise explicit = buildExercise("Old Exercise");
+        explicit.setId(1);
+        dao.save(explicit);
+
+        Exercise nextAuto = dao.save(buildExercise("Deadlift"));
+        assertEquals(3, nextAuto.getId());
+    }
 }

@@ -1,5 +1,6 @@
 package com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.session;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
@@ -56,11 +57,15 @@ public class SessionRestController {
     public ResponseEntity<SessionResponseDto> createSession(@Valid @RequestBody SessionRequestDto requestDto) {
         Session session = sessionDtoMapper.toEntity(requestDto);
         Session savedSession = saveSessionUseCase.execute(session);
-        return ResponseEntity.ok(sessionDtoMapper.toResponseDto(savedSession));
+        URI location = URI.create("/api/sessions/" + savedSession.getId());
+        return ResponseEntity.created(location).body(sessionDtoMapper.toResponseDto(savedSession));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<SessionResponseDto> updateSession(@PathVariable Integer id, @Valid @RequestBody SessionRequestDto requestDto) {
+        if (!sessionExistsUseCase.execute(id)) {
+            return ResponseEntity.notFound().build();
+        }
         requestDto.setId(id);
         Session session = sessionDtoMapper.toEntity(requestDto);
         Session savedSession = saveSessionUseCase.execute(session);

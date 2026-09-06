@@ -15,9 +15,11 @@ class ExerciseE2ETest extends E2EIntegrationTestBase {
     void createExercise_persistsAndEchoesBody() {
         ResponseEntity<String> response = post(BASE, fixture("exercise/resistance-exercise.json"));
 
-        assertStatus(response, 200);
+        assertStatus(response, 201);
+        int id = jsonInt(response.getBody(), "$.id");
+        assertTrue(id > 0);
+        assertEquals("/api/exercises/" + id, response.getHeaders().getLocation().getPath());
         assertEquals("Barbell Squat", jsonString(response.getBody(), "$.name"));
-        assertTrue(jsonInt(response.getBody(), "$.id") > 0);
         assertEquals("RESISTANCE", jsonString(response.getBody(), "$.primaryCategory"));
     }
 
@@ -67,15 +69,11 @@ class ExerciseE2ETest extends E2EIntegrationTestBase {
     }
 
     @Test
-    void updateExercise_withUnknownId_createsEntity() {
+    void updateExercise_withUnknownId_returns404() {
         ResponseEntity<String> response = put(BASE + "/999",
                 fixture("exercise/resistance-exercise.json"));
 
-        assertStatus(response, 200);
-        assertEquals(999, jsonInt(response.getBody(), "$.id"));
-
-        ResponseEntity<String> fetched = get(BASE + "/999");
-        assertStatus(fetched, 200);
+        assertStatus(response, 404);
     }
 
     @Test
@@ -146,7 +144,7 @@ class ExerciseE2ETest extends E2EIntegrationTestBase {
     void stressCreate_readsBackAll() {
         for (int i = 0; i < 20; i++) {
             String body = String.format("{\"name\":\"Exercise %d\",\"primaryCategory\":\"RESISTANCE\"}", i);
-            assertStatus(post(BASE, body), 200);
+            assertStatus(post(BASE, body), 201);
         }
 
         ResponseEntity<String> response = get(BASE);

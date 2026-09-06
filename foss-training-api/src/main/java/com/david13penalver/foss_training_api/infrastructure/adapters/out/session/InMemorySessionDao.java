@@ -31,6 +31,8 @@ public class InMemorySessionDao {
     public synchronized Session save(Session session) {
         if (session.getId() == null) {
             session.setId(sequence.incrementAndGet());
+        } else {
+            sequence.accumulateAndGet(session.getId(), Math::max);
         }
         store.put(session.getId(), session);
         return session;

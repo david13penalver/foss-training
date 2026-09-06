@@ -1,5 +1,6 @@
 package com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.exercise;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
@@ -56,11 +57,15 @@ public class ExerciseRestController {
     public ResponseEntity<ExerciseResponseDto> createExercise(@Valid @RequestBody ExerciseRequestDto requestDto) {
         Exercise exercise = exerciseDtoMapper.toEntity(requestDto);
         Exercise savedExercise = saveExerciseUseCase.execute(exercise);
-        return ResponseEntity.ok(exerciseDtoMapper.toResponseDto(savedExercise));
+        URI location = URI.create("/api/exercises/" + savedExercise.getId());
+        return ResponseEntity.created(location).body(exerciseDtoMapper.toResponseDto(savedExercise));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ExerciseResponseDto> updateExercise(@PathVariable Integer id, @Valid @RequestBody ExerciseRequestDto requestDto) {
+        if (!exerciseExistsUseCase.execute(id)) {
+            return ResponseEntity.notFound().build();
+        }
         requestDto.setId(id);
         Exercise exercise = exerciseDtoMapper.toEntity(requestDto);
         Exercise savedExercise = saveExerciseUseCase.execute(exercise);

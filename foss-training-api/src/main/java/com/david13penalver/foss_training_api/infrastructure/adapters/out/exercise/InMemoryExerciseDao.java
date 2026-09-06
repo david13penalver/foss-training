@@ -31,6 +31,8 @@ public class InMemoryExerciseDao {
     public synchronized Exercise save(Exercise exercise) {
         if (exercise.getId() == null) {
             exercise.setId(sequence.incrementAndGet());
+        } else {
+            sequence.accumulateAndGet(exercise.getId(), Math::max);
         }
         store.put(exercise.getId(), exercise);
         return exercise;

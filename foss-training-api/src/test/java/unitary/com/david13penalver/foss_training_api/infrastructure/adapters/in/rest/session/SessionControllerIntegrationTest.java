@@ -60,7 +60,8 @@ class SessionControllerIntegrationTest {
         mockMvc.perform(post("/api/sessions")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
+                .andExpect(header().string("Location", "/api/sessions/1"))
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.name").value("Push Day"))
                 .andExpect(jsonPath("$.sessionExercises[0].exerciseType").value("resistance"))
@@ -109,7 +110,8 @@ class SessionControllerIntegrationTest {
         mockMvc.perform(post("/api/sessions")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
+                .andExpect(header().string("Location", "/api/sessions/1"))
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.sessionExercises.length()").value(3))
                 .andExpect(jsonPath("$.sessionExercises[1].exerciseType").value("endurance"))
@@ -194,6 +196,18 @@ class SessionControllerIntegrationTest {
         assertExists("1", true);
     }
 
+    @Test
+    void updateSession_whenNotFound_returns404() throws Exception {
+        String body = """
+                {"name":"Unknown Session"}
+                """;
+
+        mockMvc.perform(put("/api/sessions/999")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isNotFound());
+    }
+
     private void createSession() throws Exception {
         String body = """
                 {
@@ -214,7 +228,7 @@ class SessionControllerIntegrationTest {
         mockMvc.perform(post("/api/sessions")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
     }
 
     private void assertExists(String id, boolean expected) throws Exception {

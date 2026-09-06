@@ -141,4 +141,28 @@ class InMemorySessionDaoTest {
         assertTrue(dao.findAll().isEmpty());
         assertEquals(1, dao.save(buildSession("Push Day")).getId());
     }
+
+    @Test
+    void save_withExplicitId_updatesSequenceToPreventCollision() {
+        Session explicit = buildSession("Leg Day");
+        explicit.setId(10);
+        dao.save(explicit);
+
+        Session nextAuto = dao.save(buildSession("Push Day"));
+        assertEquals(11, nextAuto.getId());
+    }
+
+    @Test
+    void save_withSmallerExplicitId_doesNotLowerSequence() {
+        Session first = dao.save(buildSession("Push Day"));
+        Session second = dao.save(buildSession("Pull Day"));
+        assertEquals(2, second.getId());
+
+        Session explicit = buildSession("Old Workout");
+        explicit.setId(1);
+        dao.save(explicit);
+
+        Session nextAuto = dao.save(buildSession("Leg Day"));
+        assertEquals(3, nextAuto.getId());
+    }
 }

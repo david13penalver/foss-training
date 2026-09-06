@@ -33,8 +33,9 @@ class CrossEntityWorkflowE2ETest extends E2EIntegrationTestBase {
                 """.formatted(squatId, runId, stretchId);
 
         ResponseEntity<String> created = post("/api/sessions", sessionBody);
-        assertStatus(created, 200);
+        assertStatus(created, 201);
         int sessionId = jsonInt(created.getBody(), "$.id");
+        assertEquals("/api/sessions/" + sessionId, created.getHeaders().getLocation().getPath());
 
         ResponseEntity<String> fetched = get("/api/sessions/" + sessionId);
         assertStatus(fetched, 200);

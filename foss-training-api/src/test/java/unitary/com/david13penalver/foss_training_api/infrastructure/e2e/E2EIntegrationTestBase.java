@@ -54,12 +54,18 @@ public abstract class E2EIntegrationTestBase {
     @Autowired(required = false)
     private com.david13penalver.foss_training_api.infrastructure.adapters.out.training.InMemoryTrainingDao trainingDao;
 
+    @Autowired(required = false)
+    private com.david13penalver.foss_training_api.infrastructure.adapters.out.program.InMemoryTrainingProgramDao programDao;
+
     @BeforeEach
     void resetDatabases() {
         exerciseDao.clear();
         sessionDao.clear();
         if (trainingDao != null) {
             trainingDao.clear();
+        }
+        if (programDao != null) {
+            programDao.clear();
         }
     }
 

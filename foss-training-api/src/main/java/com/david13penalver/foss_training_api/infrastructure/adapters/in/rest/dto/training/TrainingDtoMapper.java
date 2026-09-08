@@ -1,0 +1,82 @@
+package com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.training;
+
+import java.util.List;
+
+import org.springframework.stereotype.Component;
+
+import com.david13penalver.foss_training_api.domain.model.common.Duration;
+import com.david13penalver.foss_training_api.domain.model.common.Rpe;
+import com.david13penalver.foss_training_api.domain.model.training.Training;
+import com.david13penalver.foss_training_api.domain.model.training.TrainingStatusEnum;
+import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.common.DurationDto;
+import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.common.RpeDto;
+import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.session.SessionDtoMapper;
+
+import lombok.RequiredArgsConstructor;
+
+@Component
+@RequiredArgsConstructor
+public class TrainingDtoMapper {
+
+    private final SessionDtoMapper sessionDtoMapper;
+
+    public Training toEntity(TrainingRequestDto dto) {
+        if (dto == null) {
+            return null;
+        }
+        Training training = new Training();
+        training.setId(dto.getId());
+        training.setName(dto.getName());
+        training.setDescription(dto.getDescription());
+        if (dto.getSession() != null) {
+            training.setSession(sessionDtoMapper.toEntity(dto.getSession()));
+        }
+        training.setTrainingDate(dto.getTrainingDate());
+        training.setStartTime(dto.getStartTime());
+        training.setEndTime(dto.getEndTime());
+        training.setStatus(dto.getStatus() != null ? dto.getStatus() : TrainingStatusEnum.PLANNED);
+        training.setNotes(dto.getNotes());
+        if (dto.getRpe() != null && dto.getRpe().getValue() != null) {
+            training.setRpe(new Rpe(dto.getRpe().getValue()));
+        }
+        return training;
+    }
+
+    public TrainingResponseDto toResponseDto(Training training) {
+        if (training == null) {
+            return null;
+        }
+        TrainingResponseDto dto = new TrainingResponseDto();
+        dto.setId(training.getId());
+        dto.setName(training.getName());
+        dto.setDescription(training.getDescription());
+        if (training.getSession() != null) {
+            dto.setSession(sessionDtoMapper.toResponseDto(training.getSession()));
+        }
+        dto.setTrainingDate(training.getTrainingDate());
+        dto.setStartTime(training.getStartTime());
+        dto.setEndTime(training.getEndTime());
+        dto.setStatus(training.getStatus());
+        dto.setNotes(training.getNotes());
+
+        Duration duration = training.calculateDuration();
+        if (duration != null) {
+            dto.setDuration(new DurationDto(duration.getTotalSeconds()));
+        }
+
+        dto.setTotalVolume(training.calculateTotalVolume());
+
+        if (training.getRpe() != null) {
+            dto.setRpe(new RpeDto(training.getRpe().getValue()));
+        }
+
+        return dto;
+    }
+
+    public List<TrainingResponseDto> toResponseDtoList(List<Training> trainings) {
+        if (trainings == null) {
+            return List.of();
+        }
+        return trainings.stream().map(this::toResponseDto).toList();
+    }
+}

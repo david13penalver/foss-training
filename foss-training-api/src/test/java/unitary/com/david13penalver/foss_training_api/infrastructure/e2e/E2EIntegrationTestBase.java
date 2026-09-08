@@ -51,10 +51,16 @@ public abstract class E2EIntegrationTestBase {
     @Autowired
     private InMemorySessionDao sessionDao;
 
+    @Autowired(required = false)
+    private com.david13penalver.foss_training_api.infrastructure.adapters.out.training.InMemoryTrainingDao trainingDao;
+
     @BeforeEach
     void resetDatabases() {
         exerciseDao.clear();
         sessionDao.clear();
+        if (trainingDao != null) {
+            trainingDao.clear();
+        }
     }
 
     protected static String fixture(String resourcePath) {

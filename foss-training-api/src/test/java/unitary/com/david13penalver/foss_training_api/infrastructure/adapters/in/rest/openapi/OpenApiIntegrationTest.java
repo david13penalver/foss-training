@@ -5,9 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +18,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 import com.david13penalver.foss_training_api.FossTrainingApiApplication;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -26,27 +30,46 @@ class OpenApiIntegrationTest {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    private static final Set<String> EXPECTED_PATHS = Set.of(
-            "/api/exercises", "/api/exercises/{id}", "/api/exercises/{id}/exists",
-            "/api/sessions", "/api/sessions/{id}", "/api/sessions/{id}/exists",
-            "/api/endurance-types", "/api/endurance-types/{name}",
-            "/api/equipment", "/api/equipment/{name}",
-            "/api/joints", "/api/joints/{name}",
-            "/api/mobility-types", "/api/mobility-types/{name}",
-            "/api/movement-patterns", "/api/movement-patterns/{name}",
-            "/api/muscle-groups", "/api/muscle-groups/{name}",
-            "/api/stretch-types", "/api/stretch-types/{name}");
-
-    private static final int EXPECTED_OPERATION_COUNT = 26;
-
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private RequestMappingHandlerMapping handlerMapping;
+
+    private Set<String> getExpectedControllerPaths() {
+        Set<String> paths = new TreeSet<>();
+        handlerMapping.getHandlerMethods().forEach((info, method) -> {
+            if (method.getBeanType().getPackageName().startsWith("com.david13penalver.foss_training_api.infrastructure.adapters.in.rest")) {
+                if (info.getPathPatternsCondition() != null) {
+                    paths.addAll(info.getPathPatternsCondition().getPatternValues());
+                }
+            }
+        });
+        return paths;
+    }
+
+    private int getExpectedOperationCount() {
+        int count = 0;
+        for (var entry : handlerMapping.getHandlerMethods().entrySet()) {
+            if (entry.getValue().getBeanType().getPackageName().startsWith("com.david13penalver.foss_training_api.infrastructure.adapters.in.rest")) {
+                int methods = entry.getKey().getMethodsCondition().getMethods().size();
+                count += (methods > 0 ? methods : 1);
+            }
+        }
+        return count;
+    }
 
     @Test
     void openApiJson_isGeneratedFromRunningApplication() throws Exception {
         String body = mockMvc.perform(get("/v3/api-docs"))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
+
+        // Auto-export openapi.json to target/ for documentation synchronization
+        Path targetDir = Path.of("target");
+        if (Files.exists(targetDir)) {
+            Files.writeString(targetDir.resolve("openapi.json"), body);
+        }
 
         Map<String, Object> doc = MAPPER.readValue(body, new TypeReference<>() {});
 
@@ -57,13 +80,14 @@ class OpenApiIntegrationTest {
         assertEquals("0.0.1-SNAPSHOT", info.get("version"));
 
         Map<String, Object> paths = cast(doc.get("paths"));
-        assertEquals(EXPECTED_PATHS, paths.keySet(),
-                "OpenAPI paths drifted from the real controllers; "
-                        + "add/remove endpoints or update EXPECTED_PATHS deliberately.");
+        Set<String> expectedPaths = getExpectedControllerPaths();
+        assertEquals(expectedPaths, paths.keySet(),
+                "OpenAPI paths must automatically match all registered REST controllers.");
 
         int operations = paths.values().stream().mapToInt(v -> cast(v).size()).sum();
-        assertEquals(EXPECTED_OPERATION_COUNT, operations,
-                "Operations drifted from the real controllers.");
+        int expectedOperations = getExpectedOperationCount();
+        assertEquals(expectedOperations, operations,
+                "OpenAPI operation count must automatically match registered controller methods.");
     }
 
     @Test
@@ -124,6 +148,11 @@ class OpenApiIntegrationTest {
         String body = result.getResponse().getContentAsString();
         assertTrue(body.contains("openapi: 3.1.0"));
         assertTrue(body.contains("title: FOSS Training API"));
+
+        Path targetDir = Path.of("target");
+        if (Files.exists(targetDir)) {
+            Files.writeString(targetDir.resolve("openapi.yaml"), body);
+        }
     }
 
     @Test

@@ -12,21 +12,23 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.david13penalver.foss_training_api.FossTrainingApiApplication;
-import com.david13penalver.foss_training_api.infrastructure.adapters.out.exercise.InMemoryExerciseDao;
+import org.springframework.context.annotation.Import;
+import unitary.com.david13penalver.foss_training_api.testutil.TestDatabaseCleaner;
 
 @SpringBootTest(classes = FossTrainingApiApplication.class)
 @AutoConfigureMockMvc
+@Import(TestDatabaseCleaner.class)
 class ExerciseControllerIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @Autowired
-    private InMemoryExerciseDao exerciseDao;
+    private TestDatabaseCleaner databaseCleaner;
 
     @BeforeEach
     void setUp() {
-        exerciseDao.clear();
+        databaseCleaner.clearAll();
     }
 
     @Test

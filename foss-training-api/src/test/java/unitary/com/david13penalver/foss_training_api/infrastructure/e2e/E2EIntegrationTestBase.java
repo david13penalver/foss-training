@@ -28,9 +28,13 @@ import com.david13penalver.foss_training_api.infrastructure.adapters.out.session
 
 import com.jayway.jsonpath.JsonPath;
 
+import org.springframework.context.annotation.Import;
+import unitary.com.david13penalver.foss_training_api.testutil.TestDatabaseCleaner;
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         classes = FossTrainingApiApplication.class)
 @AutoConfigureTestRestTemplate
+@Import(TestDatabaseCleaner.class)
 public abstract class E2EIntegrationTestBase {
 
     private static final HttpHeaders JSON_HEADERS = new HttpHeaders();
@@ -46,27 +50,11 @@ public abstract class E2EIntegrationTestBase {
     protected int port;
 
     @Autowired
-    private InMemoryExerciseDao exerciseDao;
-
-    @Autowired
-    private InMemorySessionDao sessionDao;
-
-    @Autowired(required = false)
-    private com.david13penalver.foss_training_api.infrastructure.adapters.out.training.InMemoryTrainingDao trainingDao;
-
-    @Autowired(required = false)
-    private com.david13penalver.foss_training_api.infrastructure.adapters.out.program.InMemoryTrainingProgramDao programDao;
+    private unitary.com.david13penalver.foss_training_api.testutil.TestDatabaseCleaner databaseCleaner;
 
     @BeforeEach
     void resetDatabases() {
-        exerciseDao.clear();
-        sessionDao.clear();
-        if (trainingDao != null) {
-            trainingDao.clear();
-        }
-        if (programDao != null) {
-            programDao.clear();
-        }
+        databaseCleaner.clearAll();
     }
 
     protected static String fixture(String resourcePath) {

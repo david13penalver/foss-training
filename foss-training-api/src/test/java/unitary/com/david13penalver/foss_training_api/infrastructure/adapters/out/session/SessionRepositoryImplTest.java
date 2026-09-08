@@ -1,27 +1,40 @@
 package unitary.com.david13penalver.foss_training_api.infrastructure.adapters.out.session;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
+import com.david13penalver.foss_training_api.FossTrainingApiApplication;
 import com.david13penalver.foss_training_api.domain.model.session.Session;
 import com.david13penalver.foss_training_api.domain.model.session.SessionStatusEnum;
-import com.david13penalver.foss_training_api.infrastructure.adapters.out.session.InMemorySessionDao;
 import com.david13penalver.foss_training_api.infrastructure.adapters.out.session.SessionRepositoryImpl;
 
+import org.springframework.context.annotation.Import;
+import unitary.com.david13penalver.foss_training_api.testutil.TestDatabaseCleaner;
+
+@SpringBootTest(classes = FossTrainingApiApplication.class)
+@Import(TestDatabaseCleaner.class)
 class SessionRepositoryImplTest {
 
+    @Autowired
     private SessionRepositoryImpl sessionRepository;
-    private InMemorySessionDao sessionDao;
+
+    @Autowired
+    private TestDatabaseCleaner databaseCleaner;
 
     @BeforeEach
     void setUp() {
-        sessionDao = new InMemorySessionDao();
-        sessionRepository = new SessionRepositoryImpl(sessionDao);
+        databaseCleaner.clearAll();
     }
 
     private Session buildSession(String name) {
@@ -47,15 +60,16 @@ class SessionRepositoryImplTest {
     }
 
     @Test
-    void findById_returnsEmpty_whenMissing() {
+    void findById_returnsEmpty_whenMissingOrNull() {
         assertEquals(Optional.empty(), sessionRepository.findById(999));
+        assertEquals(Optional.empty(), sessionRepository.findById(null));
     }
 
     @Test
     void save_assignsId() {
         Session result = sessionRepository.save(buildSession("Push Day"));
 
-        assertEquals(1, result.getId());
+        assertNotNull(result.getId());
         assertEquals(1, sessionRepository.findAll().size());
     }
 
@@ -77,13 +91,15 @@ class SessionRepositoryImplTest {
     }
 
     @Test
-    void deleteById_doesNothing_whenUnknown() {
+    void deleteById_doesNothing_whenUnknownOrNull() {
         assertDoesNotThrow(() -> sessionRepository.deleteById(999));
+        assertDoesNotThrow(() -> sessionRepository.deleteById(null));
     }
 
     @Test
-    void existsById_returnsFalse_whenMissing() {
+    void existsById_returnsFalse_whenMissingOrNull() {
         assertFalse(sessionRepository.existsById(999));
+        assertFalse(sessionRepository.existsById(null));
     }
 
     @Test

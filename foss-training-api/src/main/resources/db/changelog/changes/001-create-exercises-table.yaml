@@ -1,0 +1,82 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-exercises-table
+      author: david13penalver
+      changes:
+        - createTable:
+            tableName: exercises
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: varchar(65535)
+              - column:
+                  name: images_json
+                  type: varchar(65535)
+              - column:
+                  name: video
+                  type: varchar(500)
+              - column:
+                  name: primary_category
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: secondary_categories_json
+                  type: varchar(65535)
+              - column:
+                  name: resistance_metrics_json
+                  type: varchar(65535)
+              - column:
+                  name: endurance_metrics_json
+                  type: varchar(65535)
+              - column:
+                  name: mobility_metrics_json
+                  type: varchar(65535)
+              - column:
+                  name: equipment_required_json
+                  type: varchar(65535)
+              - column:
+                  name: difficulty_level
+                  type: varchar(50)
+              - column:
+                  name: instructions_json
+                  type: varchar(65535)
+              - column:
+                  name: common_mistakes_json
+                  type: varchar(65535)
+              - column:
+                  name: safety_tips_json
+                  type: varchar(65535)
+              - column:
+                  name: alternative_exercises_json
+                  type: varchar(65535)
+              - column:
+                  name: created_by
+                  type: varchar(100)
+              - column:
+                  name: created_at
+                  type: timestamp
+              - column:
+                  name: updated_at
+                  type: timestamp
+              - column:
+                  name: is_active
+                  type: boolean
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+              - column:
+                  name: tags_json
+                  type: varchar(65535)

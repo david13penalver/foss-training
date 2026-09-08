@@ -1,0 +1,43 @@
+databaseChangeLog:
+  - changeSet:
+      id: 004-create-training-programs-table
+      author: david13penalver
+      changes:
+        - createTable:
+            tableName: training_programs
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: varchar(65535)
+              - column:
+                  name: duration_weeks
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: periodization_type
+                  type: varchar(50)
+              - column:
+                  name: level
+                  type: varchar(50)
+              - column:
+                  name: workouts_json
+                  type: varchar(65535)
+              - column:
+                  name: is_active
+                  type: boolean
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false

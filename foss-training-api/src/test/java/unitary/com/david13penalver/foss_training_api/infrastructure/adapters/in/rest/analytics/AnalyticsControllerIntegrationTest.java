@@ -14,31 +14,23 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.david13penalver.foss_training_api.FossTrainingApiApplication;
-import com.david13penalver.foss_training_api.infrastructure.adapters.out.exercise.InMemoryExerciseDao;
-import com.david13penalver.foss_training_api.infrastructure.adapters.out.session.InMemorySessionDao;
-import com.david13penalver.foss_training_api.infrastructure.adapters.out.training.InMemoryTrainingDao;
+import org.springframework.context.annotation.Import;
+import unitary.com.david13penalver.foss_training_api.testutil.TestDatabaseCleaner;
 
 @SpringBootTest(classes = FossTrainingApiApplication.class)
 @AutoConfigureMockMvc
+@Import(TestDatabaseCleaner.class)
 class AnalyticsControllerIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @Autowired
-    private InMemoryExerciseDao exerciseDao;
-
-    @Autowired
-    private InMemorySessionDao sessionDao;
-
-    @Autowired
-    private InMemoryTrainingDao trainingDao;
+    private TestDatabaseCleaner databaseCleaner;
 
     @BeforeEach
     void setUp() {
-        exerciseDao.clear();
-        sessionDao.clear();
-        trainingDao.clear();
+        databaseCleaner.clearAll();
     }
 
     @Test
@@ -99,11 +91,11 @@ class AnalyticsControllerIntegrationTest {
 
     @Test
     void getPersonalRecordsByExercise_whenExists_returns200() throws Exception {
-        createExercise("Bench Press");
+        int exerciseId = createExercise("Bench Press");
 
-        mockMvc.perform(get("/api/analytics/personal-records/exercise/1"))
+        mockMvc.perform(get("/api/analytics/personal-records/exercise/" + exerciseId))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.exerciseId").value(1))
+                .andExpect(jsonPath("$.exerciseId").value(exerciseId))
                 .andExpect(jsonPath("$.exerciseName").value("Bench Press"));
     }
 
@@ -113,7 +105,7 @@ class AnalyticsControllerIntegrationTest {
                 .andExpect(status().isNotFound());
     }
 
-    private void createExercise(String name) throws Exception {
+    private int createExercise(String name) throws Exception {
         String exerciseJson = """
                 {
                   "name": "%s",
@@ -121,9 +113,11 @@ class AnalyticsControllerIntegrationTest {
                 }
                 """.formatted(name);
 
-        mockMvc.perform(post("/api/exercises")
+        String content = mockMvc.perform(post("/api/exercises")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(exerciseJson))
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        return com.jayway.jsonpath.JsonPath.read(content, "$.id");
     }
 }

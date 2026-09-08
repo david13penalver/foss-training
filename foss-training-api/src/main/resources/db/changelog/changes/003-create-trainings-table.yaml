@@ -1,0 +1,46 @@
+databaseChangeLog:
+  - changeSet:
+      id: 003-create-trainings-table
+      author: david13penalver
+      changes:
+        - createTable:
+            tableName: trainings
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: varchar(65535)
+              - column:
+                  name: training_date
+                  type: date
+              - column:
+                  name: start_time
+                  type: timestamp
+              - column:
+                  name: end_time
+                  type: timestamp
+              - column:
+                  name: status
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: notes
+                  type: varchar(65535)
+              - column:
+                  name: rpe_value
+                  type: double
+              - column:
+                  name: session_json
+                  type: varchar(65535)

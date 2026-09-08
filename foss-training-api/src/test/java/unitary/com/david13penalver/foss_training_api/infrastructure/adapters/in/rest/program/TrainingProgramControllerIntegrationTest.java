@@ -12,26 +12,23 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.david13penalver.foss_training_api.FossTrainingApiApplication;
-import com.david13penalver.foss_training_api.infrastructure.adapters.out.program.InMemoryTrainingProgramDao;
-import com.david13penalver.foss_training_api.infrastructure.adapters.out.training.InMemoryTrainingDao;
+import org.springframework.context.annotation.Import;
+import unitary.com.david13penalver.foss_training_api.testutil.TestDatabaseCleaner;
 
 @SpringBootTest(classes = FossTrainingApiApplication.class)
 @AutoConfigureMockMvc
+@Import(TestDatabaseCleaner.class)
 class TrainingProgramControllerIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @Autowired
-    private InMemoryTrainingProgramDao programDao;
-
-    @Autowired
-    private InMemoryTrainingDao trainingDao;
+    private TestDatabaseCleaner databaseCleaner;
 
     @BeforeEach
     void setUp() {
-        programDao.clear();
-        trainingDao.clear();
+        databaseCleaner.clearAll();
     }
 
     private String validProgramJson(String name, int weeks) {

@@ -12,21 +12,23 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.david13penalver.foss_training_api.FossTrainingApiApplication;
-import com.david13penalver.foss_training_api.infrastructure.adapters.out.session.InMemorySessionDao;
+import org.springframework.context.annotation.Import;
+import unitary.com.david13penalver.foss_training_api.testutil.TestDatabaseCleaner;
 
 @SpringBootTest(classes = FossTrainingApiApplication.class)
 @AutoConfigureMockMvc
+@Import(TestDatabaseCleaner.class)
 class SessionControllerIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @Autowired
-    private InMemorySessionDao sessionDao;
+    private TestDatabaseCleaner databaseCleaner;
 
     @BeforeEach
     void setUp() {
-        sessionDao.clear();
+        databaseCleaner.clearAll();
     }
 
     @Test

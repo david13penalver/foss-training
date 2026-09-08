@@ -1,6 +1,10 @@
 package unitary.com.david13penalver.foss_training_api.infrastructure.adapters.out.training;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -8,21 +12,30 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
+import com.david13penalver.foss_training_api.FossTrainingApiApplication;
 import com.david13penalver.foss_training_api.domain.model.training.Training;
 import com.david13penalver.foss_training_api.domain.model.training.TrainingStatusEnum;
-import com.david13penalver.foss_training_api.infrastructure.adapters.out.training.InMemoryTrainingDao;
 import com.david13penalver.foss_training_api.infrastructure.adapters.out.training.TrainingRepositoryImpl;
 
+import org.springframework.context.annotation.Import;
+import unitary.com.david13penalver.foss_training_api.testutil.TestDatabaseCleaner;
+
+@SpringBootTest(classes = FossTrainingApiApplication.class)
+@Import(TestDatabaseCleaner.class)
 class TrainingRepositoryImplTest {
 
+    @Autowired
     private TrainingRepositoryImpl trainingRepository;
-    private InMemoryTrainingDao trainingDao;
+
+    @Autowired
+    private TestDatabaseCleaner databaseCleaner;
 
     @BeforeEach
     void setUp() {
-        trainingDao = new InMemoryTrainingDao();
-        trainingRepository = new TrainingRepositoryImpl(trainingDao);
+        databaseCleaner.clearAll();
     }
 
     private Training buildTraining(String name) {
@@ -49,15 +62,16 @@ class TrainingRepositoryImplTest {
     }
 
     @Test
-    void findById_returnsEmpty_whenMissing() {
+    void findById_returnsEmpty_whenMissingOrNull() {
         assertEquals(Optional.empty(), trainingRepository.findById(999));
+        assertEquals(Optional.empty(), trainingRepository.findById(null));
     }
 
     @Test
     void save_assignsId() {
         Training result = trainingRepository.save(buildTraining("Push Day"));
 
-        assertEquals(1, result.getId());
+        assertNotNull(result.getId());
         assertEquals(1, trainingRepository.findAll().size());
     }
 
@@ -79,13 +93,15 @@ class TrainingRepositoryImplTest {
     }
 
     @Test
-    void deleteById_doesNothing_whenUnknown() {
+    void deleteById_doesNothing_whenUnknownOrNull() {
         assertDoesNotThrow(() -> trainingRepository.deleteById(999));
+        assertDoesNotThrow(() -> trainingRepository.deleteById(null));
     }
 
     @Test
-    void existsById_returnsFalse_whenMissing() {
+    void existsById_returnsFalse_whenMissingOrNull() {
         assertFalse(trainingRepository.existsById(999));
+        assertFalse(trainingRepository.existsById(null));
     }
 
     @Test

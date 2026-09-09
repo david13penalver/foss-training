@@ -1,0 +1,130 @@
+<div class="modal-backdrop" (click)="onClose()">
+  <div class="modal-container glass-card" (click)="$event.stopPropagation()">
+    <!-- Header -->
+    <header class="modal-header">
+      <div class="header-titles">
+        <div class="badge-row">
+          <span class="live-pill">
+            <span class="live-pulse"></span>
+            LIVE SESSION
+          </span>
+          <span class="date-badge">{{ training().trainingDate }}</span>
+        </div>
+        <h2 class="modal-title">{{ training().name }}</h2>
+        @if (training().description) {
+          <p class="modal-desc">{{ training().description }}</p>
+        }
+      </div>
+
+      <button class="icon-btn btn-close" (click)="onClose()" title="Close" type="button">
+        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </header>
+
+    <!-- Workout Summary Metrics -->
+    <section class="live-metrics-bar">
+      <div class="metric-block">
+        <span class="metric-label">Completed Sets</span>
+        <span class="metric-val">{{ completedSetsCount() }} / {{ totalSetsCount() }}</span>
+      </div>
+      <div class="metric-block">
+        <span class="metric-label">Logged Volume</span>
+        <span class="metric-val volume-val">{{ currentVolume() | number }} kg</span>
+      </div>
+    </section>
+
+    <!-- Exercise List with Sets Checklists -->
+    <div class="modal-body exercises-scroll">
+      @for (ex of editableExercises(); track ex.id || $index; let exIdx = $index) {
+        <section class="exercise-section">
+          <div class="exercise-header">
+            <span class="exercise-index">{{ exIdx + 1 }}</span>
+            <div class="exercise-title-group">
+              <h4 class="exercise-name">{{ ex.name }}</h4>
+              <span class="category-tag">{{ ex.category }}</span>
+            </div>
+          </div>
+
+          <div class="sets-table-wrapper">
+            <table class="sets-table">
+              <thead>
+                <tr>
+                  <th style="width: 50px;">Set</th>
+                  <th>Type</th>
+                  <th>Weight (kg)</th>
+                  <th>Reps</th>
+                  <th style="width: 60px; text-align: center;">Done</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (s of ex.sets; track s.setNumber; let setIdx = $index) {
+                  <tr [class.set-completed]="s.completed">
+                    <td class="set-idx">{{ s.setNumber }}</td>
+                    <td>
+                      <span class="set-type-pill" [class.warmup]="s.setType === 'WARMUP'">
+                        {{ s.setType || 'WORKING' }}
+                      </span>
+                    </td>
+                    <td>
+                      <input
+                        type="number"
+                        class="input-clean weight-input"
+                        [(ngModel)]="s.weight"
+                        [disabled]="s.completed"
+                        min="0"
+                        step="0.5"
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="number"
+                        class="input-clean reps-input"
+                        [(ngModel)]="s.reps"
+                        [disabled]="s.completed"
+                        min="0"
+                        step="1"
+                      />
+                    </td>
+                    <td style="text-align: center;">
+                      <label class="checkbox-container">
+                        <input
+                          type="checkbox"
+                          class="set-check"
+                          [checked]="s.completed"
+                          (change)="toggleSet(exIdx, setIdx)"
+                        />
+                        <span class="checkmark"></span>
+                      </label>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </section>
+      }
+    </div>
+
+    <!-- Modal Footer Actions -->
+    <footer class="modal-footer">
+      <button class="btn btn-danger-subtle btn-cancel-workout" (click)="onCancel()" type="button">
+        Cancel Workout
+      </button>
+
+      <div class="right-actions">
+        <button class="btn btn-secondary" (click)="onClose()" type="button">
+          Minimize
+        </button>
+        <button class="btn btn-finish" (click)="onFinish()" type="button">
+          <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.5" fill="none">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          Finish Workout
+        </button>
+      </div>
+    </footer>
+  </div>
+</div>

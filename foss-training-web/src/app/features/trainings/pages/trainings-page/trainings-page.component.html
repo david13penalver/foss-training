@@ -1,0 +1,150 @@
+<div class="trainings-container">
+  <!-- Toast Notification -->
+  @if (notificationMessage()) {
+    <div class="notification-toast glass-card">
+      {{ notificationMessage() }}
+    </div>
+  }
+
+  <!-- Page Header -->
+  <header class="page-header">
+    <div class="header-titles">
+      <h1 class="page-title">Trainings</h1>
+      <p class="page-subtitle">Track, execute, and review your training sessions.</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-primary btn-schedule" (click)="openScheduleModal()" type="button">
+        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2.5" fill="none">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        Schedule Workout
+      </button>
+    </div>
+  </header>
+
+  <!-- KPI Metrics Strip -->
+  <section class="kpi-grid">
+    <div class="kpi-card glass-card">
+      <span class="kpi-label">Active Workouts</span>
+      <span class="kpi-value text-sky">{{ activeCount() }}</span>
+      <span class="kpi-sub">In progress right now</span>
+    </div>
+    <div class="kpi-card glass-card">
+      <span class="kpi-label">Completed</span>
+      <span class="kpi-value text-emerald">{{ completedCount() }}</span>
+      <span class="kpi-sub">Total workouts finished</span>
+    </div>
+    <div class="kpi-card glass-card">
+      <span class="kpi-label">Total Volume Lifted</span>
+      <span class="kpi-value text-indigo">{{ totalVolume() | number }} kg</span>
+      <span class="kpi-sub">Combined workload</span>
+    </div>
+  </section>
+
+  <!-- Filter & Search Controls -->
+  <section class="controls-bar glass-card">
+    <div class="search-box">
+      <svg class="search-icon" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Search workouts, routines, exercises..."
+        [ngModel]="searchQuery()"
+        (ngModelChange)="searchQuery.set($event)"
+      />
+    </div>
+
+    <!-- Status Filters -->
+    <div class="status-pills">
+      @for (st of statuses; track st) {
+        <button
+          type="button"
+          class="pill-btn"
+          [class.active]="selectedStatus() === st"
+          (click)="selectedStatus.set(st)"
+        >
+          {{ st }}
+        </button>
+      }
+    </div>
+  </section>
+
+  <!-- Content Grid -->
+  @if (isLoading()) {
+    <div class="state-container">
+      <div class="spinner"></div>
+      <p>Loading your training logs...</p>
+    </div>
+  } @else if (error()) {
+    <div class="state-container error">
+      <p>Unable to load trainings. Please check connection.</p>
+    </div>
+  } @else if (filteredTrainings().length === 0) {
+    <div class="state-container empty">
+      <p class="empty-title">No trainings found</p>
+      <p class="empty-desc">
+        @if (searchQuery() || selectedStatus() !== 'ALL') {
+          Try adjusting your search filters or status.
+        } @else {
+          Schedule a workout from a routine template to get started!
+        }
+      </p>
+      @if (!searchQuery() && selectedStatus() === 'ALL') {
+        <button class="btn btn-secondary mt-3" (click)="openScheduleModal()" type="button">
+          Schedule Your First Workout
+        </button>
+      }
+    </div>
+  } @else {
+    <div class="trainings-grid">
+      @for (training of filteredTrainings(); track training.id) {
+        <app-training-card
+          [training]="training"
+          (viewDetails)="openDetailModal($event)"
+          (start)="handleStart($event)"
+          (complete)="handleComplete($event)"
+          (cancel)="handleCancel($event)"
+          (delete)="openDeleteConfirm($event)"
+        ></app-training-card>
+      }
+    </div>
+  }
+
+  <!-- Modals -->
+  @if (isScheduleOpen()) {
+    <app-training-schedule-modal
+      (close)="closeModals()"
+      (scheduleTraining)="handleSchedule($event)"
+    ></app-training-schedule-modal>
+  }
+
+  @if (isActiveTrackerOpen() && activeWorkout()) {
+    <app-active-workout-modal
+      [training]="activeWorkout()!"
+      (close)="closeModals()"
+      (finishWorkout)="handleComplete($event)"
+      (cancelWorkout)="handleCancel($event)"
+    ></app-active-workout-modal>
+  }
+
+  @if (isDetailOpen() && detailWorkout()) {
+    <app-training-detail-modal
+      [training]="detailWorkout()!"
+      (close)="closeModals()"
+    ></app-training-detail-modal>
+  }
+
+  @if (isDeleteConfirmOpen() && workoutToDelete()) {
+    <app-confirm-dialog
+      title="Delete Workout"
+      [message]="'Are you sure you want to delete ' + workoutToDelete()?.name + '? This action cannot be undone.'"
+      confirmText="Delete"
+      (confirm)="confirmDelete()"
+      (cancel)="closeModals()"
+    ></app-confirm-dialog>
+  }
+</div>

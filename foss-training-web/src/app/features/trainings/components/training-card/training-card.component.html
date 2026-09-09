@@ -1,0 +1,85 @@
+<article class="glass-card training-card" [ngClass]="statusClass()" (click)="viewDetails.emit(training())">
+  <div class="card-header">
+    <div class="header-left">
+      <span class="status-badge" [ngClass]="statusClass()">
+        <span class="status-dot"></span>
+        {{ training().status || 'Planned' }}
+      </span>
+      <span class="training-date">
+        <svg viewBox="0 0 24 24" width="13" height="13" stroke="currentColor" stroke-width="2" fill="none" class="date-icon">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+          <line x1="16" y1="2" x2="16" y2="6"></line>
+          <line x1="8" y1="2" x2="8" y2="6"></line>
+          <line x1="3" y1="10" x2="21" y2="10"></line>
+        </svg>
+        {{ training().trainingDate }}
+      </span>
+    </div>
+
+    <div class="header-actions" (click)="$event.stopPropagation()">
+      <button class="icon-btn btn-delete" (click)="delete.emit(training())" title="Delete Training" type="button">
+        <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none">
+          <polyline points="3 6 5 6 21 6"></polyline>
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="card-body">
+    <h3 class="card-title">{{ training().name }}</h3>
+    @if (training().description) {
+      <p class="card-desc">{{ training().description }}</p>
+    }
+
+    <!-- Quick Stats -->
+    <div class="stats-row">
+      <div class="stat-item">
+        <span class="stat-label">Total Volume</span>
+        <span class="stat-value volume-stat">{{ formattedVolume() }}</span>
+      </div>
+      @if (training().session?.sessionExercises?.length) {
+        <div class="stat-item">
+          <span class="stat-label">Exercises</span>
+          <span class="stat-value">{{ training().session?.sessionExercises?.length }}</span>
+        </div>
+      }
+    </div>
+
+    <!-- Exercise Chips Preview -->
+    @if (exerciseNames().length > 0) {
+      <div class="chips-container">
+        @for (name of exerciseNames().slice(0, 3); track name) {
+          <span class="exercise-chip">{{ name }}</span>
+        }
+        @if (exerciseNames().length > 3) {
+          <span class="exercise-chip chip-more">+{{ exerciseNames().length - 3 }} more</span>
+        }
+      </div>
+    }
+  </div>
+
+  <div class="card-footer" (click)="$event.stopPropagation()">
+    <button class="btn btn-secondary btn-view" (click)="viewDetails.emit(training())" type="button">
+      Details
+    </button>
+
+    @if (training().status === 'Planned') {
+      <button class="btn btn-primary btn-start" (click)="start.emit(training())" type="button">
+        <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2.2" fill="none">
+          <polygon points="5 3 19 12 5 21 5 3"></polygon>
+        </svg>
+        Start Workout
+      </button>
+    } @else if (training().status === 'In Progress') {
+      <div class="in-progress-actions">
+        <button class="btn btn-primary btn-resume" (click)="start.emit(training())" type="button">
+          Resume
+        </button>
+        <button class="btn btn-accent btn-complete" (click)="complete.emit(training())" type="button">
+          Finish
+        </button>
+      </div>
+    }
+  </div>
+</article>

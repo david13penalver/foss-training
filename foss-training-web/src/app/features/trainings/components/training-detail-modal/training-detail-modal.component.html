@@ -1,0 +1,73 @@
+<div class="modal-backdrop" (click)="close.emit()">
+  <div class="modal-container glass-card" (click)="$event.stopPropagation()">
+    <!-- Header -->
+    <header class="modal-header">
+      <div class="header-titles">
+        <div class="badge-row">
+          <span class="status-badge" [class.completed]="training().status === 'Completed'">
+            {{ training().status || 'Planned' }}
+          </span>
+          <span class="date-badge">{{ training().trainingDate }}</span>
+        </div>
+        <h2 class="modal-title">{{ training().name }}</h2>
+        @if (training().description) {
+          <p class="modal-desc">{{ training().description }}</p>
+        }
+      </div>
+
+      <button class="icon-btn btn-close" (click)="close.emit()" title="Close" type="button">
+        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </header>
+
+    <!-- Metrics Strip -->
+    <div class="metrics-strip">
+      <div class="metric-item">
+        <span class="metric-label">Total Volume</span>
+        <span class="metric-value volume-val">{{ formattedVolume() }}</span>
+      </div>
+      <div class="metric-item">
+        <span class="metric-label">Exercises</span>
+        <span class="metric-value">{{ training().session?.sessionExercises?.length || 0 }}</span>
+      </div>
+      @if (training().duration) {
+        <div class="metric-item">
+          <span class="metric-label">Duration</span>
+          <span class="metric-value">{{ training().duration }}</span>
+        </div>
+      }
+    </div>
+
+    <!-- Exercises & Sets Breakdown -->
+    <div class="modal-body">
+      @for (ex of training().session?.sessionExercises; track ex.id || $index; let i = $index) {
+        <div class="exercise-card">
+          <div class="ex-header">
+            <span class="ex-index">{{ i + 1 }}</span>
+            <h4 class="ex-name">{{ ex.exercise?.name }}</h4>
+          </div>
+
+          @if (ex.exerciseType === 'ResistanceSessionExercise') {
+            <div class="sets-grid">
+              @for (s of asResistance(ex).sets; track s.setNumber) {
+                <div class="set-pill">
+                  <span class="set-num">S{{ s.setNumber }}</span>
+                  <span class="set-weight">{{ s.weight?.value || 0 }} {{ s.weight?.unit || 'KG' }}</span>
+                  <span class="set-reps">× {{ s.repetitions || 0 }} reps</span>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Footer -->
+    <footer class="modal-footer">
+      <button class="btn btn-secondary" (click)="close.emit()" type="button">Close</button>
+    </footer>
+  </div>
+</div>

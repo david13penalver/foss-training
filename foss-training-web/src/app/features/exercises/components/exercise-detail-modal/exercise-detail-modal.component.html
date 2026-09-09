@@ -1,0 +1,152 @@
+<div class="glass-backdrop" (click)="onBackdropClick($event)">
+  <div class="glass-modal" role="dialog" aria-modal="true">
+    <!-- Header -->
+    <div class="modal-header">
+      <div class="header-main">
+        <div class="category-indicator">
+          <span class="category-tag">{{ exercise().primaryCategory }}</span>
+          @if (exercise().difficultyLevel) {
+            <span class="difficulty-tag">{{ exercise().difficultyLevel }}</span>
+          }
+        </div>
+        <h2 class="detail-title">{{ exercise().name }}</h2>
+      </div>
+
+      <button type="button" class="btn-close" (click)="closed.emit()" title="Close">
+        ✕
+      </button>
+    </div>
+
+    <!-- Scrollable Content -->
+    <div class="modal-content">
+      @if (exercise().description) {
+        <section class="info-section">
+          <h4 class="section-title">Overview</h4>
+          <p class="detail-description">{{ exercise().description }}</p>
+        </section>
+      }
+
+      <!-- Targeting & Equipment -->
+      <section class="info-section grid-section">
+        @if (resistanceMetrics(); as rm) {
+          @if (rm.primaryMuscles && rm.primaryMuscles.length > 0) {
+            <div class="meta-block">
+              <span class="meta-label">Primary Muscles</span>
+              <div class="tags-row">
+                @for (muscle of rm.primaryMuscles; track muscle) {
+                  <span class="glass-tag tag-primary">{{ muscle }}</span>
+                }
+              </div>
+            </div>
+          }
+
+          @if (rm.secondaryMuscles && rm.secondaryMuscles.length > 0) {
+            <div class="meta-block">
+              <span class="meta-label">Secondary Muscles</span>
+              <div class="tags-row">
+                @for (muscle of rm.secondaryMuscles; track muscle) {
+                  <span class="glass-tag tag-secondary">{{ muscle }}</span>
+                }
+              </div>
+            </div>
+          }
+
+          @if (rm.movementPattern) {
+            <div class="meta-block">
+              <span class="meta-label">Movement Pattern</span>
+              <span class="glass-tag tag-pattern">{{ rm.movementPattern }}</span>
+            </div>
+          }
+        }
+
+        @if (exercise().equipmentRequired && exercise().equipmentRequired!.length > 0) {
+          <div class="meta-block">
+            <span class="meta-label">Equipment Required</span>
+            <div class="tags-row">
+              @for (equip of exercise().equipmentRequired; track equip) {
+                <span class="glass-tag tag-equip">{{ equip }}</span>
+              }
+            </div>
+          </div>
+        }
+      </section>
+
+      <!-- Recommendations / Metric Guidance -->
+      @if (resistanceMetrics(); as rm) {
+        <section class="info-section metrics-guidance">
+          <h4 class="section-title">Recommended Parameters</h4>
+          <div class="metrics-grid">
+            @if (rm.recommendedSets) {
+              <div class="metric-card">
+                <span class="metric-val">{{ rm.recommendedSets }}</span>
+                <span class="metric-lbl">Sets</span>
+              </div>
+            }
+            @if (rm.recommendedRepsMin || rm.recommendedRepsMax) {
+              <div class="metric-card">
+                <span class="metric-val">
+                  {{ rm.recommendedRepsMin ?? '—' }}-{{ rm.recommendedRepsMax ?? '—' }}
+                </span>
+                <span class="metric-lbl">Reps</span>
+              </div>
+            }
+            @if (rm.recommendedRestSeconds) {
+              <div class="metric-card">
+                <span class="metric-val">{{ rm.recommendedRestSeconds }}s</span>
+                <span class="metric-lbl">Rest</span>
+              </div>
+            }
+          </div>
+        </section>
+      }
+
+      <!-- Step by step instructions -->
+      @if (exercise().stepByStepInstructions && exercise().stepByStepInstructions!.length > 0) {
+        <section class="info-section">
+          <h4 class="section-title">Instructions</h4>
+          <ol class="instructions-list">
+            @for (step of exercise().stepByStepInstructions; track step; let i = $index) {
+              <li class="instruction-item">
+                <span class="step-num">{{ i + 1 }}</span>
+                <p class="step-text">{{ step }}</p>
+              </li>
+            }
+          </ol>
+        </section>
+      }
+
+      <!-- Safety & Common Mistakes -->
+      @if (exercise().safetyTips && exercise().safetyTips!.length > 0) {
+        <section class="info-section tips-box">
+          <h4 class="section-title tip-title">🛡️ Safety Tips</h4>
+          <ul class="tips-list">
+            @for (tip of exercise().safetyTips; track tip) {
+              <li>{{ tip }}</li>
+            }
+          </ul>
+        </section>
+      }
+
+      @if (exercise().commonMistakes && exercise().commonMistakes!.length > 0) {
+        <section class="info-section mistakes-box">
+          <h4 class="section-title mistake-title">⚠️ Common Mistakes</h4>
+          <ul class="tips-list">
+            @for (mistake of exercise().commonMistakes; track mistake) {
+              <li>{{ mistake }}</li>
+            }
+          </ul>
+        </section>
+      }
+    </div>
+
+    <!-- Footer Actions -->
+    <div class="modal-footer">
+      <button type="button" class="btn-edit-action" (click)="edit.emit(exercise())">
+        <span>Edit Exercise</span>
+      </button>
+      <button type="button" class="btn-dismiss" (click)="closed.emit()">
+        <span>Close</span>
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,26 @@
+<header class="glass-header">
+  <div class="nav-container">
+    <a routerLink="/" class="brand-link">
+      <div class="brand-icon">
+        <span class="icon-glyph">✦</span>
+      </div>
+      <div class="brand-text">
+        <span class="brand-title">FOSS Training</span>
+        <span class="brand-badge">MVP</span>
+      </div>
+    </a>
+
+    <nav class="nav-dock" aria-label="Main Navigation">
+      @for (item of navItems; track item.path) {
+        <a
+          [routerLink]="item.path"
+          routerLinkActive="active"
+          class="nav-tab"
+        >
+          <span class="tab-icon">{{ item.icon }}</span>
+          <span class="tab-label">{{ item.label }}</span>
+        </a>
+      }
+    </nav>
+  </div>
+</header>

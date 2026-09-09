@@ -1,0 +1,131 @@
+<div class="page-container">
+  <!-- Top Hero & Controls Bar -->
+  <section class="hero-bar">
+    <div class="hero-titles">
+      <span class="sub-heading">Library</span>
+      <h1 class="page-heading">Exercise Catalog</h1>
+      <p class="page-sub">Browse, manage, and configure movements across resistance, endurance, and mobility.</p>
+    </div>
+
+    <button type="button" class="btn-create-liquid" (click)="openCreateModal()">
+      <span class="plus-icon">+</span>
+      <span>New Exercise</span>
+    </button>
+  </section>
+
+  <!-- Filter & Search Toolbar (Floating Glass Dock) -->
+  <section class="toolbar-glass">
+    <!-- Search Bar -->
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Search exercises by name, muscle, equipment..."
+        [ngModel]="searchQuery()"
+        (ngModelChange)="searchQuery.set($event)"
+      />
+      @if (searchQuery()) {
+        <button type="button" class="btn-clear" (click)="searchQuery.set('')">✕</button>
+      }
+    </div>
+
+    <!-- Category Filter Pills -->
+    <div class="category-pills">
+      @for (cat of categories; track cat) {
+        <button
+          type="button"
+          class="filter-pill"
+          [class.active]="selectedCategory() === cat"
+          (click)="selectedCategory.set(cat)"
+        >
+          {{ cat }}
+        </button>
+      }
+    </div>
+
+    <!-- Difficulty Select -->
+    <div class="filter-dropdown-wrapper">
+      <label class="dropdown-label">Level:</label>
+      <select
+        class="glass-dropdown"
+        [ngModel]="selectedDifficulty()"
+        (ngModelChange)="selectedDifficulty.set($event)"
+      >
+        @for (diff of difficulties; track diff) {
+          <option [value]="diff">{{ diff }}</option>
+        }
+      </select>
+    </div>
+  </section>
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="state-container loading-state">
+      <div class="spinner-liquid"></div>
+      <p>Loading exercise catalog...</p>
+    </div>
+  }
+
+  <!-- Error State -->
+  @if (error()) {
+    <div class="state-container error-state">
+      <span class="state-icon">⚠️</span>
+      <h3>Failed to load exercises</h3>
+      <p>Make sure the backend API is running on localhost:8080.</p>
+    </div>
+  }
+
+  <!-- Exercises Grid -->
+  @if (!isLoading()) {
+    <section class="exercises-grid">
+      @for (exercise of filteredExercises(); track exercise.id) {
+        <app-exercise-card
+          [exercise]="exercise"
+          (viewDetails)="openDetailModal($event)"
+          (edit)="openEditModal($event)"
+          (delete)="openDeleteConfirm($event)"
+        />
+      } @empty {
+        <div class="state-container empty-state">
+          <span class="empty-glyph">🏋️</span>
+          <h3>No exercises match your filters</h3>
+          <p>Try searching for a different term or create a new exercise.</p>
+          <button type="button" class="btn-create-subtle" (click)="openCreateModal()">
+            + Create "{{ searchQuery() || 'New Exercise' }}"
+          </button>
+        </div>
+      }
+    </section>
+  }
+
+  <!-- Modals & Overlays -->
+  @if (isFormOpen()) {
+    <app-exercise-form-modal
+      [exercise]="editingExercise()"
+      [availableEquipment]="availableEquipment()"
+      [availableMuscles]="availableMuscles()"
+      (save)="handleSave($event)"
+      (closed)="closeModals()"
+    />
+  }
+
+  @if (isDetailOpen() && activeExercise()) {
+    <app-exercise-detail-modal
+      [exercise]="activeExercise()!"
+      (edit)="openEditModal($event)"
+      (closed)="closeModals()"
+    />
+  }
+
+  @if (isDeleteConfirmOpen() && exerciseToDelete()) {
+    <app-confirm-dialog
+      title="Delete Exercise"
+      [message]="'Are you sure you want to delete \'' + exerciseToDelete()!.name + '\'? This action cannot be undone.'"
+      confirmText="Delete Exercise"
+      [isDestructive]="true"
+      (confirmed)="confirmDelete()"
+      (cancelled)="closeModals()"
+    />
+  }
+</div>

@@ -1,0 +1,233 @@
+<div class="glass-backdrop" (click)="onBackdropClick($event)">
+  <div class="glass-modal" role="dialog" aria-modal="true">
+    <!-- Header -->
+    <div class="modal-header">
+      <div class="header-titles">
+        <span class="badge-mode">{{ isEditMode() ? 'Editing Mode' : 'New Creation' }}</span>
+        <h2 class="form-title">{{ isEditMode() ? 'Edit Exercise' : 'Create New Exercise' }}</h2>
+      </div>
+
+      <button type="button" class="btn-close" (click)="closed.emit()" title="Close">
+        ✕
+      </button>
+    </div>
+
+    <!-- Error Message if any -->
+    @if (errorMessage()) {
+      <div class="error-banner">
+        <span>⚠️ {{ errorMessage() }}</span>
+      </div>
+    }
+
+    <!-- Form Body -->
+    <form (ngSubmit)="onSubmit()" class="modal-form">
+      <div class="form-scroll-area">
+        <!-- Name -->
+        <div class="form-group">
+          <label for="exercise-name" class="form-label">Exercise Name *</label>
+          <input
+            id="exercise-name"
+            type="text"
+            class="glass-input"
+            placeholder="e.g. Incline Dumbbell Press"
+            [ngModel]="name()"
+            (ngModelChange)="name.set($event)"
+            name="exerciseName"
+            required
+          />
+        </div>
+
+        <!-- Category & Difficulty Row -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="category-select" class="form-label">Category *</label>
+            <select
+              id="category-select"
+              class="glass-select"
+              [ngModel]="primaryCategory()"
+              (ngModelChange)="primaryCategory.set($event)"
+              name="category"
+            >
+              @for (cat of categories; track cat) {
+                <option [value]="cat">{{ cat }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="difficulty-select" class="form-label">Difficulty</label>
+            <select
+              id="difficulty-select"
+              class="glass-select"
+              [ngModel]="difficultyLevel()"
+              (ngModelChange)="difficultyLevel.set($event)"
+              name="difficulty"
+            >
+              @for (lvl of difficultyLevels; track lvl) {
+                <option [value]="lvl">{{ lvl }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="form-group">
+          <label for="exercise-desc" class="form-label">Description</label>
+          <textarea
+            id="exercise-desc"
+            class="glass-textarea"
+            rows="2"
+            placeholder="Brief overview and execution technique..."
+            [ngModel]="description()"
+            (ngModelChange)="description.set($event)"
+            name="description"
+          ></textarea>
+        </div>
+
+        <!-- Movement Pattern & Target Muscles -->
+        <div class="form-group">
+          <label for="movement-pattern-select" class="form-label">Movement Pattern</label>
+          <select
+            id="movement-pattern-select"
+            class="glass-select"
+            [ngModel]="movementPattern()"
+            (ngModelChange)="movementPattern.set($event)"
+            name="movementPattern"
+          >
+            @for (p of movementPatterns; track p) {
+              <option [value]="p">{{ p }}</option>
+            }
+          </select>
+        </div>
+
+        <!-- Quick Muscle Selectors -->
+        <div class="form-group">
+          <label class="form-label">Target Muscles</label>
+          <div class="pills-picker">
+            @for (muscle of availableMuscles(); track muscle) {
+              <button
+                type="button"
+                class="choice-pill"
+                [class.selected]="selectedPrimaryMuscles().includes(muscle)"
+                (click)="toggleMuscle(muscle)"
+              >
+                {{ muscle }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- Equipment Selectors -->
+        <div class="form-group">
+          <label class="form-label">Equipment</label>
+          <div class="pills-picker">
+            @for (equip of availableEquipment(); track equip) {
+              <button
+                type="button"
+                class="choice-pill"
+                [class.selected]="selectedEquipment().includes(equip)"
+                (click)="toggleEquipment(equip)"
+              >
+                {{ equip }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- Metrics Parameters -->
+        <div class="form-section-divider">
+          <span>Resistance Recommendations</span>
+        </div>
+
+        <div class="form-row-metrics">
+          <div class="form-group">
+            <label class="form-label">Sets</label>
+            <input
+              type="number"
+              class="glass-input input-compact"
+              placeholder="3"
+              [ngModel]="sets()"
+              (ngModelChange)="sets.set($event)"
+              name="sets"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Min Reps</label>
+            <input
+              type="number"
+              class="glass-input input-compact"
+              placeholder="8"
+              [ngModel]="repsMin()"
+              (ngModelChange)="repsMin.set($event)"
+              name="repsMin"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Max Reps</label>
+            <input
+              type="number"
+              class="glass-input input-compact"
+              placeholder="12"
+              [ngModel]="repsMax()"
+              (ngModelChange)="repsMax.set($event)"
+              name="repsMax"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Rest (sec)</label>
+            <input
+              type="number"
+              class="glass-input input-compact"
+              placeholder="90"
+              [ngModel]="restSeconds()"
+              (ngModelChange)="restSeconds.set($event)"
+              name="restSeconds"
+            />
+          </div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="form-group">
+          <label for="instructions-input" class="form-label">
+            Step-by-step Instructions <span class="hint">(one per line)</span>
+          </label>
+          <textarea
+            id="instructions-input"
+            class="glass-textarea"
+            rows="3"
+            placeholder="1. Lie flat on the bench with feet planted&#10;2. Grip barbell slightly wider than shoulder width..."
+            [ngModel]="instructionsText()"
+            (ngModelChange)="instructionsText.set($event)"
+            name="instructions"
+          ></textarea>
+        </div>
+
+        <!-- Safety Tips -->
+        <div class="form-group">
+          <label for="safety-tips-input" class="form-label">
+            Safety Tips <span class="hint">(one per line)</span>
+          </label>
+          <textarea
+            id="safety-tips-input"
+            class="glass-textarea"
+            rows="2"
+            placeholder="Avoid bouncing the bar off chest..."
+            [ngModel]="safetyTipsText()"
+            (ngModelChange)="safetyTipsText.set($event)"
+            name="safetyTips"
+          ></textarea>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" (click)="closed.emit()">
+          Cancel
+        </button>
+        <button type="submit" class="btn-submit">
+          {{ isEditMode() ? 'Save Changes' : 'Create Exercise' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

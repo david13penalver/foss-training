@@ -1,1 +1,94 @@
-/* You can add global styles to this file, and also import other style files */
+/* ==========================================================================
+   Apple Liquid Glass Theme Foundation
+   ========================================================================== */
+
+:root {
+  /* Color Palette */
+  --bg-base: #0a0c14;
+  --bg-surface: rgba(255, 255, 255, 0.04);
+  --bg-surface-hover: rgba(255, 255, 255, 0.08);
+  --bg-surface-active: rgba(255, 255, 255, 0.12);
+  --bg-elevated: rgba(18, 22, 36, 0.72);
+  --bg-modal: rgba(14, 18, 30, 0.88);
+
+  /* Borders & Specular Highlights */
+  --border-glass: rgba(255, 255, 255, 0.12);
+  --border-glass-subtle: rgba(255, 255, 255, 0.06);
+  --border-glass-focus: rgba(0, 240, 255, 0.4);
+  --specular-highlight: inset 0 1px 1px 0 rgba(255, 255, 255, 0.22);
+  --specular-highlight-subtle: inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+
+  /* Shadows */
+  --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  --shadow-floating: 0 20px 48px -8px rgba(0, 0, 0, 0.6), 0 0 1px 1px rgba(255, 255, 255, 0.1);
+  --shadow-glow-cyan: 0 0 24px -4px rgba(0, 240, 255, 0.35);
+  --shadow-glow-blue: 0 0 24px -4px rgba(10, 132, 255, 0.4);
+
+  /* Apple Accents */
+  --accent-cyan: #00f0ff;
+  --accent-blue: #0a84ff;
+  --accent-purple: #bf5af2;
+  --accent-pink: #ff375f;
+  --accent-orange: #ff9f0a;
+  --accent-green: #30d158;
+  --accent-red: #ff453a;
+
+  /* Typography */
+  --text-primary: #f5f5f7;
+  --text-secondary: #98989f;
+  --text-tertiary: #636366;
+  --text-muted: #48484a;
+
+  /* Blur settings */
+  --glass-blur: blur(24px) saturate(190%);
+  --glass-blur-heavy: blur(36px) saturate(200%);
+
+  /* Animation timing */
+  --ease-apple: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", sans-serif;
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* Ambient Radial Mesh Gradient Background */
+body {
+  background-image:
+    radial-gradient(circle at 15% 15%, rgba(10, 132, 255, 0.12) 0%, transparent 40%),
+    radial-gradient(circle at 85% 20%, rgba(191, 90, 242, 0.12) 0%, transparent 45%),
+    radial-gradient(circle at 50% 80%, rgba(0, 240, 255, 0.08) 0%, transparent 50%);
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 9999px;
+  backdrop-filter: blur(8px);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}

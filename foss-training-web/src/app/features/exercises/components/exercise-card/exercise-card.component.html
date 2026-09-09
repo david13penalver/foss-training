@@ -1,0 +1,63 @@
+<article class="glass-card" (click)="onCardClick()" tabindex="0" role="button">
+  <div class="card-header">
+    <div class="category-wrapper">
+      <span class="category-icon">{{ categoryIcon() }}</span>
+      <span class="category-badge">{{ exercise().primaryCategory }}</span>
+    </div>
+
+    @if (exercise().difficultyLevel) {
+      <span class="difficulty-pill" [class]="difficultyClass()">
+        {{ exercise().difficultyLevel }}
+      </span>
+    }
+  </div>
+
+  <div class="card-body">
+    <h3 class="card-title">{{ exercise().name }}</h3>
+
+    @if (exercise().description) {
+      <p class="card-desc">{{ exercise().description }}</p>
+    }
+
+    <!-- Tags for Muscles & Movement -->
+    <div class="tags-container">
+      @if (movementPattern(); as pattern) {
+        <span class="glass-chip chip-pattern">{{ pattern }}</span>
+      }
+
+      @for (muscle of primaryMuscles(); track muscle) {
+        <span class="glass-chip chip-muscle">{{ muscle }}</span>
+      }
+
+      @for (equip of exercise().equipmentRequired ?? []; track equip) {
+        <span class="glass-chip chip-equipment">{{ equip }}</span>
+      }
+    </div>
+  </div>
+
+  <div class="card-footer">
+    <button type="button" class="btn-action btn-view" (click)="onCardClick()" title="View details">
+      <span>Details</span>
+      <span class="arrow-icon">→</span>
+    </button>
+
+    <div class="footer-actions">
+      <button
+        type="button"
+        class="btn-icon btn-edit"
+        (click)="onEditClick($event)"
+        title="Edit exercise"
+      >
+        ✎
+      </button>
+      <button
+        type="button"
+        class="btn-icon btn-delete"
+        (click)="onDeleteClick($event)"
+        title="Delete exercise"
+      >
+        🗑
+      </button>
+    </div>
+  </div>
+</article>

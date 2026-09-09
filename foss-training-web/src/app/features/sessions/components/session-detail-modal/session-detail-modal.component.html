@@ -1,0 +1,122 @@
+<div class="glass-backdrop" (click)="onBackdropClick($event)">
+  <div class="glass-modal" role="dialog" aria-modal="true">
+    <!-- Header -->
+    <div class="modal-header">
+      <div class="header-main">
+        <div class="status-indicator">
+          <span class="status-tag">{{ session().sessionStatus ?? 'Draft' }}</span>
+        </div>
+        <h2 class="detail-title">{{ session().name }}</h2>
+      </div>
+
+      <button type="button" class="btn-close" (click)="closed.emit()" title="Close">
+        ✕
+      </button>
+    </div>
+
+    <!-- Scrollable Content -->
+    <div class="modal-content">
+      @if (session().description) {
+        <section class="info-section">
+          <h4 class="section-title">Overview</h4>
+          <p class="session-description">{{ session().description }}</p>
+        </section>
+      }
+
+      @if (session().notes) {
+        <section class="info-section notes-box">
+          <h4 class="section-title">📝 Routine Notes</h4>
+          <p class="session-notes">{{ session().notes }}</p>
+        </section>
+      }
+
+      <!-- Exercise list breakdown -->
+      <section class="info-section">
+        <div class="section-header-row">
+          <h4 class="section-title">Exercises & Set Scheme</h4>
+          <span class="count-badge">{{ session().sessionExercises?.length ?? 0 }} Movements</span>
+        </div>
+
+        <div class="exercise-stack">
+          @for (item of session().sessionExercises ?? []; track item.id ?? $index; let idx = $index) {
+            <div class="exercise-block">
+              <div class="block-header">
+                <div class="order-num">{{ idx + 1 }}</div>
+                <div class="exercise-info">
+                  <h5 class="exercise-name">{{ item.exercise?.name }}</h5>
+                  <span class="exercise-cat">{{ item.exercise?.primaryCategory }}</span>
+                </div>
+              </div>
+
+              <!-- Sets Breakdown for Resistance Exercises -->
+              @if (asResistance(item).sets; as sets) {
+                @if (sets.length > 0) {
+                  <div class="sets-table-wrapper">
+                    <table class="sets-table">
+                      <thead>
+                        <tr>
+                          <th>Set</th>
+                          <th>Type</th>
+                          <th>Weight</th>
+                          <th>Reps</th>
+                          <th>RPE</th>
+                          <th>Rest</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (set of sets; track set.setNumber ?? $index) {
+                          <tr>
+                            <td class="set-idx">{{ set.setNumber ?? $index + 1 }}</td>
+                            <td>
+                              <span class="set-type-pill" [class]="'type-' + (set.setType?.toLowerCase() ?? 'working')">
+                                {{ set.setType ?? 'WORKING' }}
+                              </span>
+                            </td>
+                            <td class="weight-col">
+                              @if (set.weight?.value) {
+                                {{ set.weight?.value }} {{ set.weight?.unit ?? 'KG' }}
+                              } @else {
+                                —
+                              }
+                            </td>
+                            <td class="reps-col">
+                              {{ set.repetitions ? set.repetitions + ' reps' : '—' }}
+                            </td>
+                            <td>{{ set.rpe?.value ? '@' + set.rpe?.value : '—' }}</td>
+                            <td>{{ set.restSeconds ? set.restSeconds + 's' : '—' }}</td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                }
+              }
+            </div>
+          } @empty {
+            <p class="empty-text">No exercises added to this routine template yet.</p>
+          }
+        </div>
+      </section>
+    </div>
+
+    <!-- Footer Actions -->
+    <div class="modal-footer">
+      <button
+        type="button"
+        class="btn-start-action"
+        (click)="startTraining.emit(session())"
+      >
+        <span>▶ Start Workout</span>
+      </button>
+
+      <div class="secondary-actions">
+        <button type="button" class="btn-edit-action" (click)="edit.emit(session())">
+          Edit
+        </button>
+        <button type="button" class="btn-dismiss" (click)="closed.emit()">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

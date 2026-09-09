@@ -1,0 +1,76 @@
+<article class="glass-card" (click)="onCardClick()" tabindex="0" role="button">
+  <div class="card-header">
+    <div class="status-wrapper">
+      <span class="status-dot"></span>
+      <span class="status-badge" [class]="statusClass()">
+        {{ session().sessionStatus ?? 'Draft' }}
+      </span>
+    </div>
+
+    <div class="header-metrics">
+      <span class="metric-pill">{{ exerciseCount() }} Exercises</span>
+      @if (totalSets() > 0) {
+        <span class="metric-pill sets-pill">{{ totalSets() }} Sets</span>
+      }
+    </div>
+  </div>
+
+  <div class="card-body">
+    <h3 class="card-title">{{ session().name }}</h3>
+
+    @if (session().description) {
+      <p class="card-desc">{{ session().description }}</p>
+    }
+
+    <!-- Exercise summary chips -->
+    @if (exerciseNames().length > 0) {
+      <div class="exercise-chips">
+        @for (name of exerciseNames(); track name) {
+          <span class="glass-chip">
+            <span class="chip-bullet">✦</span>
+            <span>{{ name }}</span>
+          </span>
+        }
+      </div>
+    }
+  </div>
+
+  <div class="card-footer">
+    <button
+      type="button"
+      class="btn-start-workout"
+      (click)="onStartTrainingClick($event)"
+      title="Start workout now"
+    >
+      <span class="play-icon">▶</span>
+      <span>Start Workout</span>
+    </button>
+
+    <div class="footer-actions">
+      <button
+        type="button"
+        class="btn-icon btn-view"
+        (click)="onCardClick()"
+        title="View details"
+      >
+        👁
+      </button>
+      <button
+        type="button"
+        class="btn-icon btn-edit"
+        (click)="onEditClick($event)"
+        title="Edit template"
+      >
+        ✎
+      </button>
+      <button
+        type="button"
+        class="btn-icon btn-delete"
+        (click)="onDeleteClick($event)"
+        title="Delete template"
+      >
+        🗑
+      </button>
+    </div>
+  </div>
+</article>

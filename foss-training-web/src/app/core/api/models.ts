@@ -9,6 +9,10 @@ export type ExerciseRequest = Schemas['ExerciseRequest'];
 export type Session = Schemas['Session'];
 export type SessionRequest = Schemas['SessionRequest'];
 export type SessionExercise = Schemas['SessionExercise'];
+export type ResistanceSessionExercise = Schemas['ResistanceSessionExercise'];
+export type ResistanceSet = Schemas['ResistanceSet'];
+export type EnduranceSessionExercise = Schemas['EnduranceSessionExercise'];
+export type MobilitySessionExercise = Schemas['MobilitySessionExercise'];
 
 export type Training = Schemas['Training'];
 export type TrainingRequest = Schemas['TrainingRequest'];

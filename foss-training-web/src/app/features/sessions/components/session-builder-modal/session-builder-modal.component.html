@@ -1,0 +1,299 @@
+<div class="glass-backdrop" (click)="onBackdropClick($event)">
+  <div class="glass-modal" role="dialog" aria-modal="true">
+    <!-- Header -->
+    <div class="modal-header">
+      <div class="header-titles">
+        <span class="badge-mode">{{ isEditMode() ? 'Editing Routine' : 'New Template' }}</span>
+        <h2 class="builder-title">{{ isEditMode() ? 'Edit Routine Template' : 'Create Routine Template' }}</h2>
+      </div>
+
+      <button type="button" class="btn-close" (click)="closed.emit()" title="Close">
+        ✕
+      </button>
+    </div>
+
+    <!-- Error Banner -->
+    @if (errorMessage()) {
+      <div class="error-banner">
+        <span>⚠️ {{ errorMessage() }}</span>
+      </div>
+    }
+
+    <!-- Form & Builder Area -->
+    <form (ngSubmit)="onSubmit()" class="modal-form">
+      <div class="form-scroll-area">
+        <!-- Name & Status Row -->
+        <div class="form-row">
+          <div class="form-group flex-2">
+            <label for="session-name" class="form-label">Routine Name *</label>
+            <input
+              id="session-name"
+              type="text"
+              class="glass-input"
+              placeholder="e.g. Upper Body Hypertrophy A"
+              [ngModel]="name()"
+              (ngModelChange)="name.set($event)"
+              name="sessionName"
+              required
+            />
+          </div>
+
+          <div class="form-group flex-1">
+            <label for="status-select" class="form-label">Status</label>
+            <select
+              id="status-select"
+              class="glass-select"
+              [ngModel]="sessionStatus()"
+              (ngModelChange)="sessionStatus.set($event)"
+              name="status"
+            >
+              @for (st of statusOptions; track st) {
+                <option [value]="st">{{ st }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="form-group">
+          <label for="session-desc" class="form-label">Description</label>
+          <input
+            id="session-desc"
+            type="text"
+            class="glass-input"
+            placeholder="Focus, target volume, or goals..."
+            [ngModel]="description()"
+            (ngModelChange)="description.set($event)"
+            name="description"
+          />
+        </div>
+
+        <!-- Routine Notes -->
+        <div class="form-group">
+          <label for="session-notes" class="form-label">Notes & Instructions</label>
+          <textarea
+            id="session-notes"
+            class="glass-textarea"
+            rows="2"
+            placeholder="Pre-exhaustion strategy, tempo instructions, or warm-up notes..."
+            [ngModel]="notes()"
+            (ngModelChange)="notes.set($event)"
+            name="notes"
+          ></textarea>
+        </div>
+
+        <!-- Exercise Structure Builder -->
+        <div class="builder-section">
+          <div class="section-title-bar">
+            <div class="title-with-badge">
+              <h4 class="section-heading">Exercise Sequence</h4>
+              <span class="count-pill">{{ selectedExercises().length }} Movements</span>
+            </div>
+
+            <button
+              type="button"
+              class="btn-add-exercise"
+              (click)="isPickerOpen.set(!isPickerOpen())"
+            >
+              <span class="plus">+</span>
+              <span>Add Exercise</span>
+            </button>
+          </div>
+
+          <!-- Exercise Picker Dropdown Overlay -->
+          @if (isPickerOpen()) {
+            <div class="exercise-picker-box">
+              <div class="picker-search-bar">
+                <span class="search-icon">🔍</span>
+                <input
+                  type="text"
+                  class="picker-input"
+                  placeholder="Search exercise library..."
+                  [ngModel]="pickerSearchQuery()"
+                  (ngModelChange)="pickerSearchQuery.set($event)"
+                />
+                <button type="button" class="btn-picker-close" (click)="isPickerOpen.set(false)">✕</button>
+              </div>
+
+              <div class="picker-list">
+                @for (ex of availableFilteredExercises(); track ex.id) {
+                  <button
+                    type="button"
+                    class="picker-item"
+                    (click)="addExercise(ex)"
+                  >
+                    <div class="item-text">
+                      <span class="item-name">{{ ex.name }}</span>
+                      <span class="item-category">{{ ex.primaryCategory }}</span>
+                    </div>
+                    <span class="item-add-sign">+ Add</span>
+                  </button>
+                } @empty {
+                  <p class="picker-empty">No exercises found in library.</p>
+                }
+              </div>
+            </div>
+          }
+
+          <!-- Selected Exercises Stack -->
+          <div class="exercises-sequence-stack">
+            @for (exItem of selectedExercises(); track $index; let exIdx = $index) {
+              <div class="sequence-card">
+                <!-- Exercise Header Bar -->
+                <div class="sequence-header">
+                  <div class="sequence-order-tag">{{ exIdx + 1 }}</div>
+                  <div class="sequence-name-block">
+                    <h5 class="sequence-title">{{ exItem.exercise.name }}</h5>
+                    <span class="sequence-subtitle">{{ exItem.exercise.primaryCategory }}</span>
+                  </div>
+
+                  <div class="sequence-controls">
+                    <button
+                      type="button"
+                      class="btn-order-ctrl"
+                      [disabled]="exIdx === 0"
+                      (click)="moveExercise(exIdx, 'up')"
+                      title="Move up"
+                    >
+                      ▲
+                    </button>
+                    <button
+                      type="button"
+                      class="btn-order-ctrl"
+                      [disabled]="exIdx === selectedExercises().length - 1"
+                      (click)="moveExercise(exIdx, 'down')"
+                      title="Move down"
+                    >
+                      ▼
+                    </button>
+                    <button
+                      type="button"
+                      class="btn-remove-ctrl"
+                      (click)="removeExercise(exIdx)"
+                      title="Remove from routine"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Sets Table Editor -->
+                <div class="sets-editor-wrapper">
+                  <table class="sets-editor-table">
+                    <thead>
+                      <tr>
+                        <th class="col-num">#</th>
+                        <th>Type</th>
+                        <th>Weight (KG)</th>
+                        <th>Reps</th>
+                        <th>RPE</th>
+                        <th>Rest (s)</th>
+                        <th class="col-del"></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (set of exItem.sets; track $index; let sIdx = $index) {
+                        <tr>
+                          <td class="col-num-val">{{ sIdx + 1 }}</td>
+                          <td>
+                            <select
+                              class="table-select"
+                              [ngModel]="set.setType"
+                              (ngModelChange)="set.setType = $event"
+                              [name]="'setType_' + exIdx + '_' + sIdx"
+                            >
+                              @for (opt of setTypeOptions; track opt) {
+                                <option [value]="opt">{{ opt }}</option>
+                              }
+                            </select>
+                          </td>
+                          <td>
+                            <input
+                              type="number"
+                              class="table-input"
+                              placeholder="0"
+                              [ngModel]="set.weight"
+                              (ngModelChange)="set.weight = $event"
+                              [name]="'weight_' + exIdx + '_' + sIdx"
+                            />
+                          </td>
+                          <td>
+                            <input
+                              type="number"
+                              class="table-input"
+                              placeholder="10"
+                              [ngModel]="set.repetitions"
+                              (ngModelChange)="set.repetitions = $event"
+                              [name]="'reps_' + exIdx + '_' + sIdx"
+                            />
+                          </td>
+                          <td>
+                            <input
+                              type="number"
+                              step="0.5"
+                              max="10"
+                              class="table-input"
+                              placeholder="8"
+                              [ngModel]="set.rpe"
+                              (ngModelChange)="set.rpe = $event"
+                              [name]="'rpe_' + exIdx + '_' + sIdx"
+                            />
+                          </td>
+                          <td>
+                            <input
+                              type="number"
+                              class="table-input"
+                              placeholder="90"
+                              [ngModel]="set.restSeconds"
+                              (ngModelChange)="set.restSeconds = $event"
+                              [name]="'rest_' + exIdx + '_' + sIdx"
+                            />
+                          </td>
+                          <td class="col-del">
+                            @if (exItem.sets.length > 1) {
+                              <button
+                                type="button"
+                                class="btn-del-set"
+                                (click)="removeSet(exIdx, sIdx)"
+                                title="Delete set"
+                              >
+                                ✕
+                              </button>
+                            }
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+
+                  <button
+                    type="button"
+                    class="btn-add-set"
+                    (click)="addSet(exIdx)"
+                  >
+                    + Add Set
+                  </button>
+                </div>
+              </div>
+            } @empty {
+              <div class="empty-sequence-box">
+                <span class="empty-icon">📋</span>
+                <p>No exercises in routine yet. Click "+ Add Exercise" above to start building.</p>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer Actions -->
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" (click)="closed.emit()">
+          Cancel
+        </button>
+        <button type="submit" class="btn-save-routine">
+          {{ isEditMode() ? 'Update Routine' : 'Create Routine' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -9,5 +9,9 @@ export const routes: Routes = [
   {
     path: 'exercises',
     loadChildren: () => import('./features/exercises/exercises.routes')
+  },
+  {
+    path: 'sessions',
+    loadChildren: () => import('./features/sessions/sessions.routes')
   }
 ];

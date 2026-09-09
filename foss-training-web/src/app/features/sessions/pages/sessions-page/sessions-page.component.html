@@ -1,0 +1,125 @@
+<div class="page-container">
+  <!-- Top Hero & Controls Bar -->
+  <section class="hero-bar">
+    <div class="hero-titles">
+      <span class="sub-heading">Templates</span>
+      <h1 class="page-heading">Workout Sessions</h1>
+      <p class="page-sub">Structure reusable workout routines, configure set schemes, and launch active training sessions.</p>
+    </div>
+
+    <button type="button" class="btn-create-liquid" (click)="openCreateModal()">
+      <span class="plus-icon">+</span>
+      <span>New Routine</span>
+    </button>
+  </section>
+
+  <!-- Notification Banner -->
+  @if (notificationMessage()) {
+    <div class="toast-notification">
+      <span>{{ notificationMessage() }}</span>
+    </div>
+  }
+
+  <!-- Filter & Search Toolbar (Floating Glass Dock) -->
+  <section class="toolbar-glass">
+    <!-- Search Bar -->
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Search routines by title, exercise, notes..."
+        [ngModel]="searchQuery()"
+        (ngModelChange)="searchQuery.set($event)"
+      />
+      @if (searchQuery()) {
+        <button type="button" class="btn-clear" (click)="searchQuery.set('')">✕</button>
+      }
+    </div>
+
+    <!-- Status Filter Pills -->
+    <div class="category-pills">
+      @for (st of statuses; track st) {
+        <button
+          type="button"
+          class="filter-pill"
+          [class.active]="selectedStatus() === st"
+          (click)="selectedStatus.set(st)"
+        >
+          {{ st }}
+        </button>
+      }
+    </div>
+  </section>
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="state-container loading-state">
+      <div class="spinner-liquid"></div>
+      <p>Loading workout routines...</p>
+    </div>
+  }
+
+  <!-- Error State -->
+  @if (error()) {
+    <div class="state-container error-state">
+      <span class="state-icon">⚠️</span>
+      <h3>Failed to load sessions</h3>
+      <p>Ensure backend API is up on localhost:8080.</p>
+    </div>
+  }
+
+  <!-- Sessions Grid -->
+  @if (!isLoading()) {
+    <section class="sessions-grid">
+      @for (session of filteredSessions(); track session.id) {
+        <app-session-card
+          [session]="session"
+          (viewDetails)="openDetailModal($event)"
+          (edit)="openEditModal($event)"
+          (delete)="openDeleteConfirm($event)"
+          (startTraining)="handleStartTraining($event)"
+        />
+      } @empty {
+        <div class="state-container empty-state">
+          <span class="empty-glyph">📋</span>
+          <h3>No workout routines found</h3>
+          <p>Create your first routine template to structure your training week.</p>
+          <button type="button" class="btn-create-subtle" (click)="openCreateModal()">
+            + Create "{{ searchQuery() || 'New Routine' }}"
+          </button>
+        </div>
+      }
+    </section>
+  }
+
+  <!-- Modals -->
+  @if (isBuilderOpen()) {
+    <app-session-builder-modal
+      [session]="editingSession()"
+      [availableExercises]="availableExercises()"
+      (save)="handleSave($event)"
+      (closed)="closeModals()"
+    />
+  }
+
+  @if (isDetailOpen() && activeSession()) {
+    <app-session-detail-modal
+      [session]="activeSession()!"
+      (edit)="openEditModal($event)"
+      (startTraining)="handleStartTraining($event)"
+      (closed)="closeModals()"
+    />
+  }
+
+  @if (isDeleteConfirmOpen() && sessionToDelete()) {
+    <app-confirm-dialog
+      title="Delete Routine Template"
+      [message]="'Are you sure you want to delete \'' + sessionToDelete()!.name + '\'? Any scheduled workouts using this template will be unaffected.'"
+      confirmText="Delete Template"
+      [isDestructive]="true"
+      (confirmed)="confirmDelete()"
+      (cancelled)="closeModals()"
+    />
+  }
+</div>

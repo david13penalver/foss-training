@@ -14,9 +14,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "exerciseType")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = ResistanceSessionExerciseDto.class, name = "resistance"),
-        @JsonSubTypes.Type(value = EnduranceSessionExerciseDto.class, name = "endurance"),
-        @JsonSubTypes.Type(value = MobilitySessionExerciseDto.class, name = "mobility")
+        @JsonSubTypes.Type(value = ResistanceSessionExerciseDto.class, names = {"resistance", "ResistanceSessionExercise"}),
+        @JsonSubTypes.Type(value = EnduranceSessionExerciseDto.class, names = {"endurance", "EnduranceSessionExercise"}),
+        @JsonSubTypes.Type(value = MobilitySessionExerciseDto.class, names = {"mobility", "MobilitySessionExercise"})
 })
 @Schema(name = "SessionExercise")
 public abstract class SessionExerciseDto {

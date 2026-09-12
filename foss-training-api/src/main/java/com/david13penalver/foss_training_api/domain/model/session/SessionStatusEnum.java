@@ -136,9 +136,19 @@ public enum SessionStatusEnum {
         };
     }
 
+    @com.fasterxml.jackson.annotation.JsonCreator
     public static SessionStatusEnum fromString(String text) {
+        if (text == null) {
+            return null;
+        }
         for (SessionStatusEnum status : SessionStatusEnum.values()) {
-            if (status.name().equalsIgnoreCase(text)) {
+            if (status.name().equalsIgnoreCase(text) || status.name.equalsIgnoreCase(text)) {
+                return status;
+            }
+        }
+        String normalized = text.trim().toUpperCase().replace(" ", "_");
+        for (SessionStatusEnum status : SessionStatusEnum.values()) {
+            if (status.name().equalsIgnoreCase(normalized)) {
                 return status;
             }
         }

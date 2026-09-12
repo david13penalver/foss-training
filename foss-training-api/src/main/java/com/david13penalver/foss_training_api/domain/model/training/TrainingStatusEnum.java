@@ -79,12 +79,19 @@ public enum TrainingStatusEnum {
         return this == PLANNED || this == PAUSED;
     }
 
+    @com.fasterxml.jackson.annotation.JsonCreator
     public static TrainingStatusEnum fromString(String text) {
         if (text == null) {
-            throw new IllegalArgumentException("Training status text cannot be null");
+            return null;
         }
         for (TrainingStatusEnum status : TrainingStatusEnum.values()) {
-            if (status.name().equalsIgnoreCase(text)) {
+            if (status.name().equalsIgnoreCase(text) || status.name.equalsIgnoreCase(text)) {
+                return status;
+            }
+        }
+        String normalized = text.trim().toUpperCase().replace(" ", "_");
+        for (TrainingStatusEnum status : TrainingStatusEnum.values()) {
+            if (status.name().equalsIgnoreCase(normalized)) {
                 return status;
             }
         }

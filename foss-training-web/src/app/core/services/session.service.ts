@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, httpResource } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import type { Session, SessionRequest, Training } from '../api/models';
+import type { CloneSessionRequest, Session, SessionRequest, Training } from '../api/models';
 
 @Injectable({
   providedIn: 'root'
@@ -30,6 +30,10 @@ export class SessionService {
 
   deleteSession(id: number): Observable<void> {
     return this.http.delete<void>(`/api/sessions/${id}`);
+  }
+
+  cloneSession(id: number, request?: CloneSessionRequest): Observable<Session> {
+    return this.http.post<Session>(`/api/sessions/${id}/clone`, request ?? {});
   }
 
   checkSessionExists(id: number): Observable<boolean> {

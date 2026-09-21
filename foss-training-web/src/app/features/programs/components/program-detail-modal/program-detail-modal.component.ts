@@ -12,6 +12,8 @@ export class ProgramDetailModalComponent {
   readonly program = input.required<TrainingProgram>();
 
   readonly closed = output<void>();
+  readonly viewAdherence = output<TrainingProgram>();
+  readonly clone = output<TrainingProgram>();
   readonly edit = output<TrainingProgram>();
   readonly schedule = output<TrainingProgram>();
 

@@ -99,6 +99,16 @@
       transform: scale(1.05);
     }
 
+    &.btn-adherence:hover {
+      background: rgba(0, 240, 255, 0.2);
+      border-color: rgba(0, 240, 255, 0.4);
+    }
+
+    &.btn-clone:hover {
+      background: rgba(191, 90, 242, 0.2);
+      border-color: rgba(191, 90, 242, 0.4);
+    }
+
     &.btn-schedule:hover {
       background: rgba(10, 132, 255, 0.25);
       border-color: rgba(10, 132, 255, 0.4);

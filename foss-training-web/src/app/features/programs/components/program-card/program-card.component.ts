@@ -12,6 +12,8 @@ export class ProgramCardComponent {
   readonly program = input.required<TrainingProgram>();
 
   readonly view = output<TrainingProgram>();
+  readonly viewAdherence = output<TrainingProgram>();
+  readonly clone = output<TrainingProgram>();
   readonly edit = output<TrainingProgram>();
   readonly delete = output<TrainingProgram>();
   readonly schedule = output<TrainingProgram>();

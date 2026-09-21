@@ -199,6 +199,18 @@
     transition: all 0.2s;
   }
 
+  .btn-adherence-action {
+    background: rgba(0, 240, 255, 0.12);
+    color: var(--accent-cyan);
+    border: 1px solid rgba(0, 240, 255, 0.35);
+
+    &:hover {
+      background: rgba(0, 240, 255, 0.22);
+      border-color: rgba(0, 240, 255, 0.55);
+      box-shadow: 0 0 16px rgba(0, 240, 255, 0.25);
+    }
+  }
+
   .btn-primary {
     background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
     color: #fff;

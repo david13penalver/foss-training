@@ -56,6 +56,7 @@ describe('SessionsPageComponent', () => {
       createSession: vi.fn((req: SessionRequest) => of({ ...req, id: 99 })),
       updateSession: vi.fn((id: number, req: SessionRequest) => of({ ...req, id })),
       deleteSession: vi.fn((id: number) => of(void 0)),
+      cloneSession: vi.fn((id: number) => of({ id: 99, name: 'Push Strength Focus (Copy)' } as Session)),
       startTrainingFromSession: vi.fn((id: number) => of({ id: 55, status: 'In Progress' } as Training))
     };
 
@@ -148,5 +149,12 @@ describe('SessionsPageComponent', () => {
     component.handleStartTraining(mockSessions[0]);
     expect(mockSessionService.startTrainingFromSession).toHaveBeenCalledWith(1);
     expect(component.notificationMessage()).toContain('Push Strength Focus');
+  });
+
+  it('should call cloneSession when duplicating a session', () => {
+    component.handleClone(mockSessions[0]);
+    expect(mockSessionService.cloneSession).toHaveBeenCalledWith(1);
+    expect(mockSessionService.sessionsResource.reload).toHaveBeenCalled();
+    expect(component.notificationMessage()).toContain('duplicated as "Push Strength Focus (Copy)"');
   });
 });

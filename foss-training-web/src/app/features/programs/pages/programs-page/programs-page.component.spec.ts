@@ -6,6 +6,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
 import { signal } from '@angular/core';
+import { of } from 'rxjs';
 import type { TrainingProgram } from '../../../../core/api/models';
 
 describe('ProgramsPageComponent', () => {
@@ -38,9 +39,17 @@ describe('ProgramsPageComponent', () => {
       programsResource: {
         value: signal(mockPrograms),
         isLoading: signal(false),
-        reload: () => {}
+        reload: vi.fn()
       },
-      deleteProgram: () => signal(null)
+      deleteProgram: vi.fn(() => of(void 0)),
+      cloneProgram: vi.fn((id: number) => of({ ...mockPrograms[0], id: 99, name: '12-Week Push Pull Legs (Copy)' })),
+      getProgramAdherence: vi.fn((id: number) => of({
+        programId: id,
+        overallCompletionRate: 50.0,
+        status: 'ON_TRACK',
+        weeklyBreakdowns: [],
+        workoutDetails: []
+      }))
     };
 
     mockSessionService = {
@@ -89,5 +98,21 @@ describe('ProgramsPageComponent', () => {
     component.openCreateModal();
     expect(component.isBuilderOpen()).toBe(true);
     expect(component.programForBuilder()).toBeNull();
+  });
+
+  it('should clone program when handleCloneProgram is called', () => {
+    component.handleCloneProgram(mockPrograms[0]);
+    expect(mockProgramService.cloneProgram).toHaveBeenCalledWith(1);
+    expect(mockProgramService.programsResource.reload).toHaveBeenCalled();
+    expect(component.notificationMessage()).toContain('duplicated as "12-Week Push Pull Legs (Copy)"');
+  });
+
+  it('should open adherence modal when openAdherenceModal is called', () => {
+    component.openAdherenceModal(mockPrograms[0]);
+    expect(component.selectedProgramForAdherence()?.id).toBe(1);
+
+    fixture.detectChanges();
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector('app-program-adherence-modal')).toBeTruthy();
   });
 });

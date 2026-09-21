@@ -14,6 +14,7 @@ export class SessionCardComponent {
   readonly startTraining = output<Session>();
   readonly viewDetails = output<Session>();
   readonly edit = output<Session>();
+  readonly clone = output<Session>();
   readonly delete = output<Session>();
 
   readonly exerciseCount = computed(() => {
@@ -55,6 +56,11 @@ export class SessionCardComponent {
   onEditClick(event: MouseEvent) {
     event.stopPropagation();
     this.edit.emit(this.session());
+  }
+
+  onCloneClick(event: MouseEvent) {
+    event.stopPropagation();
+    this.clone.emit(this.session());
   }
 
   onDeleteClick(event: MouseEvent) {

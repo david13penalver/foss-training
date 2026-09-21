@@ -247,6 +247,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/sessions/{id}/clone": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Clone an existing workout session template */
+        post: operations["cloneSession"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/programs": {
         parameters: {
             query?: never;
@@ -276,6 +293,23 @@ export interface paths {
         put?: never;
         /** Generate scheduled calendar workouts across the program duration */
         post: operations["generateSchedule"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/programs/{id}/clone": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Clone an existing multi-week training program */
+        post: operations["cloneProgram"];
         delete?: never;
         options?: never;
         head?: never;
@@ -387,6 +421,23 @@ export interface paths {
         };
         /** Check if a training program exists by ID */
         get: operations["programExists"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/programs/{id}/adherence": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get program adherence and compliance tracking metrics */
+        get: operations["getProgramAdherence"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1115,6 +1166,8 @@ export interface components {
             status?: "Planned" | "In Progress" | "Paused" | "Completed" | "Partially Completed" | "Skipped" | "Cancelled";
             notes?: string;
             rpe?: components["schemas"]["Rpe"];
+            /** Format: int32 */
+            programId?: number;
         };
         Weight: {
             /** Format: double */
@@ -1159,6 +1212,8 @@ export interface components {
             status?: "Planned" | "In Progress" | "Paused" | "Completed" | "Partially Completed" | "Skipped" | "Cancelled";
             notes?: string;
             rpe?: components["schemas"]["Rpe"];
+            /** Format: int32 */
+            programId?: number;
         };
         /** @description Granular set performance details for live workout logging */
         LogSetRequest: {
@@ -1354,6 +1409,22 @@ export interface components {
              */
             notes?: string;
         };
+        /** @description Optional customization parameters for cloning a session template */
+        CloneSessionRequest: {
+            /**
+             * @description Optional custom name for the cloned session template
+             * @example Upper Body Strength - Variation B
+             */
+            name?: string;
+        };
+        /** @description Optional customization parameters for cloning a training program */
+        CloneProgramRequest: {
+            /**
+             * @description Optional custom name for the cloned program
+             * @example 12-Week Hypertrophy Mesocycle (Cycle 2)
+             */
+            name?: string;
+        };
         /** @description Per-exercise volume and performance breakdown */
         WorkoutExerciseSummary: {
             /**
@@ -1471,6 +1542,200 @@ export interface components {
             notes?: string;
             /** @description Per-exercise performance breakdown */
             exerciseSummaries?: components["schemas"]["WorkoutExerciseSummary"][];
+        };
+        /** @description Comprehensive adherence and compliance metrics for a training program */
+        ProgramAdherenceResponse: {
+            /**
+             * Format: int32
+             * @description Training program ID
+             * @example 1
+             */
+            programId?: number;
+            /**
+             * @description Training program name
+             * @example 12-Week Hypertrophy Mesocycle
+             */
+            programName?: string;
+            /**
+             * Format: int32
+             * @description Program duration in weeks
+             * @example 12
+             */
+            durationWeeks?: number;
+            /**
+             * Format: int32
+             * @description Total scheduled workouts across the program duration
+             * @example 48
+             */
+            totalScheduledWorkouts?: number;
+            /**
+             * Format: int32
+             * @description Number of workouts successfully completed
+             * @example 24
+             */
+            completedWorkouts?: number;
+            /**
+             * Format: int32
+             * @description Number of workouts currently in progress or paused
+             * @example 1
+             */
+            inProgressWorkouts?: number;
+            /**
+             * Format: int32
+             * @description Number of planned upcoming workouts
+             * @example 22
+             */
+            plannedWorkouts?: number;
+            /**
+             * Format: int32
+             * @description Number of missed workouts
+             * @example 1
+             */
+            missedWorkouts?: number;
+            /**
+             * Format: int32
+             * @description Number of cancelled workouts
+             * @example 0
+             */
+            cancelledWorkouts?: number;
+            /**
+             * Format: double
+             * @description Overall program completion rate percentage (completed / total scheduled * 100)
+             * @example 50
+             */
+            overallCompletionRate?: number;
+            /**
+             * Format: double
+             * @description Current adherence rate percentage against elapsed workouts (completed / expected elapsed * 100)
+             * @example 96
+             */
+            currentAdherenceRate?: number;
+            /**
+             * Format: int32
+             * @description Current active consecutive completed workout streak
+             * @example 5
+             */
+            currentStreak?: number;
+            /**
+             * Format: int32
+             * @description Longest consecutive completed workout streak achieved
+             * @example 12
+             */
+            longestStreak?: number;
+            /**
+             * @description Current program adherence status level
+             * @example ON_TRACK
+             * @enum {string}
+             */
+            status?: "ON_TRACK" | "BEHIND_SCHEDULE" | "AT_RISK" | "COMPLETED" | "NOT_STARTED";
+            /**
+             * @description Sports science interpretation and recommendation for adherence status
+             * @example Excellent adherence to program schedule. Consistency is optimal for athletic adaptations.
+             */
+            statusDescription?: string;
+            /** @description Week-by-week adherence metrics */
+            weeklyBreakdowns?: components["schemas"]["WeeklyAdherence"][];
+            /** @description Workout-level compliance tracking history */
+            workoutDetails?: components["schemas"]["WorkoutAdherenceItem"][];
+        };
+        /** @description Week-by-week adherence metrics for a training program */
+        WeeklyAdherence: {
+            /**
+             * Format: int32
+             * @description Week number in the program cycle (1-indexed)
+             * @example 1
+             */
+            weekNumber?: number;
+            /**
+             * Format: date
+             * @description Start date of the training week
+             * @example 2026-09-01
+             */
+            weekStartDate?: string;
+            /**
+             * Format: date
+             * @description End date of the training week
+             * @example 2026-09-07
+             */
+            weekEndDate?: string;
+            /**
+             * Format: int32
+             * @description Number of scheduled workouts for this week
+             * @example 4
+             */
+            scheduledWorkouts?: number;
+            /**
+             * Format: int32
+             * @description Number of completed workouts for this week
+             * @example 4
+             */
+            completedWorkouts?: number;
+            /**
+             * Format: int32
+             * @description Number of missed or skipped workouts for this week
+             * @example 0
+             */
+            missedWorkouts?: number;
+            /**
+             * Format: double
+             * @description Weekly adherence rate percentage (0.0 - 100.0)
+             * @example 100
+             */
+            adherenceRate?: number;
+            /**
+             * @description Whether all scheduled workouts for this week have been completed
+             * @example true
+             */
+            completed?: boolean;
+        };
+        /** @description Workout-level compliance detail for a scheduled session */
+        WorkoutAdherenceItem: {
+            /**
+             * Format: int32
+             * @description Training execution ID
+             * @example 101
+             */
+            trainingId?: number;
+            /**
+             * @description Workout session name
+             * @example 12-Week Hypertrophy - W1D1: Upper Strength
+             */
+            workoutName?: string;
+            /**
+             * Format: date
+             * @description Scheduled workout date
+             * @example 2026-09-01
+             */
+            scheduledDate?: string;
+            /**
+             * Format: date
+             * @description Actual completion date
+             * @example 2026-09-01
+             */
+            completedDate?: string;
+            /**
+             * @description Training execution status
+             * @example COMPLETED
+             * @enum {string}
+             */
+            status?: "Planned" | "In Progress" | "Paused" | "Completed" | "Partially Completed" | "Skipped" | "Cancelled";
+            /**
+             * Format: double
+             * @description Session RPE rating (1-10)
+             * @example 8.5
+             */
+            sessionRpe?: number;
+            /**
+             * Format: double
+             * @description Total volume load lifted in kg
+             * @example 8500
+             */
+            volumeKg?: number;
+            /**
+             * @description Whether workout was completed on-time (within grace period)
+             * @example true
+             */
+            onTime?: boolean;
         };
         /** @description Exercise strength progression time-series and trend analytics */
         ExerciseProgressionResponseDto: {
@@ -2665,6 +2930,32 @@ export interface operations {
             };
         };
     };
+    cloneSession: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["CloneSessionRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["Session"];
+                };
+            };
+        };
+    };
     getAllPrograms: {
         parameters: {
             query?: never;
@@ -2729,6 +3020,32 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["Training"][];
+                };
+            };
+        };
+    };
+    cloneProgram: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["CloneProgramRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TrainingProgramResponse"];
                 };
             };
         };
@@ -2903,6 +3220,28 @@ export interface operations {
                 };
                 content: {
                     "*/*": boolean;
+                };
+            };
+        };
+    };
+    getProgramAdherence: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ProgramAdherenceResponse"];
                 };
             };
         };

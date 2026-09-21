@@ -1,7 +1,13 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, httpResource } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import type { Training, TrainingProgram, TrainingProgramRequest } from '../api/models';
+import type {
+  CloneProgramRequest,
+  ProgramAdherenceResponse,
+  Training,
+  TrainingProgram,
+  TrainingProgramRequest
+} from '../api/models';
 
 @Injectable({
   providedIn: 'root'
@@ -34,6 +40,14 @@ export class ProgramService {
 
   deleteProgram(id: number): Observable<void> {
     return this.http.delete<void>(`/api/programs/${id}`);
+  }
+
+  cloneProgram(id: number, request?: CloneProgramRequest): Observable<TrainingProgram> {
+    return this.http.post<TrainingProgram>(`/api/programs/${id}/clone`, request ?? {});
+  }
+
+  getProgramAdherence(id: number): Observable<ProgramAdherenceResponse> {
+    return this.http.get<ProgramAdherenceResponse>(`/api/programs/${id}/adherence`);
   }
 
   checkProgramExists(id: number): Observable<boolean> {

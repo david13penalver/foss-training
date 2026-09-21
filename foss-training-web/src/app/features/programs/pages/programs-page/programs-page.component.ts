@@ -6,6 +6,7 @@ import { ProgramCardComponent } from '../../components/program-card/program-card
 import { ProgramDetailModalComponent } from '../../components/program-detail-modal/program-detail-modal.component';
 import { ProgramBuilderModalComponent } from '../../components/program-builder-modal/program-builder-modal.component';
 import { GenerateScheduleModalComponent } from '../../components/generate-schedule-modal/generate-schedule-modal.component';
+import { ProgramAdherenceModalComponent } from '../../components/program-adherence-modal/program-adherence-modal.component';
 import { ConfirmDialogComponent } from '../../../../shared/ui/confirm-dialog/confirm-dialog.component';
 
 @Component({
@@ -16,6 +17,7 @@ import { ConfirmDialogComponent } from '../../../../shared/ui/confirm-dialog/con
     ProgramDetailModalComponent,
     ProgramBuilderModalComponent,
     GenerateScheduleModalComponent,
+    ProgramAdherenceModalComponent,
     ConfirmDialogComponent
   ],
   templateUrl: './programs-page.component.html',
@@ -31,6 +33,7 @@ export class ProgramsPageComponent {
 
   // Modals state
   readonly selectedProgramForDetail = signal<TrainingProgram | null>(null);
+  readonly selectedProgramForAdherence = signal<TrainingProgram | null>(null);
   readonly programForBuilder = signal<TrainingProgram | null>(null);
   readonly isBuilderOpen = signal(false);
   readonly programForSchedule = signal<TrainingProgram | null>(null);
@@ -82,6 +85,23 @@ export class ProgramsPageComponent {
 
   confirmDelete(program: TrainingProgram) {
     this.programToDelete.set(program);
+  }
+
+  handleCloneProgram(program: TrainingProgram) {
+    if (!program.id) return;
+    this.programService.cloneProgram(program.id).subscribe({
+      next: (cloned) => {
+        this.programService.programsResource.reload();
+        this.showNotification(`📋 Program "${program.name}" duplicated as "${cloned.name}"!`);
+      },
+      error: () => {
+        this.showNotification('Failed to duplicate training program.');
+      }
+    });
+  }
+
+  openAdherenceModal(program: TrainingProgram) {
+    this.selectedProgramForAdherence.set(program);
   }
 
   executeDelete() {

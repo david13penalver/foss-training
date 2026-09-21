@@ -304,6 +304,24 @@
   }
 }
 
+.btn-clone-action {
+  padding: 0.625rem 1.125rem;
+  border-radius: 12px;
+  background: rgba(0, 240, 255, 0.1);
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  color: var(--accent-cyan);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s var(--ease-apple);
+
+  &:hover {
+    background: rgba(0, 240, 255, 0.2);
+    border-color: rgba(0, 240, 255, 0.5);
+    box-shadow: 0 0 14px rgba(0, 240, 255, 0.25);
+  }
+}
+
 .btn-edit-action {
   padding: 0.625rem 1.125rem;
   border-radius: 12px;

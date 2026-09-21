@@ -97,4 +97,28 @@ describe('SessionService', () => {
     expect(req.request.method).toBe('POST');
     req.flush({ id: 101, status: 'In Progress' });
   });
+
+  it('should clone session with or without custom name', () => {
+    const clonedSession: Session = {
+      id: 20,
+      name: 'Push Routine A (Copy)',
+      sessionStatus: 'Planned'
+    };
+
+    service.cloneSession(10).subscribe(res => {
+      expect(res.id).toBe(20);
+      expect(res.name).toBe('Push Routine A (Copy)');
+    });
+
+    const req1 = httpTesting.expectOne('/api/sessions/10/clone');
+    expect(req1.request.method).toBe('POST');
+    expect(req1.request.body).toEqual({});
+    req1.flush(clonedSession);
+
+    service.cloneSession(10, { name: 'Push Routine Custom' }).subscribe();
+    const req2 = httpTesting.expectOne('/api/sessions/10/clone');
+    expect(req2.request.method).toBe('POST');
+    expect(req2.request.body).toEqual({ name: 'Push Routine Custom' });
+    req2.flush({ ...clonedSession, name: 'Push Routine Custom' });
+  });
 });

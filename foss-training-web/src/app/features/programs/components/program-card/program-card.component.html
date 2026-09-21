@@ -13,6 +13,22 @@
     <div class="actions-group" (click)="$event.stopPropagation()">
       <button
         type="button"
+        class="action-btn btn-adherence"
+        title="View Adherence & Compliance"
+        (click)="viewAdherence.emit(program())"
+      >
+        📊
+      </button>
+      <button
+        type="button"
+        class="action-btn btn-clone"
+        title="Duplicate Program"
+        (click)="clone.emit(program())"
+      >
+        ⎘
+      </button>
+      <button
+        type="button"
         class="action-btn btn-schedule"
         title="Generate Schedule"
         (click)="schedule.emit(program())"

@@ -1,0 +1,288 @@
+<div class="glass-backdrop" (click)="onBackdropClick($event)">
+  <div class="glass-modal" role="dialog" aria-modal="true">
+    <!-- Header -->
+    <div class="modal-header">
+      <div class="header-main">
+        <div class="badges-row">
+          <span class="badge-duration">⏱️ {{ program().durationWeeks }} Weeks</span>
+          @if (program().level) {
+            <span class="badge-level">{{ program().level }}</span>
+          }
+          @if (program().periodizationType) {
+            <span class="badge-periodization">{{ program().periodizationType }}</span>
+          }
+        </div>
+        <h2 class="detail-title">{{ program().name }} — Adherence & Compliance</h2>
+      </div>
+
+      <button type="button" class="btn-close" (click)="closed.emit()" title="Close">
+        ✕
+      </button>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <nav class="tabs-nav">
+      <button
+        type="button"
+        class="tab-btn"
+        [class.active]="activeTab() === 'overview'"
+        (click)="activeTab.set('overview')"
+      >
+        <span>📊 Overview & KPIs</span>
+      </button>
+      <button
+        type="button"
+        class="tab-btn"
+        [class.active]="activeTab() === 'weeks'"
+        (click)="activeTab.set('weeks')"
+      >
+        <span>📅 Weekly Periodization</span>
+        @if (adherence()?.weeklyBreakdowns?.length; as count) {
+          <span class="tab-badge">{{ count }}</span>
+        }
+      </button>
+      <button
+        type="button"
+        class="tab-btn"
+        [class.active]="activeTab() === 'workouts'"
+        (click)="activeTab.set('workouts')"
+      >
+        <span>📋 Workout Log Drilldown</span>
+        @if (adherence()?.workoutDetails?.length; as count) {
+          <span class="tab-badge">{{ count }}</span>
+        }
+      </button>
+    </nav>
+
+    <!-- Modal Content -->
+    <div class="modal-content">
+      @if (isLoading()) {
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>Calculating periodization compliance & adherence...</p>
+        </div>
+      } @else if (errorMessage()) {
+        <div class="error-banner">
+          <span class="error-icon">⚠️</span>
+          <span>{{ errorMessage() }}</span>
+          <button type="button" class="btn-retry" (click)="loadAdherence()">Retry</button>
+        </div>
+      } @else if (adherence(); as data) {
+        <!-- TAB 1: OVERVIEW -->
+        @if (activeTab() === 'overview') {
+          <div class="tab-pane overview-pane">
+            <!-- Status Callout -->
+            <section class="status-banner" [class]="getStatusBadgeClass(data.status)">
+              <div class="status-icon">{{ getStatusIcon(data.status) }}</div>
+              <div class="status-info">
+                <div class="status-label-row">
+                  <span class="status-name">{{ data.status?.replace('_', ' ') }}</span>
+                  <span class="status-pill">{{ data.completedWorkouts }} of {{ data.totalScheduledWorkouts }} Completed</span>
+                </div>
+                <p class="status-desc">{{ data.statusDescription }}</p>
+              </div>
+            </section>
+
+            <!-- Metrics KPI Grid -->
+            <section class="kpi-grid">
+              <!-- Card 1: Overall Completion Rate -->
+              <div class="kpi-card">
+                <div class="kpi-header">
+                  <span class="kpi-label">Overall Completion</span>
+                  <span class="kpi-glyph">🎯</span>
+                </div>
+                <div class="kpi-value-row">
+                  <span class="kpi-value">{{ data.overallCompletionRate | number:'1.0-1' }}%</span>
+                  <span class="kpi-subtext">of entire program</span>
+                </div>
+                <div class="progress-bar-container">
+                  <div
+                    class="progress-bar-fill fill-cyan"
+                    [style.width.%]="data.overallCompletionRate || 0"
+                  ></div>
+                </div>
+              </div>
+
+              <!-- Card 2: Current Adherence Rate -->
+              <div class="kpi-card">
+                <div class="kpi-header">
+                  <span class="kpi-label">Current Adherence</span>
+                  <span class="kpi-glyph">⚡</span>
+                </div>
+                <div class="kpi-value-row">
+                  <span class="kpi-value">{{ data.currentAdherenceRate | number:'1.0-1' }}%</span>
+                  <span class="kpi-subtext">against scheduled to date</span>
+                </div>
+                <div class="progress-bar-container">
+                  <div
+                    class="progress-bar-fill fill-green"
+                    [style.width.%]="data.currentAdherenceRate || 0"
+                  ></div>
+                </div>
+              </div>
+
+              <!-- Card 3: Workout Streak -->
+              <div class="kpi-card">
+                <div class="kpi-header">
+                  <span class="kpi-label">Workout Streak</span>
+                  <span class="kpi-glyph">🔥</span>
+                </div>
+                <div class="streak-details">
+                  <div class="streak-item">
+                    <span class="streak-val">{{ data.currentStreak || 0 }}</span>
+                    <span class="streak-lbl">Current Streak</span>
+                  </div>
+                  <div class="streak-divider"></div>
+                  <div class="streak-item">
+                    <span class="streak-val peak">{{ data.longestStreak || 0 }}</span>
+                    <span class="streak-lbl">Peak Streak</span>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- Workout Counts Summary -->
+            <section class="tally-section">
+              <h4 class="section-title">Workout Status Breakdown</h4>
+              <div class="tally-chips">
+                <div class="tally-chip chip-completed">
+                  <span class="chip-count">{{ data.completedWorkouts || 0 }}</span>
+                  <span class="chip-label">Completed</span>
+                </div>
+                <div class="tally-chip chip-in-progress">
+                  <span class="chip-count">{{ data.inProgressWorkouts || 0 }}</span>
+                  <span class="chip-label">In Progress</span>
+                </div>
+                <div class="tally-chip chip-planned">
+                  <span class="chip-count">{{ data.plannedWorkouts || 0 }}</span>
+                  <span class="chip-label">Planned</span>
+                </div>
+                <div class="tally-chip chip-missed">
+                  <span class="chip-count">{{ data.missedWorkouts || 0 }}</span>
+                  <span class="chip-label">Missed</span>
+                </div>
+                @if (data.cancelledWorkouts) {
+                  <div class="tally-chip chip-cancelled">
+                    <span class="chip-count">{{ data.cancelledWorkouts }}</span>
+                    <span class="chip-label">Cancelled</span>
+                  </div>
+                }
+              </div>
+            </section>
+          </div>
+        }
+
+        <!-- TAB 2: WEEKLY BREAKDOWN -->
+        @if (activeTab() === 'weeks') {
+          <div class="tab-pane weeks-pane">
+            <div class="weeks-stack">
+              @for (wb of data.weeklyBreakdowns || []; track wb.weekNumber || $index) {
+                <div class="week-card">
+                  <div class="week-card-header">
+                    <div class="week-identity">
+                      <span class="week-badge">Week {{ wb.weekNumber }}</span>
+                      <span class="week-tally">{{ wb.completedWorkouts || 0 }} / {{ wb.scheduledWorkouts || 0 }} Workouts</span>
+                    </div>
+                    <div class="week-rate-badge" [class.perfect]="(wb.adherenceRate || 0) >= 100">
+                      {{ wb.adherenceRate | number:'1.0-0' }}% Compliance
+                    </div>
+                  </div>
+
+                  <div class="progress-bar-container">
+                    <div
+                      class="progress-bar-fill fill-purple"
+                      [style.width.%]="wb.adherenceRate || 0"
+                    ></div>
+                  </div>
+
+                  @if (wb.weekStartDate && wb.weekEndDate) {
+                    <div class="week-footer">
+                      <span class="volume-metric">
+                        📅 {{ wb.weekStartDate }} to {{ wb.weekEndDate }}
+                      </span>
+                    </div>
+                  }
+                </div>
+              } @empty {
+                <div class="empty-tab-state">
+                  <p>No weekly breakdowns available. Ensure workouts are generated for this program.</p>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- TAB 3: WORKOUT DETAILS -->
+        @if (activeTab() === 'workouts') {
+          <div class="tab-pane workouts-pane">
+            <div class="workout-table-wrapper">
+              <table class="adherence-table">
+                <thead>
+                  <tr>
+                    <th>Workout</th>
+                    <th>Scheduled Date</th>
+                    <th>Completed Date</th>
+                    <th>Status</th>
+                    <th>RPE</th>
+                    <th>Volume</th>
+                    <th>Punctuality</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (item of data.workoutDetails || []; track item.trainingId || $index) {
+                    <tr>
+                      <td class="name-cell">
+                        <strong>{{ item.workoutName }}</strong>
+                      </td>
+                      <td class="date-cell">{{ item.scheduledDate || '—' }}</td>
+                      <td class="date-cell">{{ item.completedDate || '—' }}</td>
+                      <td>
+                        <span class="status-tag" [class]="getWorkoutStatusClass(item.status)">
+                          {{ item.status }}
+                        </span>
+                      </td>
+                      <td class="rpe-cell">
+                        @if (item.sessionRpe) {
+                          <span class="rpe-badge">@{{ item.sessionRpe }}</span>
+                        } @else {
+                          —
+                        }
+                      </td>
+                      <td class="vol-cell">
+                        {{ item.volumeKg ? (item.volumeKg | number:'1.0-0') + ' kg' : '—' }}
+                      </td>
+                      <td>
+                        @if (item.status === 'Completed') {
+                          @if (item.onTime) {
+                            <span class="ontime-tag ontime">✓ On Time</span>
+                          } @else {
+                            <span class="ontime-tag late">⚠ Grace Period</span>
+                          }
+                        } @else {
+                          <span class="ontime-tag pending">—</span>
+                        }
+                      </td>
+                    </tr>
+                  } @empty {
+                    <tr>
+                      <td colspan="7" class="empty-table-msg">
+                        No scheduled workouts found for this program. Click "Schedule to Calendar" on the program card to generate workouts.
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        }
+      }
+    </div>
+
+    <!-- Footer -->
+    <div class="modal-footer">
+      <button type="button" class="btn-dismiss" (click)="closed.emit()">
+        Close
+      </button>
+    </div>
+  </div>
+</div>

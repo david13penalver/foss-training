@@ -53,4 +53,24 @@ describe('ProgramCardComponent', () => {
 
     expect(emitted?.id).toBe(1);
   });
+
+  it('should emit viewAdherence event on adherence button click', () => {
+    let emitted: TrainingProgram | undefined;
+    component.viewAdherence.subscribe(p => (emitted = p));
+
+    const btn = fixture.nativeElement.querySelector('.btn-adherence') as HTMLButtonElement;
+    btn.click();
+
+    expect(emitted?.id).toBe(1);
+  });
+
+  it('should emit clone event on clone button click', () => {
+    let emitted: TrainingProgram | undefined;
+    component.clone.subscribe(p => (emitted = p));
+
+    const btn = fixture.nativeElement.querySelector('.btn-clone') as HTMLButtonElement;
+    btn.click();
+
+    expect(emitted?.id).toBe(1);
+  });
 });

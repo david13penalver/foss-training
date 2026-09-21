@@ -60,8 +60,14 @@
     </div>
 
     <div class="modal-footer">
+      <button type="button" class="btn-adherence-action" (click)="viewAdherence.emit(program())">
+        <span>📊 View Adherence</span>
+      </button>
       <button type="button" class="btn-primary" (click)="schedule.emit(program())">
         <span>🗓️ Schedule to Calendar</span>
+      </button>
+      <button type="button" class="btn-secondary" (click)="clone.emit(program())">
+        <span>⎘ Duplicate</span>
       </button>
       <button type="button" class="btn-secondary" (click)="edit.emit(program())">
         <span>Edit Program</span>

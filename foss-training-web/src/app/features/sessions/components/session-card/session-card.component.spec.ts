@@ -94,6 +94,16 @@ describe('SessionCardComponent', () => {
     expect(editedSession?.id).toBe(1);
   });
 
+  it('should emit clone when duplicate button is clicked', () => {
+    let clonedSession: Session | undefined;
+    component.clone.subscribe(s => (clonedSession = s));
+
+    const cloneBtn = fixture.nativeElement.querySelector('.btn-clone') as HTMLButtonElement;
+    cloneBtn.click();
+
+    expect(clonedSession?.id).toBe(1);
+  });
+
   it('should emit delete when delete button is clicked', () => {
     let deletedSession: Session | undefined;
     component.delete.subscribe(s => (deletedSession = s));

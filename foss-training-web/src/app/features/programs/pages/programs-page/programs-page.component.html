@@ -79,6 +79,8 @@
           <app-program-card
             [program]="prog"
             (view)="selectedProgramForDetail.set($event)"
+            (viewAdherence)="openAdherenceModal($event)"
+            (clone)="handleCloneProgram($event)"
             (edit)="openEditModal($event)"
             (delete)="confirmDelete($event)"
             (schedule)="programForSchedule.set($event)"
@@ -93,8 +95,17 @@
     <app-program-detail-modal
       [program]="detailProg"
       (closed)="selectedProgramForDetail.set(null)"
+      (viewAdherence)="selectedProgramForDetail.set(null); openAdherenceModal($event)"
+      (clone)="selectedProgramForDetail.set(null); handleCloneProgram($event)"
       (edit)="selectedProgramForDetail.set(null); openEditModal($event)"
       (schedule)="selectedProgramForDetail.set(null); programForSchedule.set($event)"
+    />
+  }
+
+  @if (selectedProgramForAdherence(); as adhProg) {
+    <app-program-adherence-modal
+      [program]="adhProg"
+      (closed)="selectedProgramForAdherence.set(null)"
     />
   }
 

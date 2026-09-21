@@ -144,4 +144,20 @@ export class SessionsPageComponent {
       }
     });
   }
+
+  handleClone(session: Session) {
+    if (!session.id) return;
+    this.sessionService.cloneSession(session.id).subscribe({
+      next: (cloned) => {
+        this.sessionService.sessionsResource.reload();
+        this.closeModals();
+        this.notificationMessage.set(`📋 Routine template "${session.name}" duplicated as "${cloned.name}"!`);
+        setTimeout(() => this.notificationMessage.set(''), 4000);
+      },
+      error: () => {
+        this.notificationMessage.set(`Failed to duplicate routine template.`);
+        setTimeout(() => this.notificationMessage.set(''), 4000);
+      }
+    });
+  }
 }

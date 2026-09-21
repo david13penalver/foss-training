@@ -127,4 +127,60 @@ describe('ProgramService', () => {
     expect(req.request.method).toBe('POST');
     req.flush(mockTrainings);
   });
+
+  it('should clone program with or without custom name', () => {
+    const clonedProgram: TrainingProgram = {
+      ...mockProgram,
+      id: 2,
+      name: '12-Week Push Pull Legs (Copy)'
+    };
+
+    service.cloneProgram(1).subscribe(res => {
+      expect(res.id).toBe(2);
+      expect(res.name).toBe('12-Week Push Pull Legs (Copy)');
+    });
+
+    const req1 = httpTesting.expectOne('/api/programs/1/clone');
+    expect(req1.request.method).toBe('POST');
+    expect(req1.request.body).toEqual({});
+    req1.flush(clonedProgram);
+
+    service.cloneProgram(1, { name: 'PPL Block V2' }).subscribe();
+    const req2 = httpTesting.expectOne('/api/programs/1/clone');
+    expect(req2.request.method).toBe('POST');
+    expect(req2.request.body).toEqual({ name: 'PPL Block V2' });
+    req2.flush({ ...clonedProgram, name: 'PPL Block V2' });
+  });
+
+  it('should get program adherence', () => {
+    const mockAdherence = {
+      programId: 1,
+      programName: '12-Week Push Pull Legs',
+      durationWeeks: 12,
+      totalScheduledWorkouts: 36,
+      completedWorkouts: 18,
+      inProgressWorkouts: 0,
+      plannedWorkouts: 18,
+      missedWorkouts: 0,
+      cancelledWorkouts: 0,
+      overallCompletionRate: 50.0,
+      currentAdherenceRate: 100.0,
+      currentStreak: 6,
+      longestStreak: 6,
+      status: 'ON_TRACK' as const,
+      statusDescription: 'Great job! You are currently on track with your periodization plan.',
+      weeklyBreakdowns: [],
+      workoutDetails: []
+    };
+
+    service.getProgramAdherence(1).subscribe(adherence => {
+      expect(adherence.programId).toBe(1);
+      expect(adherence.status).toBe('ON_TRACK');
+      expect(adherence.overallCompletionRate).toBe(50.0);
+    });
+
+    const req = httpTesting.expectOne('/api/programs/1/adherence');
+    expect(req.request.method).toBe('GET');
+    req.flush(mockAdherence);
+  });
 });

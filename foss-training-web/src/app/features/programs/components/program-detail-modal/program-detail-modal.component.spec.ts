@@ -54,4 +54,25 @@ describe('ProgramDetailModalComponent', () => {
 
     expect(closed).toBe(true);
   });
+
+  it('should emit viewAdherence event on adherence button click', () => {
+    let emitted: TrainingProgram | undefined;
+    component.viewAdherence.subscribe(p => (emitted = p));
+
+    const btn = fixture.nativeElement.querySelector('.btn-adherence-action') as HTMLButtonElement;
+    btn.click();
+
+    expect(emitted?.id).toBe(1);
+  });
+
+  it('should emit clone event on duplicate button click', () => {
+    let emitted: TrainingProgram | undefined;
+    component.clone.subscribe(p => (emitted = p));
+
+    const btns = fixture.nativeElement.querySelectorAll('.btn-secondary');
+    const cloneBtn = Array.from(btns).find((b: any) => b.textContent.includes('Duplicate')) as HTMLButtonElement;
+    cloneBtn.click();
+
+    expect(emitted?.id).toBe(1);
+  });
 });

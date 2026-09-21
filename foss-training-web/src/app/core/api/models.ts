@@ -8,6 +8,7 @@ export type ExerciseRequest = Schemas['ExerciseRequest'];
 
 export type Session = Schemas['Session'];
 export type SessionRequest = Schemas['SessionRequest'];
+export type CloneSessionRequest = Schemas['CloneSessionRequest'];
 export type SessionExercise = Schemas['SessionExercise'];
 export type ResistanceSessionExercise = Schemas['ResistanceSessionExercise'];
 export type ResistanceSet = Schemas['ResistanceSet'];
@@ -24,8 +25,15 @@ export type WorkoutExerciseSummary = Schemas['WorkoutExerciseSummary'];
 
 export type TrainingProgram = Schemas['TrainingProgramResponse'];
 export type TrainingProgramRequest = Schemas['TrainingProgramRequest'];
+export type CloneProgramRequest = Schemas['CloneProgramRequest'];
 export type ProgramWorkout = Schemas['ProgramWorkoutResponse'];
 export type ProgramWorkoutRequest = Schemas['ProgramWorkoutRequest'];
+
+// Program Adherence & Periodization Models
+export type ProgramAdherenceResponse = Schemas['ProgramAdherenceResponse'];
+export type WeeklyAdherence = Schemas['WeeklyAdherence'];
+export type WorkoutAdherenceItem = Schemas['WorkoutAdherenceItem'];
+export type ProgramAdherenceStatus = NonNullable<ProgramAdherenceResponse['status']>;
 
 // Periodization Enums
 export type PeriodizationType =

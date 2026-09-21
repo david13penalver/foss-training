@@ -110,6 +110,9 @@
       </button>
 
       <div class="secondary-actions">
+        <button type="button" class="btn-clone-action" (click)="clone.emit(session())">
+          ⎘ Duplicate
+        </button>
         <button type="button" class="btn-edit-action" (click)="edit.emit(session())">
           Edit
         </button>

@@ -13,6 +13,7 @@ export class SessionDetailModalComponent {
 
   readonly closed = output<void>();
   readonly edit = output<Session>();
+  readonly clone = output<Session>();
   readonly startTraining = output<Session>();
 
   asResistance(item: any): ResistanceSessionExercise {

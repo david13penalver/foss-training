@@ -26,17 +26,17 @@ describe('NavBarComponent', () => {
     expect(compiled.querySelector('.brand-title')?.textContent).toContain('FOSS Training');
   });
 
-  it('should render all 4 main tabs with correct router links', () => {
+  it('should render all 5 main tabs with correct router links', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     const links = compiled.querySelectorAll<HTMLAnchorElement>('.nav-tab');
-    expect(links.length).toBe(4);
+    expect(links.length).toBe(5);
 
-    const linkHrefs = Array.from(links).map(l => l.getAttribute('href') || l.getAttribute('ng-reflect-router-link'));
     const tabTexts = Array.from(links).map(l => l.textContent?.trim());
 
     expect(tabTexts.some(t => t?.includes('Exercises'))).toBe(true);
     expect(tabTexts.some(t => t?.includes('Sessions'))).toBe(true);
     expect(tabTexts.some(t => t?.includes('Trainings'))).toBe(true);
+    expect(tabTexts.some(t => t?.includes('Programs'))).toBe(true);
     expect(tabTexts.some(t => t?.includes('Analytics'))).toBe(true);
   });
 });

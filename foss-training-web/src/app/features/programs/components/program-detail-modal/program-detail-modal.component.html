@@ -1,0 +1,74 @@
+<div class="glass-backdrop" (click)="onBackdropClick($event)">
+  <div class="glass-modal" role="dialog" aria-modal="true">
+    <div class="modal-header">
+      <div class="header-main">
+        <div class="badges-row">
+          <span class="badge-duration">⏱️ {{ program().durationWeeks }} Weeks</span>
+          @if (program().level) {
+            <span class="badge-level">{{ program().level }}</span>
+          }
+          @if (program().periodizationType) {
+            <span class="badge-periodization">{{ program().periodizationType }}</span>
+          }
+        </div>
+        <h2 class="detail-title">{{ program().name }}</h2>
+      </div>
+
+      <button type="button" class="btn-close" (click)="closed.emit()" title="Close">
+        ✕
+      </button>
+    </div>
+
+    <div class="modal-content">
+      @if (program().description) {
+        <section class="info-section">
+          <h4 class="section-title">Overview</h4>
+          <p class="detail-description">{{ program().description }}</p>
+        </section>
+      }
+
+      <section class="info-section">
+        <h4 class="section-title">Microcycle Structure</h4>
+        <div class="workouts-list">
+          @for (w of program().workouts || []; track w.dayOfWeek || $index) {
+            <div class="workout-card">
+              <div class="workout-day">
+                <span class="day-badge">{{ getDayLabel(w.dayOfWeek) }}</span>
+                @if (w.focus) {
+                  <span class="focus-text">{{ w.focus }}</span>
+                }
+              </div>
+
+              @if (w.session; as s) {
+                <div class="session-info">
+                  <div class="session-name">
+                    <span class="session-icon">📋</span>
+                    <strong>{{ s.name }}</strong>
+                  </div>
+                  @if (s.sessionExercises?.length) {
+                    <span class="ex-count">{{ s.sessionExercises?.length }} exercises</span>
+                  }
+                </div>
+              }
+            </div>
+          }
+          @if (!program().workouts?.length) {
+            <p class="empty-text">No workouts defined in this program microcycle.</p>
+          }
+        </div>
+      </section>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn-primary" (click)="schedule.emit(program())">
+        <span>🗓️ Schedule to Calendar</span>
+      </button>
+      <button type="button" class="btn-secondary" (click)="edit.emit(program())">
+        <span>Edit Program</span>
+      </button>
+      <button type="button" class="btn-dismiss" (click)="closed.emit()">
+        <span>Close</span>
+      </button>
+    </div>
+  </div>
+</div>

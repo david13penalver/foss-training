@@ -50,7 +50,7 @@
             <h4 class="ex-name">{{ ex.exercise?.name }}</h4>
           </div>
 
-          @if (ex.exerciseType === 'ResistanceSessionExercise' || ex.exerciseType === 'resistance') {
+          @if (ex.exerciseType === 'ResistanceSessionExercise') {
             <div class="sets-grid">
               @for (s of asResistance(ex).sets; track s.setNumber) {
                 <div class="set-pill">

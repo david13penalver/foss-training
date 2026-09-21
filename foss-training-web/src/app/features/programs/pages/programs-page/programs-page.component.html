@@ -1,0 +1,126 @@
+<div class="page-container">
+  <header class="page-header">
+    <div class="header-main">
+      <h1 class="page-title">Training Programs</h1>
+      <p class="page-subtitle">Multi-week periodization templates and microcycle workout schedules</p>
+    </div>
+
+    <div class="header-actions">
+      <button type="button" class="btn-create" (click)="openCreateModal()">
+        + Create Program
+      </button>
+    </div>
+  </header>
+
+  @if (notificationMessage()) {
+    <div class="notification-banner">
+      {{ notificationMessage() }}
+    </div>
+  }
+
+  <div class="filter-bar">
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input
+        type="text"
+        [value]="searchQuery()"
+        (input)="searchQuery.set($any($event.target).value)"
+        placeholder="Search programs by name or description..."
+        class="glass-search"
+      />
+    </div>
+
+    <div class="level-filters">
+      <button
+        type="button"
+        class="filter-pill"
+        [class.active]="selectedLevel() === 'ALL'"
+        (click)="selectedLevel.set('ALL')"
+      >All</button>
+      <button
+        type="button"
+        class="filter-pill"
+        [class.active]="selectedLevel() === 'BEGINNER'"
+        (click)="selectedLevel.set('BEGINNER')"
+      >Beginner</button>
+      <button
+        type="button"
+        class="filter-pill"
+        [class.active]="selectedLevel() === 'INTERMEDIATE'"
+        (click)="selectedLevel.set('INTERMEDIATE')"
+      >Intermediate</button>
+      <button
+        type="button"
+        class="filter-pill"
+        [class.active]="selectedLevel() === 'ADVANCED'"
+        (click)="selectedLevel.set('ADVANCED')"
+      >Advanced</button>
+    </div>
+  </div>
+
+  <main class="page-content">
+    @if (programService.programsResource.isLoading()) {
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading programs...</p>
+      </div>
+    } @else if (filteredPrograms().length === 0) {
+      <div class="empty-state glass-card">
+        <span class="empty-icon">🗓️</span>
+        <h3>No Training Programs Found</h3>
+        <p>Create your first structured training program template to organize workouts into repeating microcycles.</p>
+        <button type="button" class="btn-create-sm" (click)="openCreateModal()">
+          Create Program
+        </button>
+      </div>
+    } @else {
+      <div class="programs-grid">
+        @for (prog of filteredPrograms(); track prog.id) {
+          <app-program-card
+            [program]="prog"
+            (view)="selectedProgramForDetail.set($event)"
+            (edit)="openEditModal($event)"
+            (delete)="confirmDelete($event)"
+            (schedule)="programForSchedule.set($event)"
+          />
+        }
+      </div>
+    }
+  </main>
+
+  <!-- Modals -->
+  @if (selectedProgramForDetail(); as detailProg) {
+    <app-program-detail-modal
+      [program]="detailProg"
+      (closed)="selectedProgramForDetail.set(null)"
+      (edit)="selectedProgramForDetail.set(null); openEditModal($event)"
+      (schedule)="selectedProgramForDetail.set(null); programForSchedule.set($event)"
+    />
+  }
+
+  @if (isBuilderOpen()) {
+    <app-program-builder-modal
+      [program]="programForBuilder()"
+      (closed)="isBuilderOpen.set(false)"
+      (save)="saveProgram($event)"
+    />
+  }
+
+  @if (programForSchedule(); as schedProg) {
+    <app-generate-schedule-modal
+      [program]="schedProg"
+      (closed)="programForSchedule.set(null)"
+      (scheduleGenerated)="onScheduleGenerated()"
+    />
+  }
+
+  @if (programToDelete(); as delProg) {
+    <app-confirm-dialog
+      title="Delete Training Program"
+      [message]="'Are you sure you want to delete \'' + delProg.name + '\'? This cannot be undone.'"
+      confirmText="Delete Program"
+      (confirmed)="executeDelete()"
+      (cancelled)="programToDelete.set(null)"
+    />
+  }
+</div>

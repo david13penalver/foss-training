@@ -43,4 +43,19 @@ export class TrainingService {
   cancelTraining(id: number): Observable<Training> {
     return this.http.post<Training>(`/api/trainings/${id}/cancel`, {});
   }
+
+  checkTrainingExists(id: number): Observable<boolean> {
+    return this.http.get<boolean>(`/api/trainings/${id}/exists`);
+  }
+
+  createTrainingFromSession(sessionId: number, date?: string, customName?: string): Observable<Training> {
+    let url = `/api/trainings/from-session/${sessionId}`;
+    const params: string[] = [];
+    if (date) params.push(`date=${encodeURIComponent(date)}`);
+    if (customName) params.push(`customName=${encodeURIComponent(customName)}`);
+    if (params.length > 0) {
+      url += `?${params.join('&')}`;
+    }
+    return this.http.post<Training>(url, {});
+  }
 }

@@ -1,0 +1,56 @@
+<div class="glass-backdrop" (click)="onBackdropClick($event)">
+  <div class="glass-modal" role="dialog" aria-modal="true">
+    <div class="modal-header">
+      <div class="header-main">
+        <span class="badge-tag">🗓️ Calendar Generator</span>
+        <h2 class="modal-title">Schedule Program Workouts</h2>
+      </div>
+      <button type="button" class="btn-close" (click)="closed.emit()">✕</button>
+    </div>
+
+    <form (ngSubmit)="generate()" class="modal-content">
+      <div class="program-summary glass-card">
+        <h3 class="program-name">{{ program().name }}</h3>
+        <p class="program-stats">
+          {{ program().durationWeeks }} Weeks duration •
+          {{ program().workouts?.length || 0 }} workouts per week
+        </p>
+      </div>
+
+      <div class="form-group">
+        <label for="startDate">Program Start Date</label>
+        <input
+          id="startDate"
+          type="date"
+          [ngModel]="startDate()"
+          (ngModelChange)="startDate.set($event)"
+          name="startDate"
+          required
+          class="glass-input"
+        />
+        <span class="field-hint">Workouts will be projected forward week by week based on this date.</span>
+      </div>
+
+      @if (errorMessage()) {
+        <div class="error-banner">{{ errorMessage() }}</div>
+      }
+
+      <div class="modal-footer">
+        <button
+          type="submit"
+          class="btn-gradient"
+          [disabled]="isSubmitting() || !startDate()"
+        >
+          @if (isSubmitting()) {
+            Scheduling...
+          } @else {
+            Generate & Populate Calendar
+          }
+        </button>
+        <button type="button" class="btn-dismiss" (click)="closed.emit()">
+          Cancel
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

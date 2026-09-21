@@ -1,0 +1,88 @@
+<div class="pr-dashboard">
+  <div class="dashboard-controls">
+    <div class="search-wrapper">
+      <span class="search-icon">🔍</span>
+      <input
+        type="text"
+        [value]="searchQuery()"
+        (input)="searchQuery.set($any($event.target).value)"
+        placeholder="Filter by exercise name..."
+        class="glass-search"
+      />
+    </div>
+
+    <button type="button" class="btn-icon" (click)="reload()" title="Reload Records">
+      🔄
+    </button>
+  </div>
+
+  @if (analyticsService.personalRecordsResource.isLoading()) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading personal records...</p>
+    </div>
+  } @else if (records().length === 0) {
+    <div class="empty-state glass-card">
+      <span class="empty-icon">🏆</span>
+      <h3>No Personal Records Yet</h3>
+      <p>Complete workouts with recorded sets to automatically calculate your all-time personal records.</p>
+    </div>
+  } @else {
+    <div class="records-grid">
+      @for (rec of records(); track rec.exerciseId || $index) {
+        <div class="glass-card record-card">
+          <div class="record-header">
+            <h4 class="exercise-name">{{ rec.exerciseName }}</h4>
+            <span class="badge-pr">PR Achieved</span>
+          </div>
+
+          <div class="metrics-grid">
+            @if (rec.bestEstimated1Rm) {
+              <div class="metric-box highlight-box">
+                <span class="metric-label">Best Est. 1RM</span>
+                <span class="metric-val">
+                  {{ rec.bestEstimated1Rm.estimated1Rm | number:'1.1-1' }}
+                  <small>{{ rec.bestEstimated1Rm.unit }}</small>
+                </span>
+                <span class="metric-sub">{{ rec.bestEstimated1Rm.formula }}</span>
+              </div>
+            }
+
+            @if (rec.maxWeight) {
+              <div class="metric-box">
+                <span class="metric-label">Max Weight</span>
+                <span class="metric-val">
+                  {{ rec.maxWeight.value | number:'1.1-1' }}
+                  <small>{{ rec.maxWeight.unit }}</small>
+                </span>
+                <span class="metric-sub">× {{ rec.maxWeight.repetitions }} reps</span>
+              </div>
+            }
+
+            @if (rec.maxReps) {
+              <div class="metric-box">
+                <span class="metric-label">Max Reps</span>
+                <span class="metric-val">
+                  {{ rec.maxReps.repetitions }}
+                  <small>reps</small>
+                </span>
+                <span class="metric-sub">@ {{ rec.maxReps.weight }} {{ rec.maxReps.unit }}</span>
+              </div>
+            }
+
+            @if (rec.maxSessionVolume) {
+              <div class="metric-box">
+                <span class="metric-label">Max Volume</span>
+                <span class="metric-val">
+                  {{ rec.maxSessionVolume.volume | number:'1.0-0' }}
+                  <small>{{ rec.maxSessionVolume.unit }}</small>
+                </span>
+                <span class="metric-sub">Single session</span>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

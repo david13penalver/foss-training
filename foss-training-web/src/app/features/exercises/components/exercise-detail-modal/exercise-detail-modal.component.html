@@ -26,6 +26,24 @@
         </section>
       }
 
+      @if (personalRecord(); as pr) {
+        <section class="info-section pr-section">
+          <h4 class="section-title">🏆 Personal Records</h4>
+          <div class="tags-row pr-tags-row">
+            @if (pr.bestEstimated1Rm) {
+              <span class="glass-tag tag-primary">
+                1RM: {{ pr.bestEstimated1Rm.estimated1Rm }} {{ pr.bestEstimated1Rm.unit }}
+              </span>
+            }
+            @if (pr.maxWeight) {
+              <span class="glass-tag tag-secondary">
+                Max: {{ pr.maxWeight.value }} {{ pr.maxWeight.unit }} ({{ pr.maxWeight.repetitions }} reps)
+              </span>
+            }
+          </div>
+        </section>
+      }
+
       <!-- Targeting & Equipment -->
       <section class="info-section grid-section">
         @if (resistanceMetrics(); as rm) {

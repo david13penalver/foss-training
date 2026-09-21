@@ -20,6 +20,7 @@ export class NavBarComponent {
     { label: 'Exercises', path: '/exercises', icon: '🏋️' },
     { label: 'Sessions', path: '/sessions', icon: '📋' },
     { label: 'Trainings', path: '/trainings', icon: '⚡' },
+    { label: 'Programs', path: '/programs', icon: '🗓️' },
     { label: 'Analytics', path: '/analytics', icon: '📊' }
   ];
 }

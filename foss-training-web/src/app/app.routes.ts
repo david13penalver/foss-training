@@ -17,5 +17,13 @@ export const routes: Routes = [
   {
     path: 'trainings',
     loadChildren: () => import('./features/trainings/trainings.routes')
+  },
+  {
+    path: 'programs',
+    loadChildren: () => import('./features/programs/programs.routes')
+  },
+  {
+    path: 'analytics',
+    loadChildren: () => import('./features/analytics/analytics.routes')
   }
 ];

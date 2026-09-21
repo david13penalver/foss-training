@@ -68,7 +68,7 @@ export class ActiveWorkoutModalComponent {
 
     const list: EditableExercise[] = [];
     for (const se of session.sessionExercises) {
-      if (se.exerciseType === 'ResistanceSessionExercise' || se.exerciseType === 'resistance') {
+      if (se.exerciseType === 'ResistanceSessionExercise') {
         const rse = se as ResistanceSessionExercise;
         const sets: EditableSet[] = (rse.sets || []).map((s, idx) => ({
           setNumber: s.setNumber || idx + 1,

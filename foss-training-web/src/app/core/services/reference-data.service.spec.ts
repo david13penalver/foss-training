@@ -60,4 +60,36 @@ describe('ReferenceDataService', () => {
     expect(req.request.method).toBe('GET');
     req.flush(mockPatterns);
   });
+
+  it('should fetch joints list', () => {
+    const mockJoints = ['SHOULDER', 'HIP', 'KNEE', 'ANKLE'];
+    service.getJoints().subscribe(items => {
+      expect(items).toEqual(mockJoints);
+    });
+
+    const req = httpTesting.expectOne('/api/joints');
+    expect(req.request.method).toBe('GET');
+    req.flush(mockJoints);
+  });
+
+  it('should fetch stretch types list', () => {
+    const mockStretches = ['STATIC', 'DYNAMIC', 'PNF', 'BALLISTIC'];
+    service.getStretchTypes().subscribe(items => {
+      expect(items).toEqual(mockStretches);
+    });
+
+    const req = httpTesting.expectOne('/api/stretch-types');
+    expect(req.request.method).toBe('GET');
+    req.flush(mockStretches);
+  });
+
+  it('should fetch equipment by name', () => {
+    service.getEquipmentByName('BARBELL').subscribe(item => {
+      expect(item).toBe('BARBELL');
+    });
+
+    const req = httpTesting.expectOne('/api/equipment/BARBELL');
+    expect(req.request.method).toBe('GET');
+    req.flush('BARBELL');
+  });
 });

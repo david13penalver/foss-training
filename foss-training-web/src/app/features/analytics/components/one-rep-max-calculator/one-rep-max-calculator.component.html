@@ -1,0 +1,125 @@
+<div class="calculator-container">
+  <div class="glass-card calculator-card">
+    <div class="card-header">
+      <div class="header-title">
+        <span class="header-icon">🧮</span>
+        <h3>1RM Load Calculator</h3>
+      </div>
+      <span class="info-tag">Sports Science Models</span>
+    </div>
+
+    <form (ngSubmit)="calculate()" class="calc-form">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="weight">Weight Lifted</label>
+          <div class="input-with-addon">
+            <input
+              id="weight"
+              type="number"
+              [ngModel]="weight()"
+              (ngModelChange)="weight.set($event)"
+              name="weight"
+              step="0.5"
+              min="1"
+              required
+              class="glass-input"
+            />
+            <div class="unit-toggle">
+              <button
+                type="button"
+                class="toggle-btn"
+                [class.active]="unit() === 'KG'"
+                (click)="unit.set('KG')"
+              >KG</button>
+              <button
+                type="button"
+                class="toggle-btn"
+                [class.active]="unit() === 'LBS'"
+                (click)="unit.set('LBS')"
+              >LBS</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="reps">Repetitions Performed</label>
+          <input
+            id="reps"
+            type="number"
+            [ngModel]="reps()"
+            (ngModelChange)="reps.set($event)"
+            name="reps"
+            min="1"
+            max="30"
+            required
+            class="glass-input"
+          />
+          <span class="field-hint">Best accuracy with 1–10 reps</span>
+        </div>
+
+        <div class="form-group">
+          <label for="formula">Calculation Formula</label>
+          <select
+            id="formula"
+            [ngModel]="formula()"
+            (ngModelChange)="formula.set($event)"
+            name="formula"
+            class="glass-select"
+          >
+            @for (f of formulas; track f) {
+              <option [value]="f">{{ f }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      @if (error()) {
+        <div class="error-banner">{{ error() }}</div>
+      }
+
+      <div class="action-row">
+        <button
+          type="submit"
+          class="btn-gradient"
+          [disabled]="isCalculating()"
+        >
+          @if (isCalculating()) {
+            Calculating...
+          } @else {
+            Calculate 1RM
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+
+  @if (result(); as res) {
+    <div class="results-section">
+      <div class="glass-card hero-result-card">
+        <div class="hero-header">
+          <span class="hero-label">Estimated One-Rep Max</span>
+          <span class="hero-formula">{{ res.formula }} Model</span>
+        </div>
+        <div class="hero-value">
+          <span class="value-number">{{ res.estimated1Rm | number:'1.1-1' }}</span>
+          <span class="value-unit">{{ res.unit }}</span>
+        </div>
+        <div class="hero-footer">
+          <span>Based on {{ res.weight }} {{ res.unit }} × {{ res.repetitions }} reps</span>
+        </div>
+      </div>
+
+      <div class="glass-card table-card">
+        <h4>Percentage Load Breakdown</h4>
+        <div class="percentages-grid">
+          @for (item of getPercentageList(); track item.percent) {
+            <div class="pct-pill" [class.highlight]="item.percent === 100">
+              <span class="pct-label">{{ item.percent }}%</span>
+              <span class="pct-weight">{{ item.weight | number:'1.1-1' }} {{ item.unit }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+</div>

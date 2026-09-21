@@ -1,0 +1,63 @@
+<div class="glass-card" (click)="view.emit(program())" tabindex="0">
+  <div class="card-top">
+    <div class="badges-row">
+      <span class="badge-duration">⏱️ {{ program().durationWeeks || 0 }} Weeks</span>
+      @if (program().level) {
+        <span class="badge-level">{{ program().level }}</span>
+      }
+      @if (program().periodizationType) {
+        <span class="badge-periodization">{{ program().periodizationType }}</span>
+      }
+    </div>
+
+    <div class="actions-group" (click)="$event.stopPropagation()">
+      <button
+        type="button"
+        class="action-btn btn-schedule"
+        title="Generate Schedule"
+        (click)="schedule.emit(program())"
+      >
+        🗓️
+      </button>
+      <button
+        type="button"
+        class="action-btn"
+        title="Edit Program"
+        (click)="edit.emit(program())"
+      >
+        ✏️
+      </button>
+      <button
+        type="button"
+        class="action-btn btn-danger"
+        title="Delete Program"
+        (click)="delete.emit(program())"
+      >
+        🗑️
+      </button>
+    </div>
+  </div>
+
+  <div class="card-main">
+    <h3 class="program-title">{{ program().name }}</h3>
+    @if (program().description) {
+      <p class="program-desc">{{ program().description }}</p>
+    }
+  </div>
+
+  <div class="card-footer">
+    <div class="schedule-preview">
+      <span class="schedule-label">Microcycle:</span>
+      <div class="days-pills">
+        @for (workout of program().workouts || []; track workout.dayOfWeek || $index) {
+          <span class="day-pill" [title]="workout.focus || workout.session?.name || 'Workout'">
+            {{ getDayName(workout.dayOfWeek) }}
+          </span>
+        }
+        @if (!program().workouts?.length) {
+          <span class="empty-schedule">No scheduled workouts</span>
+        }
+      </div>
+    </div>
+  </div>
+</div>

@@ -22,9 +22,40 @@ export type TrainingProgramRequest = Schemas['TrainingProgramRequest'];
 export type ProgramWorkout = Schemas['ProgramWorkoutResponse'];
 export type ProgramWorkoutRequest = Schemas['ProgramWorkoutRequest'];
 
-// Analytics Models
+// Periodization Enums
+export type PeriodizationType =
+  | 'LINEAR'
+  | 'BLOCK'
+  | 'UNDULATING'
+  | 'REVERSE_LINEAR';
+
+export type ProgramLevel = 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' | 'ELITE';
+
+// Analytics Models & Types
+export type WeightUnit = 'KG' | 'LBS';
+
+export type OneRepMaxFormula =
+  | 'EPLEY'
+  | 'BRZYCKI'
+  | 'LANDER'
+  | 'LOMBARDI'
+  | 'MAYHEW'
+  | 'OCONNER'
+  | 'WATHEN';
+
+export interface Calculate1RmParams {
+  weight: number;
+  reps: number;
+  unit?: WeightUnit;
+  formula?: OneRepMaxFormula;
+}
+
 export type OneRepMaxResponse = Schemas['OneRepMaxResponse'];
 export type PersonalRecordResponse = Schemas['PersonalRecordResponse'];
+export type BestEstimated1RmRecord = Schemas['BestEstimated1RmRecord'];
+export type MaxWeightRecord = Schemas['MaxWeightRecord'];
+export type MaxRepsRecord = Schemas['MaxRepsRecord'];
+export type MaxSessionVolumeRecord = Schemas['MaxSessionVolumeRecord'];
 
 // Re-export full OpenAPI spec types
 export type { components, paths, operations };

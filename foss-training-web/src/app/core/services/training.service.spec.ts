@@ -131,4 +131,24 @@ describe('TrainingService', () => {
     expect(req.request.method).toBe('POST');
     req.flush({ id: 6, status: 'Cancelled' });
   });
+
+  it('should check training exists', () => {
+    service.checkTrainingExists(6).subscribe(exists => {
+      expect(exists).toBe(true);
+    });
+
+    const req = httpTesting.expectOne('/api/trainings/6/exists');
+    expect(req.request.method).toBe('GET');
+    req.flush(true);
+  });
+
+  it('should create training from session', () => {
+    service.createTrainingFromSession(10, '2026-09-22', 'Session Run').subscribe(res => {
+      expect(res.id).toBe(99);
+    });
+
+    const req = httpTesting.expectOne('/api/trainings/from-session/10?date=2026-09-22&customName=Session%20Run');
+    expect(req.request.method).toBe('POST');
+    req.flush({ id: 99, name: 'Session Run' });
+  });
 });

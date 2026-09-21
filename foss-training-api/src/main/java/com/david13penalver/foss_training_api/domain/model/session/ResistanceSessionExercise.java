@@ -29,6 +29,44 @@ public class ResistanceSessionExercise extends SessionExercise {
     }
 
     /**
+     * Logs or updates a set. If setNumber is provided and exists, updates it.
+     * Otherwise assigns the next sequential set number and appends it.
+     */
+    public void logSet(ResistanceSet set) {
+        if (set == null) {
+            return;
+        }
+        if (set.getCompleted() == null) {
+            set.setCompleted(true);
+        }
+        if (set.getSetNumber() == null || set.getSetNumber() <= 0) {
+            set.setSetNumber(sets.size() + 1);
+            sets.add(set);
+            return;
+        }
+        for (int i = 0; i < sets.size(); i++) {
+            if (sets.get(i).getSetNumber() != null && sets.get(i).getSetNumber().equals(set.getSetNumber())) {
+                sets.set(i, set);
+                return;
+            }
+        }
+        sets.add(set);
+    }
+
+    /**
+     * Removes a set by set number and re-indexes remaining sets sequentially.
+     */
+    public boolean removeSet(int setNumber) {
+        boolean removed = sets.removeIf(s -> s.getSetNumber() != null && s.getSetNumber() == setNumber);
+        if (removed) {
+            for (int i = 0; i < sets.size(); i++) {
+                sets.get(i).setSetNumber(i + 1);
+            }
+        }
+        return removed;
+    }
+
+    /**
      * Returns an unmodifiable view of the sets.
      */
     public List<ResistanceSet> getSets() {

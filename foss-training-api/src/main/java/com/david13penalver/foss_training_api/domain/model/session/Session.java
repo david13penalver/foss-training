@@ -76,4 +76,17 @@ public class Session {
         sessionExercises.add(exercise);
     }
 
+    /**
+     * Finds an exercise in the session by matching either the sessionExercise ID or the underlying exercise ID.
+     */
+    public SessionExercise findExercise(Integer exerciseId) {
+        if (sessionExercises == null || exerciseId == null) {
+            return null;
+        }
+        return sessionExercises.stream()
+                .filter(se -> (se.getId() != null && se.getId().equals(exerciseId))
+                           || (se.getExercise() != null && se.getExercise().getId() != null && se.getExercise().getId().equals(exerciseId)))
+                .findFirst()
+                .orElse(null);
+    }
 }

@@ -2,7 +2,7 @@ package com.david13penalver.foss_training_api.application.usecases.training.impl
 
 import org.springframework.stereotype.Service;
 
-import com.david13penalver.foss_training_api.application.usecases.training.CompleteTrainingUseCase;
+import com.david13penalver.foss_training_api.application.usecases.training.PauseTrainingUseCase;
 import com.david13penalver.foss_training_api.domain.model.training.Training;
 import com.david13penalver.foss_training_api.domain.ports.out.training.TrainingRepository;
 
@@ -12,22 +12,16 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class CompleteTrainingService implements CompleteTrainingUseCase {
+public class PauseTrainingService implements PauseTrainingUseCase {
 
     private final TrainingRepository trainingRepository;
 
     @Override
     public Training execute(Integer id) {
-        return execute(id, null, null);
-    }
-
-    @Override
-    public Training execute(Integer id, Double rpeValue, String notes) {
-        log.debug("Executing CompleteTrainingUseCase with id: {}, rpe: {}, notes: {}", id, rpeValue, notes);
+        log.debug("Executing PauseTrainingUseCase with id: {}", id);
         Training training = trainingRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Training not found with id: " + id));
-        com.david13penalver.foss_training_api.domain.model.common.Rpe rpe = rpeValue != null ? com.david13penalver.foss_training_api.domain.model.common.Rpe.of(rpeValue) : null;
-        training.complete(rpe, notes);
+        training.pause();
         return trainingRepository.save(training);
     }
 }

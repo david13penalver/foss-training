@@ -21,5 +21,9 @@ public class ResistanceSetDto {
     private Integer repetitions;
     private RpeDto rpe;
     private Integer restSeconds;
+    private Boolean completed;
 
+    public ResistanceSetDto(Integer setNumber, SetType setType, WeightDto weight, Integer repetitions, RpeDto rpe, Integer restSeconds) {
+        this(setNumber, setType, weight, repetitions, rpe, restSeconds, null);
+    }
 }

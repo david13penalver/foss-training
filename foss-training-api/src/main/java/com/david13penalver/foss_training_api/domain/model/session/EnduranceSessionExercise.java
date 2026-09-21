@@ -31,6 +31,41 @@ public class EnduranceSessionExercise extends SessionExercise {
     }
 
     /**
+     * Logs or updates an interval. If intervalNumber exists, updates it.
+     * Otherwise assigns next interval number and appends.
+     */
+    public void logInterval(EnduranceInterval interval) {
+        if (interval == null) {
+            return;
+        }
+        if (interval.getIntervalNumber() == null || interval.getIntervalNumber() <= 0) {
+            interval.setIntervalNumber(intervals.size() + 1);
+            intervals.add(interval);
+            return;
+        }
+        for (int i = 0; i < intervals.size(); i++) {
+            if (intervals.get(i).getIntervalNumber() != null && intervals.get(i).getIntervalNumber().equals(interval.getIntervalNumber())) {
+                intervals.set(i, interval);
+                return;
+            }
+        }
+        intervals.add(interval);
+    }
+
+    /**
+     * Removes an interval by interval number and re-indexes remaining intervals sequentially.
+     */
+    public boolean removeInterval(int intervalNumber) {
+        boolean removed = intervals.removeIf(i -> i.getIntervalNumber() != null && i.getIntervalNumber() == intervalNumber);
+        if (removed) {
+            for (int i = 0; i < intervals.size(); i++) {
+                intervals.get(i).setIntervalNumber(i + 1);
+            }
+        }
+        return removed;
+    }
+
+    /**
      * Returns an unmodifiable view of the intervals.
      */
     public List<EnduranceInterval> getIntervals() {

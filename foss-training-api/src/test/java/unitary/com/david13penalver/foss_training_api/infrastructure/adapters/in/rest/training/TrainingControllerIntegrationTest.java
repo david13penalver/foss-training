@@ -326,6 +326,211 @@ class TrainingControllerIntegrationTest {
                 .andExpect(status().isNotFound());
     }
 
+    @Test
+    void pauseAndResumeTraining_lifecycleFlow() throws Exception {
+        createTraining("Morning Push", "2026-09-08");
+
+        // Cannot pause planned training
+        mockMvc.perform(post("/api/trainings/1/pause"))
+                .andExpect(status().isConflict());
+
+        // Start -> IN_PROGRESS
+        mockMvc.perform(post("/api/trainings/1/start"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("IN_PROGRESS"));
+
+        // Pause -> PAUSED
+        mockMvc.perform(post("/api/trainings/1/pause"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("PAUSED"));
+
+        // Cannot start already started/paused training
+        mockMvc.perform(post("/api/trainings/1/start"))
+                .andExpect(status().isConflict());
+
+        // Resume -> IN_PROGRESS
+        mockMvc.perform(post("/api/trainings/1/resume"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("IN_PROGRESS"));
+    }
+
+    @Test
+    void completeTraining_withOptionalRpeAndNotes_savesMetrics() throws Exception {
+        createTraining("Morning Push", "2026-09-08");
+        mockMvc.perform(post("/api/trainings/1/start")).andExpect(status().isOk());
+
+        String completeBody = """
+                {
+                  "rpe": { "value": 8.5 },
+                  "notes": "Felt very strong today on all lifts"
+                }
+                """;
+
+        mockMvc.perform(post("/api/trainings/1/complete")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(completeBody))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("COMPLETED"))
+                .andExpect(jsonPath("$.rpe.value").value(8.5))
+                .andExpect(jsonPath("$.notes").value("Felt very strong today on all lifts"));
+    }
+
+    @Test
+    void logSet_updateSet_and_deleteSet_flow() throws Exception {
+        String json = """
+                {
+                  "name": "Heavy Push",
+                  "trainingDate": "2026-09-08",
+                  "status": "PLANNED",
+                  "session": {
+                    "name": "Push Routine",
+                    "sessionStatus": "PLANNED",
+                    "sessionExercises": [
+                      {
+                        "exerciseType": "resistance",
+                        "id": 1,
+                        "orderIndex": 1,
+                        "exercise": {
+                          "id": 101,
+                          "name": "Barbell Bench Press",
+                          "primaryCategory": "RESISTANCE"
+                        },
+                        "sets": []
+                      }
+                    ]
+                  }
+                }
+                """;
+        mockMvc.perform(post("/api/trainings")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isCreated());
+
+        // Start workout
+        mockMvc.perform(post("/api/trainings/1/start")).andExpect(status().isOk());
+
+        // 1. Log set 1
+        String set1 = """
+                {
+                  "setType": "WORKING",
+                  "weight": { "value": 100.0, "unit": "KG" },
+                  "repetitions": 8,
+                  "rpe": { "value": 8.0 },
+                  "restSeconds": 120,
+                  "completed": true
+                }
+                """;
+        mockMvc.perform(post("/api/trainings/1/exercises/101/sets")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(set1))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.session.sessionExercises[0].sets.length()").value(1))
+                .andExpect(jsonPath("$.session.sessionExercises[0].sets[0].setNumber").value(1))
+                .andExpect(jsonPath("$.session.sessionExercises[0].sets[0].repetitions").value(8))
+                .andExpect(jsonPath("$.session.sessionExercises[0].sets[0].completed").value(true));
+
+        // 2. Log set 2
+        String set2 = """
+                {
+                  "setType": "WORKING",
+                  "weight": { "value": 105.0, "unit": "KG" },
+                  "repetitions": 6,
+                  "rpe": { "value": 9.0 },
+                  "restSeconds": 120,
+                  "completed": true
+                }
+                """;
+        mockMvc.perform(post("/api/trainings/1/exercises/101/sets")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(set2))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.session.sessionExercises[0].sets.length()").value(2))
+                .andExpect(jsonPath("$.session.sessionExercises[0].sets[1].setNumber").value(2));
+
+        // 3. Update set 1 (change reps to 10)
+        String updateSet1 = """
+                {
+                  "setType": "WORKING",
+                  "weight": { "value": 100.0, "unit": "KG" },
+                  "repetitions": 10,
+                  "rpe": { "value": 8.5 },
+                  "restSeconds": 120,
+                  "completed": true
+                }
+                """;
+        mockMvc.perform(put("/api/trainings/1/exercises/101/sets/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(updateSet1))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.session.sessionExercises[0].sets[0].repetitions").value(10));
+
+        // 4. Delete set 1
+        mockMvc.perform(delete("/api/trainings/1/exercises/101/sets/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.session.sessionExercises[0].sets.length()").value(1))
+                .andExpect(jsonPath("$.session.sessionExercises[0].sets[0].setNumber").value(1));
+    }
+
+    @Test
+    void getWorkoutSummary_computesLiveSummary() throws Exception {
+        String json = """
+                {
+                  "name": "Summary Workout",
+                  "trainingDate": "2026-09-08",
+                  "status": "PLANNED",
+                  "session": {
+                    "name": "Push Routine",
+                    "sessionStatus": "PLANNED",
+                    "sessionExercises": [
+                      {
+                        "exerciseType": "resistance",
+                        "id": 1,
+                        "orderIndex": 1,
+                        "exercise": {
+                          "id": 101,
+                          "name": "Barbell Bench Press",
+                          "primaryCategory": "RESISTANCE"
+                        },
+                        "sets": []
+                      }
+                    ]
+                  }
+                }
+                """;
+        mockMvc.perform(post("/api/trainings")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(post("/api/trainings/1/start")).andExpect(status().isOk());
+
+        String set1 = """
+                {
+                  "setType": "WORKING",
+                  "weight": { "value": 100.0, "unit": "KG" },
+                  "repetitions": 8,
+                  "completed": true
+                }
+                """;
+        mockMvc.perform(post("/api/trainings/1/exercises/101/sets")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(set1))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/trainings/1/summary"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.trainingId").value(1))
+                .andExpect(jsonPath("$.trainingName").value("Summary Workout"))
+                .andExpect(jsonPath("$.status").value("IN_PROGRESS"))
+                .andExpect(jsonPath("$.totalVolumeKg").value(800.0))
+                .andExpect(jsonPath("$.totalWorkingSets").value(1))
+                .andExpect(jsonPath("$.totalReps").value(8))
+                .andExpect(jsonPath("$.exerciseSummaries.length()").value(1))
+                .andExpect(jsonPath("$.exerciseSummaries[0].exerciseName").value("Barbell Bench Press"))
+                .andExpect(jsonPath("$.exerciseSummaries[0].topWeightKg").value(100.0))
+                .andExpect(jsonPath("$.exerciseSummaries[0].estimated1RmKg").value(126.67));
+    }
+
     private void createTraining(String name, String date) throws Exception {
         mockMvc.perform(post("/api/trainings")
                         .contentType(MediaType.APPLICATION_JSON)

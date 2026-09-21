@@ -21,16 +21,30 @@ import com.david13penalver.foss_training_api.application.usecases.session.Sessio
 import com.david13penalver.foss_training_api.application.usecases.training.CancelTrainingUseCase;
 import com.david13penalver.foss_training_api.application.usecases.training.CompleteTrainingUseCase;
 import com.david13penalver.foss_training_api.application.usecases.training.CreateTrainingFromSessionUseCase;
+import com.david13penalver.foss_training_api.application.usecases.training.DeleteTrainingIntervalUseCase;
+import com.david13penalver.foss_training_api.application.usecases.training.DeleteTrainingSetUseCase;
 import com.david13penalver.foss_training_api.application.usecases.training.DeleteTrainingUseCase;
 import com.david13penalver.foss_training_api.application.usecases.training.FindAllTrainingsUseCase;
 import com.david13penalver.foss_training_api.application.usecases.training.FindTrainingByIdUseCase;
+import com.david13penalver.foss_training_api.application.usecases.training.GetWorkoutSummaryUseCase;
+import com.david13penalver.foss_training_api.application.usecases.training.LogTrainingIntervalUseCase;
+import com.david13penalver.foss_training_api.application.usecases.training.LogTrainingSetUseCase;
+import com.david13penalver.foss_training_api.application.usecases.training.PauseTrainingUseCase;
+import com.david13penalver.foss_training_api.application.usecases.training.ResumeTrainingUseCase;
 import com.david13penalver.foss_training_api.application.usecases.training.SaveTrainingUseCase;
 import com.david13penalver.foss_training_api.application.usecases.training.StartTrainingUseCase;
 import com.david13penalver.foss_training_api.application.usecases.training.TrainingExistsUseCase;
+import com.david13penalver.foss_training_api.domain.model.session.EnduranceInterval;
+import com.david13penalver.foss_training_api.domain.model.session.ResistanceSet;
 import com.david13penalver.foss_training_api.domain.model.training.Training;
+import com.david13penalver.foss_training_api.domain.model.training.WorkoutSummary;
+import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.training.CompleteTrainingRequestDto;
+import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.training.LogIntervalRequestDto;
+import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.training.LogSetRequestDto;
 import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.training.TrainingDtoMapper;
 import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.training.TrainingRequestDto;
 import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.training.TrainingResponseDto;
+import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.training.WorkoutSummaryResponseDto;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -46,10 +60,17 @@ public class TrainingRestController {
     private final DeleteTrainingUseCase deleteTrainingUseCase;
     private final TrainingExistsUseCase trainingExistsUseCase;
     private final StartTrainingUseCase startTrainingUseCase;
+    private final PauseTrainingUseCase pauseTrainingUseCase;
+    private final ResumeTrainingUseCase resumeTrainingUseCase;
     private final CompleteTrainingUseCase completeTrainingUseCase;
     private final CancelTrainingUseCase cancelTrainingUseCase;
     private final CreateTrainingFromSessionUseCase createTrainingFromSessionUseCase;
     private final SessionExistsUseCase sessionExistsUseCase;
+    private final LogTrainingSetUseCase logTrainingSetUseCase;
+    private final DeleteTrainingSetUseCase deleteTrainingSetUseCase;
+    private final LogTrainingIntervalUseCase logTrainingIntervalUseCase;
+    private final DeleteTrainingIntervalUseCase deleteTrainingIntervalUseCase;
+    private final GetWorkoutSummaryUseCase getWorkoutSummaryUseCase;
     private final TrainingDtoMapper trainingDtoMapper;
 
     @GetMapping
@@ -109,12 +130,38 @@ public class TrainingRestController {
         return ResponseEntity.ok(trainingDtoMapper.toResponseDto(startedTraining));
     }
 
-    @PostMapping("/{id}/complete")
-    public ResponseEntity<TrainingResponseDto> completeTraining(@PathVariable Integer id) {
+    @PostMapping("/{id}/pause")
+    public ResponseEntity<TrainingResponseDto> pauseTraining(@PathVariable Integer id) {
         if (!trainingExistsUseCase.execute(id)) {
             return ResponseEntity.notFound().build();
         }
-        Training completedTraining = completeTrainingUseCase.execute(id);
+        Training pausedTraining = pauseTrainingUseCase.execute(id);
+        return ResponseEntity.ok(trainingDtoMapper.toResponseDto(pausedTraining));
+    }
+
+    @PostMapping("/{id}/resume")
+    public ResponseEntity<TrainingResponseDto> resumeTraining(@PathVariable Integer id) {
+        if (!trainingExistsUseCase.execute(id)) {
+            return ResponseEntity.notFound().build();
+        }
+        Training resumedTraining = resumeTrainingUseCase.execute(id);
+        return ResponseEntity.ok(trainingDtoMapper.toResponseDto(resumedTraining));
+    }
+
+    @PostMapping("/{id}/complete")
+    public ResponseEntity<TrainingResponseDto> completeTraining(
+            @PathVariable Integer id,
+            @Valid @RequestBody(required = false) CompleteTrainingRequestDto requestDto) {
+        if (!trainingExistsUseCase.execute(id)) {
+            return ResponseEntity.notFound().build();
+        }
+        Training completedTraining;
+        if (requestDto != null) {
+            Double rpeVal = requestDto.getRpe() != null ? requestDto.getRpe().getValue() : null;
+            completedTraining = completeTrainingUseCase.execute(id, rpeVal, requestDto.getNotes());
+        } else {
+            completedTraining = completeTrainingUseCase.execute(id);
+        }
         return ResponseEntity.ok(trainingDtoMapper.toResponseDto(completedTraining));
     }
 
@@ -125,6 +172,80 @@ public class TrainingRestController {
         }
         Training cancelledTraining = cancelTrainingUseCase.execute(id);
         return ResponseEntity.ok(trainingDtoMapper.toResponseDto(cancelledTraining));
+    }
+
+    @PostMapping("/{id}/exercises/{exerciseId}/sets")
+    public ResponseEntity<TrainingResponseDto> logSet(
+            @PathVariable Integer id,
+            @PathVariable Integer exerciseId,
+            @Valid @RequestBody LogSetRequestDto requestDto) {
+        if (!trainingExistsUseCase.execute(id)) {
+            return ResponseEntity.notFound().build();
+        }
+        ResistanceSet set = trainingDtoMapper.toSetEntity(requestDto);
+        Training updated = logTrainingSetUseCase.execute(id, exerciseId, set);
+        return ResponseEntity.ok(trainingDtoMapper.toResponseDto(updated));
+    }
+
+    @PutMapping("/{id}/exercises/{exerciseId}/sets/{setNumber}")
+    public ResponseEntity<TrainingResponseDto> updateSet(
+            @PathVariable Integer id,
+            @PathVariable Integer exerciseId,
+            @PathVariable Integer setNumber,
+            @Valid @RequestBody LogSetRequestDto requestDto) {
+        if (!trainingExistsUseCase.execute(id)) {
+            return ResponseEntity.notFound().build();
+        }
+        requestDto.setSetNumber(setNumber);
+        ResistanceSet set = trainingDtoMapper.toSetEntity(requestDto);
+        Training updated = logTrainingSetUseCase.execute(id, exerciseId, set);
+        return ResponseEntity.ok(trainingDtoMapper.toResponseDto(updated));
+    }
+
+    @DeleteMapping("/{id}/exercises/{exerciseId}/sets/{setNumber}")
+    public ResponseEntity<TrainingResponseDto> deleteSet(
+            @PathVariable Integer id,
+            @PathVariable Integer exerciseId,
+            @PathVariable Integer setNumber) {
+        if (!trainingExistsUseCase.execute(id)) {
+            return ResponseEntity.notFound().build();
+        }
+        Training updated = deleteTrainingSetUseCase.execute(id, exerciseId, setNumber);
+        return ResponseEntity.ok(trainingDtoMapper.toResponseDto(updated));
+    }
+
+    @PostMapping("/{id}/exercises/{exerciseId}/intervals")
+    public ResponseEntity<TrainingResponseDto> logInterval(
+            @PathVariable Integer id,
+            @PathVariable Integer exerciseId,
+            @Valid @RequestBody LogIntervalRequestDto requestDto) {
+        if (!trainingExistsUseCase.execute(id)) {
+            return ResponseEntity.notFound().build();
+        }
+        EnduranceInterval interval = trainingDtoMapper.toIntervalEntity(requestDto);
+        Training updated = logTrainingIntervalUseCase.execute(id, exerciseId, interval);
+        return ResponseEntity.ok(trainingDtoMapper.toResponseDto(updated));
+    }
+
+    @DeleteMapping("/{id}/exercises/{exerciseId}/intervals/{intervalNumber}")
+    public ResponseEntity<TrainingResponseDto> deleteInterval(
+            @PathVariable Integer id,
+            @PathVariable Integer exerciseId,
+            @PathVariable Integer intervalNumber) {
+        if (!trainingExistsUseCase.execute(id)) {
+            return ResponseEntity.notFound().build();
+        }
+        Training updated = deleteTrainingIntervalUseCase.execute(id, exerciseId, intervalNumber);
+        return ResponseEntity.ok(trainingDtoMapper.toResponseDto(updated));
+    }
+
+    @GetMapping("/{id}/summary")
+    public ResponseEntity<WorkoutSummaryResponseDto> getWorkoutSummary(@PathVariable Integer id) {
+        if (!trainingExistsUseCase.execute(id)) {
+            return ResponseEntity.notFound().build();
+        }
+        WorkoutSummary summary = getWorkoutSummaryUseCase.execute(id);
+        return ResponseEntity.ok(trainingDtoMapper.toSummaryDto(summary));
     }
 
     @PostMapping("/from-session/{sessionId}")

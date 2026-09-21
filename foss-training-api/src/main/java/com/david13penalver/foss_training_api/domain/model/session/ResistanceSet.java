@@ -18,6 +18,18 @@ public class ResistanceSet {
     private Integer repetitions;
     private Rpe rpe;
     private Integer restSeconds;
+    private Boolean completed;
+
+    public ResistanceSet(Integer setNumber, SetType setType, Weight weight, Integer repetitions, Rpe rpe, Integer restSeconds) {
+        this(setNumber, setType, weight, repetitions, rpe, restSeconds, null);
+    }
+
+    /**
+     * @return true if marked as completed
+     */
+    public boolean isCompleted() {
+        return completed != null && completed;
+    }
 
     /**
      * Calculates volume for this set (weight in kg × reps).

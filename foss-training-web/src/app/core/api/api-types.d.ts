@@ -20,6 +20,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/trainings/{id}/exercises/{exerciseId}/sets/{setNumber}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["updateSet"];
+        post?: never;
+        delete: operations["deleteSet"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/sessions/{id}": {
         parameters: {
             query?: never;
@@ -97,6 +113,70 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["startTraining"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/trainings/{id}/resume": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["resumeTraining"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/trainings/{id}/pause": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["pauseTraining"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/trainings/{id}/exercises/{exerciseId}/sets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["logSet"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/trainings/{id}/exercises/{exerciseId}/intervals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["logInterval"];
         delete?: never;
         options?: never;
         head?: never;
@@ -212,6 +292,22 @@ export interface paths {
         get: operations["getAllExercises"];
         put?: never;
         post: operations["createExercise"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/trainings/{id}/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getWorkoutSummary"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -626,6 +722,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/trainings/{id}/exercises/{exerciseId}/intervals/{intervalNumber}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["deleteInterval"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -957,6 +1069,7 @@ export interface components {
             rpe?: components["schemas"]["Rpe"];
             /** Format: int32 */
             restSeconds?: number;
+            completed?: boolean;
         };
         Rpe: {
             /** Format: double */
@@ -1046,6 +1159,42 @@ export interface components {
             status?: "Planned" | "In Progress" | "Paused" | "Completed" | "Partially Completed" | "Skipped" | "Cancelled";
             notes?: string;
             rpe?: components["schemas"]["Rpe"];
+        };
+        /** @description Granular set performance details for live workout logging */
+        LogSetRequest: {
+            /**
+             * Format: int32
+             * @description Set sequence number (1-based). If null or <= 0, automatically appends next set.
+             * @example 1
+             */
+            setNumber?: number;
+            /**
+             * @description Classification of the set
+             * @example WORKING
+             * @enum {string}
+             */
+            setType?: "WARMUP" | "WORKING" | "DROP_SET" | "MYOREP" | "FAILURE";
+            /** @description Weight lifted */
+            weight: components["schemas"]["Weight"];
+            /**
+             * Format: int32
+             * @description Number of completed repetitions
+             * @example 8
+             */
+            repetitions: number;
+            /** @description Rate of Perceived Exertion (1-10 scale) */
+            rpe?: components["schemas"]["Rpe"];
+            /**
+             * Format: int32
+             * @description Rest duration following this set in seconds
+             * @example 90
+             */
+            restSeconds?: number;
+            /**
+             * @description Whether the set was completed
+             * @example true
+             */
+            completed?: boolean;
         };
         /** @description Scheduled workout day within a program microcycle */
         ProgramWorkoutRequest: {
@@ -1149,6 +1298,179 @@ export interface components {
             safetyTips?: string[];
             alternativeExercises?: string[];
             tags?: string[];
+        };
+        /** @description Granular interval details for live endurance workout logging */
+        LogIntervalRequest: {
+            /**
+             * Format: int32
+             * @description Interval sequence number (1-based). If null or <= 0, automatically appends next interval.
+             * @example 1
+             */
+            intervalNumber?: number;
+            /** @description Distance covered */
+            distance?: components["schemas"]["Distance"];
+            /** @description Duration of the interval */
+            duration?: components["schemas"]["Duration"];
+            /** @description Pace achieved */
+            pace?: components["schemas"]["Pace"];
+            /**
+             * Format: int32
+             * @description Average heart rate during interval (bpm)
+             * @example 155
+             */
+            avgHeartRate?: number;
+            /**
+             * Format: int32
+             * @description Maximum heart rate reached during interval (bpm)
+             * @example 172
+             */
+            maxHeartRate?: number;
+            /**
+             * Format: double
+             * @description Average power output in watts
+             * @example 250
+             */
+            avgPower?: number;
+            /**
+             * Format: double
+             * @description Cadence (rpm or spm)
+             * @example 85
+             */
+            cadence?: number;
+            /**
+             * Format: int32
+             * @description Rest period after interval in seconds
+             * @example 60
+             */
+            restSeconds?: number;
+        };
+        /** @description Optional post-workout rating and summary notes */
+        CompleteTrainingRequest: {
+            /** @description Overall session Rate of Perceived Exertion (RPE 1-10) */
+            rpe?: components["schemas"]["Rpe"];
+            /**
+             * @description Post-workout athlete notes or subjective reflections
+             * @example Hit all target reps, energy was high!
+             */
+            notes?: string;
+        };
+        /** @description Per-exercise volume and performance breakdown */
+        WorkoutExerciseSummary: {
+            /**
+             * Format: int32
+             * @description Exercise ID
+             * @example 1
+             */
+            exerciseId?: number;
+            /**
+             * @description Exercise name
+             * @example Barbell Bench Press
+             */
+            exerciseName?: string;
+            /**
+             * @description Primary category
+             * @example RESISTANCE
+             */
+            category?: string;
+            /**
+             * Format: int32
+             * @description Total completed working sets
+             * @example 4
+             */
+            completedSets?: number;
+            /**
+             * Format: int32
+             * @description Total repetitions completed across working sets
+             * @example 32
+             */
+            totalReps?: number;
+            /**
+             * Format: double
+             * @description Heaviest weight lifted in kg
+             * @example 100
+             */
+            topWeightKg?: number;
+            /**
+             * Format: double
+             * @description Volume tonnage moved for this exercise in kg
+             * @example 3200
+             */
+            volumeKg?: number;
+            /**
+             * Format: double
+             * @description Estimated 1RM based on best set in kg
+             * @example 116.67
+             */
+            estimated1RmKg?: number;
+        };
+        /** @description Comprehensive live and post-workout summary metrics */
+        WorkoutSummaryResponse: {
+            /**
+             * Format: int32
+             * @description Training session ID
+             * @example 1
+             */
+            trainingId?: number;
+            /**
+             * @description Training session name
+             * @example Upper Body Hypertrophy
+             */
+            trainingName?: string;
+            /**
+             * @description Current lifecycle status
+             * @example COMPLETED
+             * @enum {string}
+             */
+            status?: "Planned" | "In Progress" | "Paused" | "Completed" | "Partially Completed" | "Skipped" | "Cancelled";
+            /**
+             * Format: date-time
+             * @description Workout start timestamp
+             */
+            startTime?: string;
+            /**
+             * Format: date-time
+             * @description Workout end timestamp
+             */
+            endTime?: string;
+            /**
+             * Format: int32
+             * @description Total workout duration in seconds
+             * @example 3600
+             */
+            durationSeconds?: number;
+            /**
+             * @description Human-readable formatted duration
+             * @example 1h 00m 00s
+             */
+            formattedDuration?: string;
+            /**
+             * Format: double
+             * @description Total volume tonnage lifted in kilograms
+             * @example 14250
+             */
+            totalVolumeKg?: number;
+            /**
+             * Format: int32
+             * @description Total number of working sets performed across all exercises
+             * @example 16
+             */
+            totalWorkingSets?: number;
+            /**
+             * Format: int32
+             * @description Total repetitions completed across all working sets
+             * @example 144
+             */
+            totalReps?: number;
+            /**
+             * Format: double
+             * @description Overall session RPE rating (1-10)
+             * @example 8.5
+             */
+            sessionRpe?: number;
+            /** @description Athlete notes */
+            notes?: string;
+            /** @description Per-exercise performance breakdown */
+            exerciseSummaries?: components["schemas"]["WorkoutExerciseSummary"][];
         };
         /** @description Exercise strength progression time-series and trend analytics */
         ExerciseProgressionResponseDto: {
@@ -1806,6 +2128,58 @@ export interface operations {
             };
         };
     };
+    updateSet: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+                exerciseId: number;
+                setNumber: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LogSetRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["Training"];
+                };
+            };
+        };
+    };
+    deleteSet: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+                exerciseId: number;
+                setNumber: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["Training"];
+                };
+            };
+        };
+    };
     getSessionById: {
         parameters: {
             query?: never;
@@ -2076,7 +2450,7 @@ export interface operations {
             };
         };
     };
-    completeTraining: {
+    resumeTraining: {
         parameters: {
             query?: never;
             header?: never;
@@ -2086,6 +2460,108 @@ export interface operations {
             cookie?: never;
         };
         requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["Training"];
+                };
+            };
+        };
+    };
+    pauseTraining: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["Training"];
+                };
+            };
+        };
+    };
+    logSet: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+                exerciseId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LogSetRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["Training"];
+                };
+            };
+        };
+    };
+    logInterval: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+                exerciseId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LogIntervalRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["Training"];
+                };
+            };
+        };
+    };
+    completeTraining: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["CompleteTrainingRequest"];
+            };
+        };
         responses: {
             /** @description OK */
             200: {
@@ -2297,6 +2773,28 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["Exercise"];
+                };
+            };
+        };
+    };
+    getWorkoutSummary: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["WorkoutSummaryResponse"];
                 };
             };
         };
@@ -2841,6 +3339,30 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["OneRepMaxResponse"];
+                };
+            };
+        };
+    };
+    deleteInterval: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+                exerciseId: number;
+                intervalNumber: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["Training"];
                 };
             };
         };

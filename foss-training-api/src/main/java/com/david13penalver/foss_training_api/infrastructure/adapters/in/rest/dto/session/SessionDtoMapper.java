@@ -88,6 +88,7 @@ public class SessionDtoMapper {
                         set.setRpe(new Rpe(setDto.getRpe().getValue()));
                     }
                     set.setRestSeconds(setDto.getRestSeconds());
+                    set.setCompleted(setDto.getCompleted());
                     entity.addSet(set);
                 }
             }
@@ -220,6 +221,7 @@ public class SessionDtoMapper {
                         sDto.setRpe(new RpeDto(s.getRpe().getValue()));
                     }
                     sDto.setRestSeconds(s.getRestSeconds());
+                    sDto.setCompleted(s.getCompleted());
                     setDtos.add(sDto);
                 }
                 dto.setSets(setDtos);

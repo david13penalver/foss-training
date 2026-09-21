@@ -243,4 +243,97 @@ class TrainingTest {
         assertEquals(t1.hashCode(), t2.hashCode());
         assertTrue(t1.toString().contains("Workout A"));
     }
+
+    @Test
+    void pause_fromInProgress_succeeds() {
+        Training training = new Training();
+        training.setStatus(TrainingStatusEnum.IN_PROGRESS);
+
+        training.pause();
+
+        assertEquals(TrainingStatusEnum.PAUSED, training.getStatus());
+    }
+
+    @Test
+    void pause_fromPlanned_throwsIllegalStateException() {
+        Training training = new Training();
+        training.setStatus(TrainingStatusEnum.PLANNED);
+
+        assertThrows(IllegalStateException.class, training::pause);
+    }
+
+    @Test
+    void resume_fromPaused_succeeds() {
+        Training training = new Training();
+        training.setStatus(TrainingStatusEnum.PAUSED);
+
+        training.resume();
+
+        assertEquals(TrainingStatusEnum.IN_PROGRESS, training.getStatus());
+    }
+
+    @Test
+    void resume_fromPlanned_throwsIllegalStateException() {
+        Training training = new Training();
+        training.setStatus(TrainingStatusEnum.PLANNED);
+
+        assertThrows(IllegalStateException.class, training::resume);
+    }
+
+    @Test
+    void complete_withRpeAndNotes_succeeds() {
+        Training training = new Training();
+        training.setStatus(TrainingStatusEnum.IN_PROGRESS);
+
+        training.complete(Rpe.of(8.5), "Great session!");
+
+        assertEquals(TrainingStatusEnum.COMPLETED, training.getStatus());
+        assertNotNull(training.getEndTime());
+        assertEquals(8.5, training.getRpe().getValue());
+        assertEquals("Great session!", training.getNotes());
+    }
+
+    @Test
+    void logSet_and_removeSet_succeeds_whenActive() {
+        Training training = new Training();
+        training.setStatus(TrainingStatusEnum.IN_PROGRESS);
+
+        Exercise bench = new Exercise();
+        bench.setId(10);
+        bench.setName("Bench Press");
+
+        ResistanceSessionExercise rse = new ResistanceSessionExercise();
+        rse.setId(100);
+        rse.setExercise(bench);
+
+        Session session = new Session();
+        session.setSessionExercises(List.of(rse));
+        training.setSession(session);
+
+        ResistanceSet set1 = new ResistanceSet(null, SetType.WORKING, Weight.kg(80.0), 10, Rpe.of(8.0), 90);
+        training.logSet(10, set1);
+
+        assertEquals(1, rse.getSets().size());
+        assertEquals(1, rse.getSets().get(0).getSetNumber());
+        assertTrue(rse.getSets().get(0).isCompleted());
+
+        ResistanceSet set2 = new ResistanceSet(null, SetType.WORKING, Weight.kg(85.0), 8, Rpe.of(9.0), 90);
+        training.logSet(100, set2); // match by session exercise id
+
+        assertEquals(2, rse.getSets().size());
+        assertEquals(2, rse.getSets().get(1).getSetNumber());
+
+        training.removeSet(10, 1);
+        assertEquals(1, rse.getSets().size());
+        assertEquals(1, rse.getSets().get(0).getSetNumber());
+    }
+
+    @Test
+    void logSet_whenPlanned_throwsIllegalStateException() {
+        Training training = new Training();
+        training.setStatus(TrainingStatusEnum.PLANNED);
+
+        ResistanceSet set = new ResistanceSet();
+        assertThrows(IllegalStateException.class, () -> training.logSet(1, set));
+    }
 }

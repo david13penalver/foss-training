@@ -71,12 +71,100 @@ public class TrainingRestController {
     private final LogTrainingIntervalUseCase logTrainingIntervalUseCase;
     private final DeleteTrainingIntervalUseCase deleteTrainingIntervalUseCase;
     private final GetWorkoutSummaryUseCase getWorkoutSummaryUseCase;
+    private final com.david13penalver.foss_training_api.application.usecases.training.SearchTrainingsUseCase searchTrainingsUseCase;
     private final TrainingDtoMapper trainingDtoMapper;
 
     @GetMapping
-    public ResponseEntity<List<TrainingResponseDto>> getAllTrainings() {
-        List<Training> trainings = findAllTrainingsUseCase.execute();
-        return ResponseEntity.ok(trainingDtoMapper.toResponseDtoList(trainings));
+    public ResponseEntity<List<TrainingResponseDto>> getAllTrainings(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String search,
+            @RequestParam(name = "q", required = false) String q,
+            @RequestParam(required = false) Integer programId,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) String sortBy,
+            @RequestParam(required = false, defaultValue = "desc") String sortDirection) {
+
+        String query = (search != null && !search.isBlank()) ? search : q;
+        com.david13penalver.foss_training_api.domain.model.training.TrainingStatusEnum statusEnum =
+                (status != null && !status.isBlank() && !"ALL".equalsIgnoreCase(status))
+                ? com.david13penalver.foss_training_api.domain.model.training.TrainingStatusEnum.fromString(status)
+                : null;
+
+        boolean hasFilters = startDate != null || endDate != null || statusEnum != null || query != null || programId != null;
+        boolean hasPagination = page != null || size != null;
+
+        if (!hasFilters && !hasPagination) {
+            List<Training> trainings = findAllTrainingsUseCase.execute();
+            return ResponseEntity.ok(trainingDtoMapper.toResponseDtoList(trainings));
+        }
+
+        com.david13penalver.foss_training_api.domain.model.training.TrainingSearchCriteria criteria =
+                new com.david13penalver.foss_training_api.domain.model.training.TrainingSearchCriteria(
+                        startDate,
+                        endDate,
+                        statusEnum,
+                        query,
+                        programId
+                );
+
+        if (hasPagination) {
+            int pageIndex = page != null ? Math.max(0, page) : 0;
+            int pageSize = size != null && size > 0 ? size : 20;
+            com.david13penalver.foss_training_api.domain.model.common.PageQuery pageQuery =
+                    com.david13penalver.foss_training_api.domain.model.common.PageQuery.of(pageIndex, pageSize, sortBy, sortDirection);
+            com.david13penalver.foss_training_api.domain.model.common.PagedResult<Training> pagedResult =
+                    searchTrainingsUseCase.execute(criteria, pageQuery);
+
+            return ResponseEntity.ok()
+                    .header("X-Total-Count", String.valueOf(pagedResult.totalElements()))
+                    .header("X-Total-Pages", String.valueOf(pagedResult.totalPages()))
+                    .header("X-Page-Number", String.valueOf(pagedResult.page()))
+                    .header("X-Page-Size", String.valueOf(pagedResult.size()))
+                    .body(trainingDtoMapper.toResponseDtoList(pagedResult.content()));
+        }
+
+        List<Training> trainings = searchTrainingsUseCase.execute(criteria);
+        return ResponseEntity.ok()
+                .header("X-Total-Count", String.valueOf(trainings.size()))
+                .body(trainingDtoMapper.toResponseDtoList(trainings));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.common.PageResponseDto<TrainingResponseDto>> searchTrainings(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String search,
+            @RequestParam(name = "q", required = false) String q,
+            @RequestParam(required = false) Integer programId,
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "20") int size,
+            @RequestParam(required = false) String sortBy,
+            @RequestParam(required = false, defaultValue = "desc") String sortDirection) {
+
+        String query = (search != null && !search.isBlank()) ? search : q;
+        com.david13penalver.foss_training_api.domain.model.training.TrainingStatusEnum statusEnum =
+                (status != null && !status.isBlank() && !"ALL".equalsIgnoreCase(status))
+                ? com.david13penalver.foss_training_api.domain.model.training.TrainingStatusEnum.fromString(status)
+                : null;
+
+        com.david13penalver.foss_training_api.domain.model.training.TrainingSearchCriteria criteria =
+                new com.david13penalver.foss_training_api.domain.model.training.TrainingSearchCriteria(
+                        startDate,
+                        endDate,
+                        statusEnum,
+                        query,
+                        programId
+                );
+        com.david13penalver.foss_training_api.domain.model.common.PageQuery pageQuery =
+                com.david13penalver.foss_training_api.domain.model.common.PageQuery.of(page, size, sortBy, sortDirection);
+        com.david13penalver.foss_training_api.domain.model.common.PagedResult<Training> pagedResult =
+                searchTrainingsUseCase.execute(criteria, pageQuery);
+
+        return ResponseEntity.ok(trainingDtoMapper.toPageResponseDto(pagedResult));
     }
 
     @GetMapping("/{id}")

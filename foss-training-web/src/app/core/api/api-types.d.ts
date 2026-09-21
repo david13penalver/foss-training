@@ -364,6 +364,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/trainings/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["searchTrainings"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/stretch-types": {
         parameters: {
             query?: never;
@@ -582,6 +598,22 @@ export interface paths {
             cookie?: never;
         };
         get: operations["exerciseExists"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/exercises/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["searchExercises"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1543,6 +1575,55 @@ export interface components {
             /** @description Per-exercise performance breakdown */
             exerciseSummaries?: components["schemas"]["WorkoutExerciseSummary"][];
         };
+        /** @description Paginated response wrapper containing page metadata and content elements */
+        PageResponseDtoTraining: {
+            /** @description Page elements */
+            content?: components["schemas"]["Training"][];
+            /**
+             * Format: int32
+             * @description Current 0-based page index
+             * @example 0
+             */
+            page?: number;
+            /**
+             * Format: int32
+             * @description Number of elements per page
+             * @example 20
+             */
+            size?: number;
+            /**
+             * Format: int64
+             * @description Total number of elements matching the query
+             * @example 42
+             */
+            totalElements?: number;
+            /**
+             * Format: int32
+             * @description Total number of pages
+             * @example 3
+             */
+            totalPages?: number;
+            /**
+             * @description Whether this is the first page
+             * @example true
+             */
+            first?: boolean;
+            /**
+             * @description Whether this is the last page
+             * @example false
+             */
+            last?: boolean;
+            /**
+             * @description Whether there is a subsequent page
+             * @example true
+             */
+            hasNext?: boolean;
+            /**
+             * @description Whether there is a preceding page
+             * @example false
+             */
+            hasPrevious?: boolean;
+        };
         /** @description Comprehensive adherence and compliance metrics for a training program */
         ProgramAdherenceResponse: {
             /**
@@ -1736,6 +1817,55 @@ export interface components {
              * @example true
              */
             onTime?: boolean;
+        };
+        /** @description Paginated response wrapper containing page metadata and content elements */
+        PageResponseDtoExercise: {
+            /** @description Page elements */
+            content?: components["schemas"]["Exercise"][];
+            /**
+             * Format: int32
+             * @description Current 0-based page index
+             * @example 0
+             */
+            page?: number;
+            /**
+             * Format: int32
+             * @description Number of elements per page
+             * @example 20
+             */
+            size?: number;
+            /**
+             * Format: int64
+             * @description Total number of elements matching the query
+             * @example 42
+             */
+            totalElements?: number;
+            /**
+             * Format: int32
+             * @description Total number of pages
+             * @example 3
+             */
+            totalPages?: number;
+            /**
+             * @description Whether this is the first page
+             * @example true
+             */
+            first?: boolean;
+            /**
+             * @description Whether this is the last page
+             * @example false
+             */
+            last?: boolean;
+            /**
+             * @description Whether there is a subsequent page
+             * @example true
+             */
+            hasNext?: boolean;
+            /**
+             * @description Whether there is a preceding page
+             * @example false
+             */
+            hasPrevious?: boolean;
         };
         /** @description Exercise strength progression time-series and trend analytics */
         ExerciseProgressionResponseDto: {
@@ -2651,7 +2781,18 @@ export interface operations {
     };
     getAllTrainings: {
         parameters: {
-            query?: never;
+            query?: {
+                startDate?: string;
+                endDate?: string;
+                status?: string;
+                search?: string;
+                q?: string;
+                programId?: number;
+                page?: number;
+                size?: number;
+                sortBy?: string;
+                sortDirection?: string;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -3052,7 +3193,18 @@ export interface operations {
     };
     getAllExercises: {
         parameters: {
-            query?: never;
+            query?: {
+                search?: string;
+                q?: string;
+                primaryCategory?: "RESISTANCE" | "ENDURANCE" | "MOBILITY" | "FUNCTIONAL" | "PLYOMETRICS" | "BALANCE" | "CORE" | "CALISTHENICS" | "NEUROMUSCULAR" | "POWER" | "STABILIZATION" | "AGILITY" | "SPEED" | "PILATES" | "ISOMETRIC" | "CIRCUIT" | "REHABILITATION" | "SPORT_SPECIFIC";
+                muscleGroup?: string;
+                equipment?: "BODYWEIGHT" | "BARBELL" | "DUMBBELL" | "KETTLEBELL" | "WEIGHT_PLATE" | "EZ_BAR" | "TRAP_BAR" | "RESISTANCE_BAND" | "CABLE_MACHINE" | "SUSPENSION_TRAINER" | "SMITH_MACHINE" | "CHEST_PRESS" | "INCLINE_CHEST_PRESS" | "DECLINE_CHEST_PRESS" | "CHEST_FLY" | "CABLE_CROSSOVER" | "LAT_PULLDOWN" | "SEATED_CABLE_ROW" | "SEATED_ROW" | "T_BAR_ROW" | "BACK_EXTENSION" | "ASSISTED_PULL_UP" | "SHOULDER_PRESS" | "LATERAL_RAISE" | "REAR_DELT_FLY" | "SHRUG_MACHINE" | "BICEP_CURL" | "PREACHER_CURL" | "TRICEP_EXTENSION" | "TRICEP_PRESSDOWN" | "TRICEP_DIP" | "LEG_PRESS" | "HACK_SQUAT" | "LEG_EXTENSION" | "LEG_CURL" | "SEATED_LEG_CURL" | "LYING_LEG_CURL" | "HIP_ABDUCTOR" | "HIP_ADDUCTOR" | "GLUTE_KICKBACK" | "PENDULUM_SQUAT" | "STANDING_CALF_RAISE" | "SEATED_CALF_RAISE" | "LEG_PRESS_CALF_RAISE" | "AB_CRUNCH_MACHINE" | "TORSO_ROTATION" | "CAPTAIN_CHAIR" | "TREADMILL" | "STATIONARY_BIKE" | "ROWING_MACHINE" | "ELLIPTICAL" | "STAIR_CLIMBER" | "ASSAULT_BIKE" | "SKI_MACHINE" | "PULL_UP_BAR" | "DIP_STATION" | "BENCH" | "POWER_RACK" | "PLYO_BOX" | "TRX" | "MEDICINE_BALL" | "SLAM_BALL" | "FOAM_ROLLER" | "YOGA_MAT" | "AB_WHEEL" | "BATTLE_ROPE";
+                difficultyLevel?: "BEGINNER" | "INTERMEDIATE" | "ADVANCED" | "EXPERT";
+                page?: number;
+                size?: number;
+                sortBy?: string;
+                sortDirection?: string;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -3134,6 +3286,37 @@ export interface operations {
                 };
                 content: {
                     "*/*": boolean;
+                };
+            };
+        };
+    };
+    searchTrainings: {
+        parameters: {
+            query?: {
+                startDate?: string;
+                endDate?: string;
+                status?: string;
+                search?: string;
+                q?: string;
+                programId?: number;
+                page?: number;
+                size?: number;
+                sortBy?: string;
+                sortDirection?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PageResponseDtoTraining"];
                 };
             };
         };
@@ -3432,6 +3615,37 @@ export interface operations {
                 };
                 content: {
                     "*/*": boolean;
+                };
+            };
+        };
+    };
+    searchExercises: {
+        parameters: {
+            query?: {
+                search?: string;
+                q?: string;
+                primaryCategory?: "RESISTANCE" | "ENDURANCE" | "MOBILITY" | "FUNCTIONAL" | "PLYOMETRICS" | "BALANCE" | "CORE" | "CALISTHENICS" | "NEUROMUSCULAR" | "POWER" | "STABILIZATION" | "AGILITY" | "SPEED" | "PILATES" | "ISOMETRIC" | "CIRCUIT" | "REHABILITATION" | "SPORT_SPECIFIC";
+                muscleGroup?: string;
+                equipment?: "BODYWEIGHT" | "BARBELL" | "DUMBBELL" | "KETTLEBELL" | "WEIGHT_PLATE" | "EZ_BAR" | "TRAP_BAR" | "RESISTANCE_BAND" | "CABLE_MACHINE" | "SUSPENSION_TRAINER" | "SMITH_MACHINE" | "CHEST_PRESS" | "INCLINE_CHEST_PRESS" | "DECLINE_CHEST_PRESS" | "CHEST_FLY" | "CABLE_CROSSOVER" | "LAT_PULLDOWN" | "SEATED_CABLE_ROW" | "SEATED_ROW" | "T_BAR_ROW" | "BACK_EXTENSION" | "ASSISTED_PULL_UP" | "SHOULDER_PRESS" | "LATERAL_RAISE" | "REAR_DELT_FLY" | "SHRUG_MACHINE" | "BICEP_CURL" | "PREACHER_CURL" | "TRICEP_EXTENSION" | "TRICEP_PRESSDOWN" | "TRICEP_DIP" | "LEG_PRESS" | "HACK_SQUAT" | "LEG_EXTENSION" | "LEG_CURL" | "SEATED_LEG_CURL" | "LYING_LEG_CURL" | "HIP_ABDUCTOR" | "HIP_ADDUCTOR" | "GLUTE_KICKBACK" | "PENDULUM_SQUAT" | "STANDING_CALF_RAISE" | "SEATED_CALF_RAISE" | "LEG_PRESS_CALF_RAISE" | "AB_CRUNCH_MACHINE" | "TORSO_ROTATION" | "CAPTAIN_CHAIR" | "TREADMILL" | "STATIONARY_BIKE" | "ROWING_MACHINE" | "ELLIPTICAL" | "STAIR_CLIMBER" | "ASSAULT_BIKE" | "SKI_MACHINE" | "PULL_UP_BAR" | "DIP_STATION" | "BENCH" | "POWER_RACK" | "PLYO_BOX" | "TRX" | "MEDICINE_BALL" | "SLAM_BALL" | "FOAM_ROLLER" | "YOGA_MAT" | "AB_WHEEL" | "BATTLE_ROPE";
+                difficultyLevel?: "BEGINNER" | "INTERMEDIATE" | "ADVANCED" | "EXPERT";
+                page?: number;
+                size?: number;
+                sortBy?: string;
+                sortDirection?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PageResponseDtoExercise"];
                 };
             };
         };

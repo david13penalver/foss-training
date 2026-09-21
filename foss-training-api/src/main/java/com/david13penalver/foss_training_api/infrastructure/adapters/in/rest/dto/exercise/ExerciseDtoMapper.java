@@ -70,4 +70,22 @@ public class ExerciseDtoMapper {
         }
         return exercises.stream().map(this::toResponseDto).toList();
     }
+
+    public com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.common.PageResponseDto<ExerciseResponseDto> toPageResponseDto(
+            com.david13penalver.foss_training_api.domain.model.common.PagedResult<Exercise> pagedResult) {
+        if (pagedResult == null) {
+            return null;
+        }
+        return com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.common.PageResponseDto.<ExerciseResponseDto>builder()
+                .content(toResponseDtoList(pagedResult.content()))
+                .page(pagedResult.page())
+                .size(pagedResult.size())
+                .totalElements(pagedResult.totalElements())
+                .totalPages(pagedResult.totalPages())
+                .first(pagedResult.isFirst())
+                .last(pagedResult.isLast())
+                .hasNext(pagedResult.hasNext())
+                .hasPrevious(pagedResult.hasPrevious())
+                .build();
+    }
 }

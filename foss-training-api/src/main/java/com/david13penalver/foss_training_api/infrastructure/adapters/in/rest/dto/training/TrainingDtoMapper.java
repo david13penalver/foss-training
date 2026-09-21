@@ -176,4 +176,22 @@ public class TrainingDtoMapper {
         interval.setRestSeconds(dto.getRestSeconds());
         return interval;
     }
+
+    public com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.common.PageResponseDto<TrainingResponseDto> toPageResponseDto(
+            com.david13penalver.foss_training_api.domain.model.common.PagedResult<Training> pagedResult) {
+        if (pagedResult == null) {
+            return null;
+        }
+        return com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.common.PageResponseDto.<TrainingResponseDto>builder()
+                .content(toResponseDtoList(pagedResult.content()))
+                .page(pagedResult.page())
+                .size(pagedResult.size())
+                .totalElements(pagedResult.totalElements())
+                .totalPages(pagedResult.totalPages())
+                .first(pagedResult.isFirst())
+                .last(pagedResult.isLast())
+                .hasNext(pagedResult.hasNext())
+                .hasPrevious(pagedResult.hasPrevious())
+                .build();
+    }
 }

@@ -41,6 +41,42 @@ class TrainingUseCaseTest {
     @InjectMocks
     private TrainingExistsService trainingExistsService;
 
+    @InjectMocks
+    private com.david13penalver.foss_training_api.application.usecases.training.impl.SearchTrainingsService searchTrainingsService;
+
+    @Test
+    void testSearchTrainings_withCriteria() {
+        var criteria = new com.david13penalver.foss_training_api.domain.model.training.TrainingSearchCriteria(
+                null, null, null, "Workout", null);
+        Training training = new Training();
+        training.setName("Test Workout");
+        when(trainingRepository.findByCriteria(criteria)).thenReturn(List.of(training));
+
+        List<Training> result = searchTrainingsService.execute(criteria);
+
+        assertEquals(1, result.size());
+        assertEquals("Test Workout", result.get(0).getName());
+        verify(trainingRepository).findByCriteria(criteria);
+    }
+
+    @Test
+    void testSearchTrainings_withCriteriaAndPageQuery() {
+        var criteria = com.david13penalver.foss_training_api.domain.model.training.TrainingSearchCriteria.empty();
+        var pageQuery = com.david13penalver.foss_training_api.domain.model.common.PageQuery.of(0, 10);
+        Training training = new Training();
+        training.setName("Test Workout");
+        var pagedResult = new com.david13penalver.foss_training_api.domain.model.common.PagedResult<>(
+                List.of(training), 0, 10, 1, 1);
+        when(trainingRepository.findByCriteria(criteria, pageQuery)).thenReturn(pagedResult);
+
+        var result = searchTrainingsService.execute(criteria, pageQuery);
+
+        assertEquals(1, result.content().size());
+        assertEquals(1, result.totalElements());
+        assertEquals(1, result.totalPages());
+        verify(trainingRepository).findByCriteria(criteria, pageQuery);
+    }
+
     @Test
     void testFindAll() {
         List<Training> expected = List.of(new Training());

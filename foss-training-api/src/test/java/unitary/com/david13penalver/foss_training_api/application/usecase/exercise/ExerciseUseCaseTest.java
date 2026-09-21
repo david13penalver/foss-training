@@ -41,6 +41,42 @@ class ExerciseUseCaseTest {
     @InjectMocks
     private ExerciseExistsService exerciseExistsService;
 
+    @InjectMocks
+    private com.david13penalver.foss_training_api.application.usecases.exercise.exercise.impl.SearchExercisesService searchExercisesService;
+
+    @Test
+    void testSearchExercises_withCriteria() {
+        var criteria = new com.david13penalver.foss_training_api.domain.model.exercise.ExerciseSearchCriteria(
+                "Squat", null, null, null, null);
+        Exercise exercise = new Exercise();
+        exercise.setName("Barbell Squat");
+        when(exerciseRepository.findByCriteria(criteria)).thenReturn(List.of(exercise));
+
+        List<Exercise> result = searchExercisesService.execute(criteria);
+
+        assertEquals(1, result.size());
+        assertEquals("Barbell Squat", result.get(0).getName());
+        verify(exerciseRepository).findByCriteria(criteria);
+    }
+
+    @Test
+    void testSearchExercises_withCriteriaAndPageQuery() {
+        var criteria = com.david13penalver.foss_training_api.domain.model.exercise.ExerciseSearchCriteria.empty();
+        var pageQuery = com.david13penalver.foss_training_api.domain.model.common.PageQuery.of(0, 10);
+        Exercise exercise = new Exercise();
+        exercise.setName("Barbell Squat");
+        var pagedResult = new com.david13penalver.foss_training_api.domain.model.common.PagedResult<>(
+                List.of(exercise), 0, 10, 1, 1);
+        when(exerciseRepository.findByCriteria(criteria, pageQuery)).thenReturn(pagedResult);
+
+        var result = searchExercisesService.execute(criteria, pageQuery);
+
+        assertEquals(1, result.content().size());
+        assertEquals(1, result.totalElements());
+        assertEquals(1, result.totalPages());
+        verify(exerciseRepository).findByCriteria(criteria, pageQuery);
+    }
+
     @Test
     void testFindAll() {
         List<Exercise> expected = List.of(new Exercise());

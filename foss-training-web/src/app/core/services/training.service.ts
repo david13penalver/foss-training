@@ -1,9 +1,11 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, httpResource } from '@angular/common/http';
+import { HttpClient, HttpParams, httpResource } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import type {
   Training,
   TrainingRequest,
+  PageResponseTraining,
+  TrainingSearchParams,
   CompleteTrainingRequest,
   LogSetRequest,
   LogIntervalRequest,
@@ -22,6 +24,16 @@ export class TrainingService {
   readonly trainingsResource = httpResource<Training[]>(() => '/api/trainings', {
     defaultValue: []
   });
+
+  searchTrainings(params?: TrainingSearchParams): Observable<PageResponseTraining> {
+    const httpParams = this.buildTrainingHttpParams(params);
+    return this.http.get<PageResponseTraining>('/api/trainings/search', { params: httpParams });
+  }
+
+  getTrainings(params?: TrainingSearchParams): Observable<Training[]> {
+    const httpParams = this.buildTrainingHttpParams(params);
+    return this.http.get<Training[]>('/api/trainings', { params: httpParams });
+  }
 
   getTrainingById(id: number): Observable<Training> {
     return this.http.get<Training>(`/api/trainings/${id}`);
@@ -96,5 +108,23 @@ export class TrainingService {
       url += `?${params.join('&')}`;
     }
     return this.http.post<Training>(url, {});
+  }
+
+  private buildTrainingHttpParams(params?: TrainingSearchParams): HttpParams {
+    let httpParams = new HttpParams();
+    if (!params) return httpParams;
+
+    if (params.startDate) httpParams = httpParams.set('startDate', params.startDate);
+    if (params.endDate) httpParams = httpParams.set('endDate', params.endDate);
+    if (params.status && params.status !== 'ALL') httpParams = httpParams.set('status', params.status);
+    if (params.search) httpParams = httpParams.set('search', params.search);
+    if (params.q) httpParams = httpParams.set('q', params.q);
+    if (params.programId !== undefined) httpParams = httpParams.set('programId', params.programId.toString());
+    if (params.page !== undefined) httpParams = httpParams.set('page', params.page.toString());
+    if (params.size !== undefined) httpParams = httpParams.set('size', params.size.toString());
+    if (params.sortBy) httpParams = httpParams.set('sortBy', params.sortBy);
+    if (params.sortDirection) httpParams = httpParams.set('sortDirection', params.sortDirection);
+
+    return httpParams;
   }
 }

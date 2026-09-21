@@ -31,6 +31,7 @@ import type { Training } from '../../../../core/api/models';
 export class TrainingsPageComponent {
   private readonly trainingService = inject(TrainingService);
   private readonly sessionService = inject(SessionService);
+  readonly Math = Math;
 
   readonly trainings = this.trainingService.trainingsResource.value;
   readonly isLoading = this.trainingService.trainingsResource.isLoading;
@@ -39,6 +40,13 @@ export class TrainingsPageComponent {
   // Filters
   readonly searchQuery = signal('');
   readonly selectedStatus = signal('ALL');
+  readonly startDate = signal('');
+  readonly endDate = signal('');
+  readonly datePreset = signal<'ALL' | 'THIS_WEEK' | 'THIS_MONTH'>('ALL');
+
+  // Pagination
+  readonly currentPage = signal(0);
+  readonly pageSize = signal(9);
 
   // Modals
   readonly isScheduleOpen = signal(false);
@@ -83,6 +91,8 @@ export class TrainingsPageComponent {
     const list = this.trainings() ?? [];
     const query = this.searchQuery().trim().toLowerCase();
     const st = this.selectedStatus();
+    const start = this.startDate();
+    const end = this.endDate();
 
     return list.filter(item => {
       const matchesSearch =
@@ -93,10 +103,106 @@ export class TrainingsPageComponent {
         (item.session?.sessionExercises?.some(se => se.exercise?.name?.toLowerCase().includes(query)));
 
       const matchesStatus = st === 'ALL' || item.status === st;
+      const matchesStart = !start || (item.trainingDate && item.trainingDate >= start);
+      const matchesEnd = !end || (item.trainingDate && item.trainingDate <= end);
 
-      return matchesSearch && matchesStatus;
+      return matchesSearch && matchesStatus && matchesStart && matchesEnd;
     });
   });
+
+  readonly totalPages = computed(() => {
+    const count = this.filteredTrainings().length;
+    return Math.max(1, Math.ceil(count / this.pageSize()));
+  });
+
+  readonly paginatedTrainings = computed(() => {
+    const list = this.filteredTrainings();
+    const page = this.currentPage();
+    const size = this.pageSize();
+    const start = page * size;
+    return list.slice(start, start + size);
+  });
+
+  // Filter change handlers
+  onSearchChange(query: string) {
+    this.searchQuery.set(query);
+    this.currentPage.set(0);
+  }
+
+  onStatusChange(status: string) {
+    this.selectedStatus.set(status);
+    this.currentPage.set(0);
+  }
+
+  onStartDateChange(date: string) {
+    this.startDate.set(date);
+    this.datePreset.set('ALL');
+    this.currentPage.set(0);
+  }
+
+  onEndDateChange(date: string) {
+    this.endDate.set(date);
+    this.datePreset.set('ALL');
+    this.currentPage.set(0);
+  }
+
+  applyDatePreset(preset: 'ALL' | 'THIS_WEEK' | 'THIS_MONTH') {
+    this.datePreset.set(preset);
+    this.currentPage.set(0);
+
+    if (preset === 'ALL') {
+      this.startDate.set('');
+      this.endDate.set('');
+      return;
+    }
+
+    const formatDate = (d: Date) => {
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
+
+    const now = new Date();
+    if (preset === 'THIS_WEEK') {
+      const day = now.getDay();
+      const diffToMonday = now.getDate() - day + (day === 0 ? -6 : 1);
+      const monday = new Date(now.getFullYear(), now.getMonth(), diffToMonday);
+      const sunday = new Date(now.getFullYear(), now.getMonth(), diffToMonday + 6);
+      this.startDate.set(formatDate(monday));
+      this.endDate.set(formatDate(sunday));
+    } else if (preset === 'THIS_MONTH') {
+      const y = now.getFullYear();
+      const m = now.getMonth();
+      const firstDay = new Date(y, m, 1);
+      const lastDay = new Date(y, m + 1, 0);
+      this.startDate.set(formatDate(firstDay));
+      this.endDate.set(formatDate(lastDay));
+    }
+  }
+
+  goToPage(page: number) {
+    if (page >= 0 && page < this.totalPages()) {
+      this.currentPage.set(page);
+    }
+  }
+
+  nextPage() {
+    if (this.currentPage() < this.totalPages() - 1) {
+      this.currentPage.update(p => p + 1);
+    }
+  }
+
+  prevPage() {
+    if (this.currentPage() > 0) {
+      this.currentPage.update(p => p - 1);
+    }
+  }
+
+  onPageSizeChange(size: number) {
+    this.pageSize.set(size);
+    this.currentPage.set(0);
+  }
 
   openScheduleModal() {
     this.isScheduleOpen.set(true);

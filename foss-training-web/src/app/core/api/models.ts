@@ -5,6 +5,20 @@ export type Schemas = components['schemas'];
 // Core Entity Models
 export type Exercise = Schemas['Exercise'];
 export type ExerciseRequest = Schemas['ExerciseRequest'];
+export type PageResponseExercise = Schemas['PageResponseDtoExercise'];
+
+export interface ExerciseSearchParams {
+  search?: string;
+  q?: string;
+  primaryCategory?: string;
+  muscleGroup?: string;
+  equipment?: string;
+  difficultyLevel?: string;
+  page?: number;
+  size?: number;
+  sortBy?: string;
+  sortDirection?: 'asc' | 'desc';
+}
 
 export type Session = Schemas['Session'];
 export type SessionRequest = Schemas['SessionRequest'];
@@ -17,6 +31,20 @@ export type MobilitySessionExercise = Schemas['MobilitySessionExercise'];
 
 export type Training = Schemas['Training'];
 export type TrainingRequest = Schemas['TrainingRequest'];
+export type PageResponseTraining = Schemas['PageResponseDtoTraining'];
+
+export interface TrainingSearchParams {
+  startDate?: string;
+  endDate?: string;
+  status?: string;
+  search?: string;
+  q?: string;
+  programId?: number;
+  page?: number;
+  size?: number;
+  sortBy?: string;
+  sortDirection?: 'asc' | 'desc';
+}
 export type CompleteTrainingRequest = Schemas['CompleteTrainingRequest'];
 export type LogSetRequest = Schemas['LogSetRequest'];
 export type LogIntervalRequest = Schemas['LogIntervalRequest'];

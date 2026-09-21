@@ -221,4 +221,50 @@ describe('TrainingsPageComponent', () => {
     component.confirmDelete();
     expect(mockTrainingService.deleteTraining).toHaveBeenCalledWith(1);
   });
+
+  it('should filter trainings by date range', () => {
+    component.onStartDateChange('2026-09-09');
+    component.onEndDateChange('2026-09-11');
+    fixture.detectChanges();
+
+    expect(component.filteredTrainings().length).toBe(1);
+    expect(component.filteredTrainings()[0].name).toBe('Push Strength Session');
+  });
+
+  it('should apply date presets correctly', () => {
+    component.applyDatePreset('ALL');
+    expect(component.startDate()).toBe('');
+    expect(component.endDate()).toBe('');
+
+    component.applyDatePreset('THIS_WEEK');
+    expect(component.startDate()).toBeTruthy();
+    expect(component.endDate()).toBeTruthy();
+
+    component.applyDatePreset('THIS_MONTH');
+    expect(component.startDate()).toContain('-01');
+  });
+
+  it('should paginate trainings and navigate pages', () => {
+    component.onPageSizeChange(1);
+    fixture.detectChanges();
+
+    expect(component.totalPages()).toBe(3);
+    expect(component.currentPage()).toBe(0);
+    expect(component.paginatedTrainings().length).toBe(1);
+    expect(component.paginatedTrainings()[0].name).toBe('Push Strength Session');
+
+    component.nextPage();
+    fixture.detectChanges();
+    expect(component.currentPage()).toBe(1);
+    expect(component.paginatedTrainings()[0].name).toBe('Leg Hypertrophy Session');
+
+    component.prevPage();
+    fixture.detectChanges();
+    expect(component.currentPage()).toBe(0);
+
+    component.goToPage(2);
+    fixture.detectChanges();
+    expect(component.currentPage()).toBe(2);
+    expect(component.paginatedTrainings()[0].name).toBe('Pull Recovery Session');
+  });
 });

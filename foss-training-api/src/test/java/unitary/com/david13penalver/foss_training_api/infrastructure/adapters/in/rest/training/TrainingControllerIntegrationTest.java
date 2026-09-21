@@ -537,4 +537,86 @@ class TrainingControllerIntegrationTest {
                         .content(validTrainingJson(name, date)))
                 .andExpect(status().isCreated());
     }
+
+    @Test
+    void getAllTrainings_withDateRange_returnsFilteredTrainings() throws Exception {
+        createTraining("Past Workout", "2026-09-01");
+        createTraining("Mid Workout", "2026-09-10");
+        createTraining("Future Workout", "2026-09-20");
+
+        mockMvc.perform(get("/api/trainings")
+                        .param("startDate", "2026-09-05")
+                        .param("endDate", "2026-09-15"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].name").value("Mid Workout"))
+                .andExpect(header().string("X-Total-Count", "1"));
+    }
+
+    @Test
+    void getAllTrainings_withStatus_returnsFilteredTrainings() throws Exception {
+        createTraining("Workout 1", "2026-09-10");
+        createTraining("Workout 2", "2026-09-11");
+
+        // Start workout 1 so status becomes IN_PROGRESS
+        mockMvc.perform(post("/api/trainings/1/start")).andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/trainings").param("status", "IN_PROGRESS"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].name").value("Workout 1"));
+
+        mockMvc.perform(get("/api/trainings").param("status", "PLANNED"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].name").value("Workout 2"));
+    }
+
+    @Test
+    void getAllTrainings_withSearchQuery_returnsFilteredTrainings() throws Exception {
+        createTraining("Chest Day Hypertrophy", "2026-09-10");
+        createTraining("Leg Day Power", "2026-09-11");
+
+        mockMvc.perform(get("/api/trainings").param("search", "hypertrophy"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].name").value("Chest Day Hypertrophy"));
+    }
+
+    @Test
+    void getAllTrainings_withPagination_returnsPagedContentAndHeaders() throws Exception {
+        createTraining("Workout A", "2026-09-01");
+        createTraining("Workout B", "2026-09-02");
+        createTraining("Workout C", "2026-09-03");
+
+        mockMvc.perform(get("/api/trainings")
+                        .param("page", "0")
+                        .param("size", "2")
+                        .param("sortBy", "trainingDate")
+                        .param("sortDirection", "desc"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(header().string("X-Total-Count", "3"))
+                .andExpect(header().string("X-Total-Pages", "2"))
+                .andExpect(header().string("X-Page-Number", "0"))
+                .andExpect(header().string("X-Page-Size", "2"));
+    }
+
+    @Test
+    void searchTrainings_returnsPageResponseDto() throws Exception {
+        createTraining("Alpha Workout", "2026-09-10");
+        createTraining("Beta Workout", "2026-09-11");
+
+        mockMvc.perform(get("/api/trainings/search")
+                        .param("search", "alpha")
+                        .param("page", "0")
+                        .param("size", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(1))
+                .andExpect(jsonPath("$.content[0].name").value("Alpha Workout"))
+                .andExpect(jsonPath("$.totalElements").value(1))
+                .andExpect(jsonPath("$.totalPages").value(1))
+                .andExpect(jsonPath("$.first").value(true))
+                .andExpect(jsonPath("$.last").value(true));
+    }
 }

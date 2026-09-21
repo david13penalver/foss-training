@@ -25,6 +25,7 @@ import type { Exercise, ExerciseRequest } from '../../../../core/api/models';
 export class ExercisesPageComponent {
   private readonly exerciseService = inject(ExerciseService);
   private readonly refService = inject(ReferenceDataService);
+  readonly Math = Math;
 
   // Raw Data from resources
   readonly exercises = this.exerciseService.exercisesResource.value;
@@ -61,6 +62,10 @@ export class ExercisesPageComponent {
 
   readonly difficulties = ['ALL', 'BEGINNER', 'INTERMEDIATE', 'ADVANCED', 'EXPERT'];
 
+  // Pagination Signals
+  readonly currentPage = signal(0);
+  readonly pageSize = signal(12);
+
   // Derived Computed Signal
   readonly filteredExercises = computed(() => {
     const list = this.exercises() ?? [];
@@ -86,6 +91,58 @@ export class ExercisesPageComponent {
       return matchesSearch && matchesCategory && matchesDifficulty;
     });
   });
+
+  readonly totalPages = computed(() => {
+    const count = this.filteredExercises().length;
+    return Math.max(1, Math.ceil(count / this.pageSize()));
+  });
+
+  readonly paginatedExercises = computed(() => {
+    const list = this.filteredExercises();
+    const page = this.currentPage();
+    const size = this.pageSize();
+    const start = page * size;
+    return list.slice(start, start + size);
+  });
+
+  // Filter change handlers that reset page
+  onSearchChange(query: string) {
+    this.searchQuery.set(query);
+    this.currentPage.set(0);
+  }
+
+  onCategoryChange(cat: string) {
+    this.selectedCategory.set(cat);
+    this.currentPage.set(0);
+  }
+
+  onDifficultyChange(diff: string) {
+    this.selectedDifficulty.set(diff);
+    this.currentPage.set(0);
+  }
+
+  onPageSizeChange(size: number) {
+    this.pageSize.set(size);
+    this.currentPage.set(0);
+  }
+
+  goToPage(page: number) {
+    if (page >= 0 && page < this.totalPages()) {
+      this.currentPage.set(page);
+    }
+  }
+
+  nextPage() {
+    if (this.currentPage() < this.totalPages() - 1) {
+      this.currentPage.update(p => p + 1);
+    }
+  }
+
+  prevPage() {
+    if (this.currentPage() > 0) {
+      this.currentPage.update(p => p - 1);
+    }
+  }
 
   // Action Handlers
   openCreateModal() {

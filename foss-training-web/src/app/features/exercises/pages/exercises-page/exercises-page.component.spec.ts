@@ -153,4 +153,42 @@ describe('ExercisesPageComponent', () => {
     component.confirmDelete();
     expect(mockExerciseService.deleteExercise).toHaveBeenCalledWith(1);
   });
+
+  it('should paginate exercises correctly and navigate pages', () => {
+    // Set page size to 1 so 3 exercises make 3 pages
+    component.onPageSizeChange(1);
+    fixture.detectChanges();
+
+    expect(component.totalPages()).toBe(3);
+    expect(component.currentPage()).toBe(0);
+    expect(component.paginatedExercises().length).toBe(1);
+    expect(component.paginatedExercises()[0].name).toBe('Bench Press');
+
+    component.nextPage();
+    fixture.detectChanges();
+    expect(component.currentPage()).toBe(1);
+    expect(component.paginatedExercises()[0].name).toBe('Running Intervals');
+
+    component.prevPage();
+    fixture.detectChanges();
+    expect(component.currentPage()).toBe(0);
+
+    component.goToPage(2);
+    fixture.detectChanges();
+    expect(component.currentPage()).toBe(2);
+    expect(component.paginatedExercises()[0].name).toBe('Hamstring Dynamic Stretch');
+  });
+
+  it('should reset current page to 0 when filters change', () => {
+    component.onPageSizeChange(1);
+    component.goToPage(2);
+    expect(component.currentPage()).toBe(2);
+
+    component.onSearchChange('bench');
+    expect(component.currentPage()).toBe(0);
+
+    component.goToPage(1);
+    component.onCategoryChange('ENDURANCE');
+    expect(component.currentPage()).toBe(0);
+  });
 });

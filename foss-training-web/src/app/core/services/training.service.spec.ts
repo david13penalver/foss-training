@@ -237,4 +237,36 @@ describe('TrainingService', () => {
     expect(req.request.method).toBe('GET');
     req.flush(mockSummary);
   });
+
+  it('should search trainings with query parameters', () => {
+    const mockPage = {
+      content: [{ id: 1, name: 'Morning Push', status: 'Planned' }],
+      page: 0,
+      size: 10,
+      totalElements: 1,
+      totalPages: 1
+    };
+
+    service.searchTrainings({ search: 'push', status: 'Planned', page: 0, size: 10 }).subscribe(res => {
+      expect(res.totalElements).toBe(1);
+      expect(res.content?.[0].name).toBe('Morning Push');
+    });
+
+    const req = httpTesting.expectOne('/api/trainings/search?status=Planned&search=push&page=0&size=10');
+    expect(req.request.method).toBe('GET');
+    req.flush(mockPage);
+  });
+
+  it('should get trainings with date range parameters', () => {
+    const mockList = [{ id: 1, name: 'Mid Workout', trainingDate: '2026-09-10' }];
+
+    service.getTrainings({ startDate: '2026-09-01', endDate: '2026-09-15' }).subscribe(res => {
+      expect(res.length).toBe(1);
+      expect(res[0].name).toBe('Mid Workout');
+    });
+
+    const req = httpTesting.expectOne('/api/trainings?startDate=2026-09-01&endDate=2026-09-15');
+    expect(req.request.method).toBe('GET');
+    req.flush(mockList);
+  });
 });

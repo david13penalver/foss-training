@@ -23,10 +23,10 @@
         class="search-input"
         placeholder="Search exercises by name, muscle, equipment..."
         [ngModel]="searchQuery()"
-        (ngModelChange)="searchQuery.set($event)"
+        (ngModelChange)="onSearchChange($event)"
       />
       @if (searchQuery()) {
-        <button type="button" class="btn-clear" (click)="searchQuery.set('')">✕</button>
+        <button type="button" class="btn-clear" (click)="onSearchChange('')">✕</button>
       }
     </div>
 
@@ -37,7 +37,7 @@
           type="button"
           class="filter-pill"
           [class.active]="selectedCategory() === cat"
-          (click)="selectedCategory.set(cat)"
+          (click)="onCategoryChange(cat)"
         >
           {{ cat }}
         </button>
@@ -50,7 +50,7 @@
       <select
         class="glass-dropdown"
         [ngModel]="selectedDifficulty()"
-        (ngModelChange)="selectedDifficulty.set($event)"
+        (ngModelChange)="onDifficultyChange($event)"
       >
         @for (diff of difficulties; track diff) {
           <option [value]="diff">{{ diff }}</option>
@@ -76,10 +76,10 @@
     </div>
   }
 
-  <!-- Exercises Grid -->
+  <!-- Exercises Grid & Pagination -->
   @if (!isLoading()) {
     <section class="exercises-grid">
-      @for (exercise of filteredExercises(); track exercise.id) {
+      @for (exercise of paginatedExercises(); track exercise.id) {
         <app-exercise-card
           [exercise]="exercise"
           (viewDetails)="openDetailModal($event)"
@@ -97,6 +97,54 @@
         </div>
       }
     </section>
+
+    <!-- Pagination Dock -->
+    @if (filteredExercises().length > 0) {
+      <div class="pagination-dock glass-card">
+        <div class="pagination-info">
+          Showing <span class="highlight">{{ currentPage() * pageSize() + 1 }}</span> -
+          <span class="highlight">{{ Math.min((currentPage() + 1) * pageSize(), filteredExercises().length) }}</span>
+          of <span class="highlight">{{ filteredExercises().length }}</span> exercises
+        </div>
+
+        <div class="pagination-controls">
+          <button
+            type="button"
+            class="page-btn"
+            [disabled]="currentPage() === 0"
+            (click)="prevPage()"
+          >
+            ← Prev
+          </button>
+
+          <span class="page-indicator">
+            Page {{ currentPage() + 1 }} of {{ totalPages() }}
+          </span>
+
+          <button
+            type="button"
+            class="page-btn"
+            [disabled]="currentPage() >= totalPages() - 1"
+            (click)="nextPage()"
+          >
+            Next →
+          </button>
+        </div>
+
+        <div class="page-size-selector">
+          <label class="size-label">Per page:</label>
+          <select
+            class="glass-dropdown size-dropdown"
+            [ngModel]="pageSize()"
+            (ngModelChange)="onPageSizeChange(+$event)"
+          >
+            <option [value]="12">12</option>
+            <option [value]="24">24</option>
+            <option [value]="48">48</option>
+          </select>
+        </div>
+      </div>
+    }
   }
 
   <!-- Modals & Overlays -->

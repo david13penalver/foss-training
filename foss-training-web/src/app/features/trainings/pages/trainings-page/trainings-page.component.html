@@ -43,6 +43,7 @@
   </section>
 
   <!-- Filter & Search Controls -->
+  <!-- Filter & Search Controls -->
   <section class="controls-bar glass-card">
     <div class="search-box">
       <svg class="search-icon" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
@@ -54,8 +55,11 @@
         class="search-input"
         placeholder="Search workouts, routines, exercises..."
         [ngModel]="searchQuery()"
-        (ngModelChange)="searchQuery.set($event)"
+        (ngModelChange)="onSearchChange($event)"
       />
+      @if (searchQuery()) {
+        <button type="button" class="btn-clear-search" (click)="onSearchChange('')">✕</button>
+      }
     </div>
 
     <!-- Status Filters -->
@@ -65,11 +69,59 @@
           type="button"
           class="pill-btn"
           [class.active]="selectedStatus() === st"
-          (click)="selectedStatus.set(st)"
+          (click)="onStatusChange(st)"
         >
           {{ st }}
         </button>
       }
+    </div>
+
+    <!-- Date Range Quick Presets & Inputs -->
+    <div class="date-filter-group">
+      <div class="preset-buttons">
+        <button
+          type="button"
+          class="preset-btn"
+          [class.active]="datePreset() === 'ALL' && !startDate() && !endDate()"
+          (click)="applyDatePreset('ALL')"
+        >
+          All Time
+        </button>
+        <button
+          type="button"
+          class="preset-btn"
+          [class.active]="datePreset() === 'THIS_WEEK'"
+          (click)="applyDatePreset('THIS_WEEK')"
+        >
+          This Week
+        </button>
+        <button
+          type="button"
+          class="preset-btn"
+          [class.active]="datePreset() === 'THIS_MONTH'"
+          (click)="applyDatePreset('THIS_MONTH')"
+        >
+          This Month
+        </button>
+      </div>
+
+      <div class="date-pickers">
+        <input
+          type="date"
+          class="date-input"
+          [ngModel]="startDate()"
+          (ngModelChange)="onStartDateChange($event)"
+          title="From date"
+        />
+        <span class="date-separator">to</span>
+        <input
+          type="date"
+          class="date-input"
+          [ngModel]="endDate()"
+          (ngModelChange)="onEndDateChange($event)"
+          title="To date"
+        />
+      </div>
     </div>
   </section>
 
@@ -87,13 +139,13 @@
     <div class="state-container empty">
       <p class="empty-title">No trainings found</p>
       <p class="empty-desc">
-        @if (searchQuery() || selectedStatus() !== 'ALL') {
-          Try adjusting your search filters or status.
+        @if (searchQuery() || selectedStatus() !== 'ALL' || startDate() || endDate()) {
+          Try adjusting your search filters, status, or date range.
         } @else {
           Schedule a workout from a routine template to get started!
         }
       </p>
-      @if (!searchQuery() && selectedStatus() === 'ALL') {
+      @if (!searchQuery() && selectedStatus() === 'ALL' && !startDate() && !endDate()) {
         <button class="btn btn-secondary mt-3" (click)="openScheduleModal()" type="button">
           Schedule Your First Workout
         </button>
@@ -101,7 +153,7 @@
     </div>
   } @else {
     <div class="trainings-grid">
-      @for (training of filteredTrainings(); track training.id) {
+      @for (training of paginatedTrainings(); track training.id) {
         <app-training-card
           [training]="training"
           (viewDetails)="openDetailModal($event)"
@@ -113,6 +165,55 @@
         ></app-training-card>
       }
     </div>
+
+    <!-- Pagination Dock -->
+    @if (filteredTrainings().length > 0) {
+      <div class="pagination-dock glass-card">
+        <div class="pagination-info">
+          Showing <span class="highlight">{{ currentPage() * pageSize() + 1 }}</span> -
+          <span class="highlight">{{ Math.min((currentPage() + 1) * pageSize(), filteredTrainings().length) }}</span>
+          of <span class="highlight">{{ filteredTrainings().length }}</span> workouts
+        </div>
+
+        <div class="pagination-controls">
+          <button
+            type="button"
+            class="page-btn"
+            [disabled]="currentPage() === 0"
+            (click)="prevPage()"
+          >
+            ← Prev
+          </button>
+
+          <span class="page-indicator">
+            Page {{ currentPage() + 1 }} of {{ totalPages() }}
+          </span>
+
+          <button
+            type="button"
+            class="page-btn"
+            [disabled]="currentPage() >= totalPages() - 1"
+            (click)="nextPage()"
+          >
+            Next →
+          </button>
+        </div>
+
+        <div class="page-size-selector">
+          <label class="size-label">Per page:</label>
+          <select
+            class="size-dropdown"
+            [ngModel]="pageSize()"
+            (ngModelChange)="onPageSizeChange(+$event)"
+          >
+            <option [value]="6">6</option>
+            <option [value]="9">9</option>
+            <option [value]="18">18</option>
+            <option [value]="36">36</option>
+          </select>
+        </div>
+      </div>
+    }
   }
 
   <!-- Modals -->

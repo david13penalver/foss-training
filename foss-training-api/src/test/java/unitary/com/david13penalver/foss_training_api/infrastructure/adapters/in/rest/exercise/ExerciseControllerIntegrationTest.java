@@ -140,6 +140,73 @@ class ExerciseControllerIntegrationTest {
                 .andExpect(status().isNotFound());
     }
 
+    @Test
+    void getAllExercises_withSearchQuery_returnsMatchingExercises() throws Exception {
+        createExercise("Barbell Squat", "RESISTANCE");
+        createExercise("Bench Press", "RESISTANCE");
+        createExercise("Running", "ENDURANCE");
+
+        mockMvc.perform(get("/api/exercises").param("search", "squat"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].name").value("Barbell Squat"))
+                .andExpect(header().string("X-Total-Count", "1"));
+    }
+
+    @Test
+    void getAllExercises_withCategoryFilter_returnsMatchingExercises() throws Exception {
+        createExercise("Squat", "RESISTANCE");
+        createExercise("Deadlift", "RESISTANCE");
+        createExercise("Cycling", "ENDURANCE");
+
+        mockMvc.perform(get("/api/exercises").param("primaryCategory", "ENDURANCE"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].name").value("Cycling"))
+                .andExpect(header().string("X-Total-Count", "1"));
+    }
+
+    @Test
+    void getAllExercises_withPagination_returnsPagedContentAndHeaders() throws Exception {
+        createExercise("Exercise A", "RESISTANCE");
+        createExercise("Exercise B", "RESISTANCE");
+        createExercise("Exercise C", "RESISTANCE");
+
+        mockMvc.perform(get("/api/exercises")
+                        .param("page", "0")
+                        .param("size", "2")
+                        .param("sortBy", "name")
+                        .param("sortDirection", "asc"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].name").value("Exercise A"))
+                .andExpect(jsonPath("$[1].name").value("Exercise B"))
+                .andExpect(header().string("X-Total-Count", "3"))
+                .andExpect(header().string("X-Total-Pages", "2"))
+                .andExpect(header().string("X-Page-Number", "0"))
+                .andExpect(header().string("X-Page-Size", "2"));
+    }
+
+    @Test
+    void searchExercises_returnsPageResponseDto() throws Exception {
+        createExercise("Bench Press", "RESISTANCE");
+        createExercise("Overhead Press", "RESISTANCE");
+        createExercise("Pull Up", "RESISTANCE");
+
+        mockMvc.perform(get("/api/exercises/search")
+                        .param("search", "press")
+                        .param("page", "0")
+                        .param("size", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(2))
+                .andExpect(jsonPath("$.totalElements").value(2))
+                .andExpect(jsonPath("$.totalPages").value(1))
+                .andExpect(jsonPath("$.page").value(0))
+                .andExpect(jsonPath("$.size").value(10))
+                .andExpect(jsonPath("$.first").value(true))
+                .andExpect(jsonPath("$.last").value(true));
+    }
+
     private void createExercise() throws Exception {
         createExercise("Squat", "RESISTANCE");
     }

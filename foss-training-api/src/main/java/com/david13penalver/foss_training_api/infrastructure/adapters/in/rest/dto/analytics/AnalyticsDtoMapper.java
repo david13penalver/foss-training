@@ -6,8 +6,10 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 import com.david13penalver.foss_training_api.domain.model.analytics.DailyWorkload;
+import com.david13penalver.foss_training_api.domain.model.analytics.MuscleGroupVolume;
 import com.david13penalver.foss_training_api.domain.model.analytics.OneRepMaxEstimate;
 import com.david13penalver.foss_training_api.domain.model.analytics.PersonalRecord;
+import com.david13penalver.foss_training_api.domain.model.analytics.WeeklyMuscleVolume;
 import com.david13penalver.foss_training_api.domain.model.analytics.WorkloadRatio;
 
 @Component
@@ -130,6 +132,51 @@ public class AnalyticsDtoMapper {
                 .workloadAu(daily.getWorkloadAu())
                 .totalVolumeKg(daily.getTotalVolumeKg())
                 .completedSessions(daily.getCompletedSessions())
+                .build();
+    }
+
+    public WeeklyMuscleVolumeResponseDto toResponseDto(WeeklyMuscleVolume weekly) {
+        if (weekly == null) {
+            return null;
+        }
+        List<MuscleGroupVolumeDto> volumeDtos = Collections.emptyList();
+        if (weekly.getMuscleVolumes() != null) {
+            volumeDtos = weekly.getMuscleVolumes().stream()
+                    .map(this::toResponseDto)
+                    .toList();
+        }
+
+        return WeeklyMuscleVolumeResponseDto.builder()
+                .startDate(weekly.getStartDate())
+                .endDate(weekly.getEndDate())
+                .totalWorkingSets(weekly.getTotalWorkingSets())
+                .totalVolumeKg(weekly.getTotalVolumeKg())
+                .muscleVolumes(volumeDtos)
+                .categoryVolumes(weekly.getCategoryVolumes())
+                .pushPullRatio(weekly.getPushPullRatio())
+                .upperLowerRatio(weekly.getUpperLowerRatio())
+                .neglectedMuscleGroups(weekly.getNeglectedMuscleGroups())
+                .optimalMuscleGroups(weekly.getOptimalMuscleGroups())
+                .overtrainedMuscleGroups(weekly.getOvertrainedMuscleGroups())
+                .recommendations(weekly.getRecommendations())
+                .build();
+    }
+
+    public MuscleGroupVolumeDto toResponseDto(MuscleGroupVolume mv) {
+        if (mv == null) {
+            return null;
+        }
+        return MuscleGroupVolumeDto.builder()
+                .muscleGroup(mv.getMuscleGroup())
+                .muscleGroupName(mv.getMuscleGroupName())
+                .category(mv.getCategory())
+                .directSets(mv.getDirectSets())
+                .indirectSets(mv.getIndirectSets())
+                .effectiveSets(mv.getEffectiveSets())
+                .totalVolumeKg(mv.getTotalVolumeKg())
+                .status(mv.getStatus())
+                .statusDisplayName(mv.getStatus() != null ? mv.getStatus().getDisplayName() : null)
+                .statusDescription(mv.getStatus() != null ? mv.getStatus().getDescription() : null)
                 .build();
     }
 }

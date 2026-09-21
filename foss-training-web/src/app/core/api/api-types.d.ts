@@ -541,6 +541,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/analytics/muscle-volume": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get weekly muscle group volume and hypertrophy balance analysis */
+        get: operations["getMuscleVolume"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/analytics/acwr": {
         parameters: {
             query?: never;
@@ -1170,6 +1187,116 @@ export interface components {
             maxSessionVolume?: components["schemas"]["MaxSessionVolumeRecord"];
             /** @description Maximum repetitions record */
             maxReps?: components["schemas"]["MaxRepsRecord"];
+        };
+        /** @description Aggregated working volume for an individual muscle group */
+        MuscleGroupVolume: {
+            /**
+             * @description Muscle group identifier
+             * @example CHEST
+             * @enum {string}
+             */
+            muscleGroup?: "CHEST" | "UPPER_BACK" | "LATS" | "LOWER_BACK" | "SHOULDERS" | "BICEPS" | "TRICEPS" | "FOREARMS" | "ABS" | "OBLIQUES" | "CORE" | "QUADRICEPS" | "HAMSTRINGS" | "GLUTES" | "CALVES" | "HIP_FLEXORS" | "ADDUCTORS" | "FULL_BODY";
+            /**
+             * @description Human-readable muscle group name
+             * @example Chest
+             */
+            muscleGroupName?: string;
+            /**
+             * @description Anatomical category
+             * @example UPPER_BODY
+             * @enum {string}
+             */
+            category?: "UPPER_BODY" | "CORE" | "LOWER_BODY" | "FULL_BODY";
+            /**
+             * Format: int32
+             * @description Number of primary/direct working sets
+             * @example 12
+             */
+            directSets?: number;
+            /**
+             * Format: int32
+             * @description Number of secondary/indirect synergist sets
+             * @example 6
+             */
+            indirectSets?: number;
+            /**
+             * Format: double
+             * @description Effective working sets (direct + 0.5 * indirect)
+             * @example 15
+             */
+            effectiveSets?: number;
+            /**
+             * Format: double
+             * @description Total tonnage moved in kilograms
+             * @example 8400
+             */
+            totalVolumeKg?: number;
+            /**
+             * @description Hypertrophy landmark classification
+             * @example OPTIMAL
+             * @enum {string}
+             */
+            status?: "UNDERTRAINED" | "MAINTENANCE" | "OPTIMAL" | "OVERTRAINED";
+            /**
+             * @description Human-readable status label
+             * @example Optimal Hypertrophy
+             */
+            statusDisplayName?: string;
+            /** @description Evidence-based guideline for this volume level */
+            statusDescription?: string;
+        };
+        /** @description Weekly muscle group working volume and hypertrophy balance analysis */
+        WeeklyMuscleVolumeResponse: {
+            /**
+             * Format: date
+             * @description Start date of the evaluation window
+             * @example 2026-09-15
+             */
+            startDate?: string;
+            /**
+             * Format: date
+             * @description End date of the evaluation window
+             * @example 2026-09-21
+             */
+            endDate?: string;
+            /**
+             * Format: int32
+             * @description Total completed working sets across all exercises
+             * @example 48
+             */
+            totalWorkingSets?: number;
+            /**
+             * Format: double
+             * @description Total tonnage moved in kilograms
+             * @example 32500
+             */
+            totalVolumeKg?: number;
+            /** @description Volume breakdown per muscle group, ordered by effective sets descending */
+            muscleVolumes?: components["schemas"]["MuscleGroupVolume"][];
+            /** @description Effective sets aggregated by anatomical category (UPPER_BODY, LOWER_BODY, etc.) */
+            categoryVolumes?: {
+                [key: string]: number;
+            };
+            /**
+             * Format: double
+             * @description Ratio of pushing sets to pulling sets
+             * @example 1.1
+             */
+            pushPullRatio?: number;
+            /**
+             * Format: double
+             * @description Ratio of upper body sets to lower body sets
+             * @example 1.45
+             */
+            upperLowerRatio?: number;
+            /** @description Major muscle groups with insufficient volume (< 6 sets) */
+            neglectedMuscleGroups?: ("CHEST" | "UPPER_BACK" | "LATS" | "LOWER_BACK" | "SHOULDERS" | "BICEPS" | "TRICEPS" | "FOREARMS" | "ABS" | "OBLIQUES" | "CORE" | "QUADRICEPS" | "HAMSTRINGS" | "GLUTES" | "CALVES" | "HIP_FLEXORS" | "ADDUCTORS" | "FULL_BODY")[];
+            /** @description Muscle groups within the optimal hypertrophy zone (10-20 sets) */
+            optimalMuscleGroups?: ("CHEST" | "UPPER_BACK" | "LATS" | "LOWER_BACK" | "SHOULDERS" | "BICEPS" | "TRICEPS" | "FOREARMS" | "ABS" | "OBLIQUES" | "CORE" | "QUADRICEPS" | "HAMSTRINGS" | "GLUTES" | "CALVES" | "HIP_FLEXORS" | "ADDUCTORS" | "FULL_BODY")[];
+            /** @description Muscle groups exceeding maximum recoverable volume (> 20 sets) */
+            overtrainedMuscleGroups?: ("CHEST" | "UPPER_BACK" | "LATS" | "LOWER_BACK" | "SHOULDERS" | "BICEPS" | "TRICEPS" | "FOREARMS" | "ABS" | "OBLIQUES" | "CORE" | "QUADRICEPS" | "HAMSTRINGS" | "GLUTES" | "CALVES" | "HIP_FLEXORS" | "ADDUCTORS" | "FULL_BODY")[];
+            /** @description Actionable evidence-based coaching recommendations */
+            recommendations?: string[];
         };
         /** @description Acute:Chronic Workload Ratio (ACWR) and fatigue status */
         AcwrResponse: {
@@ -2294,6 +2421,29 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["PersonalRecordResponse"];
+                };
+            };
+        };
+    };
+    getMuscleVolume: {
+        parameters: {
+            query?: {
+                startDate?: string;
+                endDate?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["WeeklyMuscleVolumeResponse"];
                 };
             };
         };

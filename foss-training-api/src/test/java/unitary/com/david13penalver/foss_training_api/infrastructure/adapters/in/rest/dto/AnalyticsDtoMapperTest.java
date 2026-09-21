@@ -163,4 +163,60 @@ class AnalyticsDtoMapperTest {
         assertEquals(4000.0, dailyDto.getTotalVolumeKg());
         assertEquals(1, dailyDto.getCompletedSessions());
     }
+
+    @Test
+    void toResponseDto_weeklyMuscleVolume() {
+        assertNull(mapper.toResponseDto((com.david13penalver.foss_training_api.domain.model.analytics.WeeklyMuscleVolume) null));
+        assertNull(mapper.toResponseDto((com.david13penalver.foss_training_api.domain.model.analytics.MuscleGroupVolume) null));
+
+        LocalDate start = LocalDate.of(2026, 9, 15);
+        LocalDate end = LocalDate.of(2026, 9, 21);
+
+        com.david13penalver.foss_training_api.domain.model.analytics.MuscleGroupVolume chest =
+                com.david13penalver.foss_training_api.domain.model.analytics.MuscleGroupVolume.builder()
+                        .muscleGroup(com.david13penalver.foss_training_api.domain.model.exercise.resistance.MuscleGroup.CHEST)
+                        .muscleGroupName("Chest")
+                        .category(com.david13penalver.foss_training_api.domain.model.exercise.resistance.MuscleCategory.UPPER_BODY)
+                        .directSets(12)
+                        .indirectSets(0)
+                        .effectiveSets(12.0)
+                        .totalVolumeKg(12000.0)
+                        .status(com.david13penalver.foss_training_api.domain.model.analytics.HypertrophyVolumeStatus.OPTIMAL)
+                        .build();
+
+        com.david13penalver.foss_training_api.domain.model.analytics.WeeklyMuscleVolume volume =
+                com.david13penalver.foss_training_api.domain.model.analytics.WeeklyMuscleVolume.builder()
+                        .startDate(start)
+                        .endDate(end)
+                        .totalWorkingSets(12)
+                        .totalVolumeKg(12000.0)
+                        .muscleVolumes(List.of(chest))
+                        .categoryVolumes(java.util.Map.of(com.david13penalver.foss_training_api.domain.model.exercise.resistance.MuscleCategory.UPPER_BODY, 12.0))
+                        .pushPullRatio(1.2)
+                        .upperLowerRatio(2.0)
+                        .neglectedMuscleGroups(List.of(com.david13penalver.foss_training_api.domain.model.exercise.resistance.MuscleGroup.QUADRICEPS))
+                        .optimalMuscleGroups(List.of(com.david13penalver.foss_training_api.domain.model.exercise.resistance.MuscleGroup.CHEST))
+                        .overtrainedMuscleGroups(List.of())
+                        .recommendations(List.of("Great balance"))
+                        .build();
+
+        com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.analytics.WeeklyMuscleVolumeResponseDto dto = mapper.toResponseDto(volume);
+
+        assertNotNull(dto);
+        assertEquals(start, dto.getStartDate());
+        assertEquals(end, dto.getEndDate());
+        assertEquals(12, dto.getTotalWorkingSets());
+        assertEquals(12000.0, dto.getTotalVolumeKg());
+        assertEquals(1.2, dto.getPushPullRatio());
+        assertEquals(2.0, dto.getUpperLowerRatio());
+        assertEquals(1, dto.getMuscleVolumes().size());
+
+        com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.analytics.MuscleGroupVolumeDto chestDto = dto.getMuscleVolumes().get(0);
+        assertEquals(com.david13penalver.foss_training_api.domain.model.exercise.resistance.MuscleGroup.CHEST, chestDto.getMuscleGroup());
+        assertEquals("Chest", chestDto.getMuscleGroupName());
+        assertEquals(12, chestDto.getDirectSets());
+        assertEquals(12.0, chestDto.getEffectiveSets());
+        assertEquals(com.david13penalver.foss_training_api.domain.model.analytics.HypertrophyVolumeStatus.OPTIMAL, chestDto.getStatus());
+        assertEquals("Optimal Hypertrophy", chestDto.getStatusDisplayName());
+    }
 }

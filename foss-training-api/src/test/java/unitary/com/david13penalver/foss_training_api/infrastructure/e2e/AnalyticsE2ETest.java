@@ -164,4 +164,89 @@ class AnalyticsE2ETest extends E2EIntegrationTestBase {
         assertTrue(jsonDouble(updatedResp.getBody(), "$.chronicWorkload") > 0.0);
         assertEquals(1, jsonInt(updatedResp.getBody(), "$.dailyWorkloads[27].completedSessions"));
     }
+
+    @Test
+    void muscleVolume_e2eFlow() {
+        // 1. Initial muscle volume before any workouts
+        ResponseEntity<String> initialResp = get("/api/analytics/muscle-volume");
+        assertStatus(initialResp, 200);
+        assertEquals(0, jsonInt(initialResp.getBody(), "$.totalWorkingSets"));
+        assertEquals(0.0, jsonDouble(initialResp.getBody(), "$.totalVolumeKg"));
+
+        // 2. Create Exercise with Resistance Metrics
+        String exerciseJson = """
+                {
+                  "name": "Barbell Bench Press",
+                  "primaryCategory": "RESISTANCE",
+                  "resistanceMetrics": {
+                    "primaryMuscles": ["CHEST"],
+                    "secondaryMuscles": ["TRICEPS"]
+                  }
+                }
+                """;
+        ResponseEntity<String> exResp = post("/api/exercises", exerciseJson);
+        assertStatus(exResp, 201);
+        int exerciseId = jsonInt(exResp.getBody(), "$.id");
+
+        // 3. Create Session with 3 working sets
+        String sessionJson = """
+                {
+                  "name": "Push Day",
+                  "sessionStatus": "PLANNED",
+                  "sessionExercises": [
+                    {
+                      "exerciseType": "resistance",
+                      "orderIndex": 1,
+                      "exercise": {
+                        "id": %d,
+                        "name": "Barbell Bench Press",
+                        "primaryCategory": "RESISTANCE",
+                        "resistanceMetrics": {
+                          "primaryMuscles": ["CHEST"],
+                          "secondaryMuscles": ["TRICEPS"]
+                        }
+                      },
+                      "sets": [
+                        {
+                          "setNumber": 1,
+                          "setType": "WORKING",
+                          "weight": {"value": 100.0, "unit": "KG"},
+                          "repetitions": 8
+                        },
+                        {
+                          "setNumber": 2,
+                          "setType": "WORKING",
+                          "weight": {"value": 100.0, "unit": "KG"},
+                          "repetitions": 8
+                        },
+                        {
+                          "setNumber": 3,
+                          "setType": "WORKING",
+                          "weight": {"value": 100.0, "unit": "KG"},
+                          "repetitions": 8
+                        }
+                      ]
+                    }
+                  ]
+                }
+                """.formatted(exerciseId);
+        ResponseEntity<String> sessionResp = post("/api/sessions", sessionJson);
+        assertStatus(sessionResp, 201);
+        int sessionId = jsonInt(sessionResp.getBody(), "$.id");
+
+        // 4. Create, Start, and Complete Training
+        ResponseEntity<String> trainingResp = post("/api/trainings/from-session/" + sessionId, null);
+        assertStatus(trainingResp, 201);
+        int trainingId = jsonInt(trainingResp.getBody(), "$.id");
+
+        post("/api/trainings/" + trainingId + "/start", null);
+        post("/api/trainings/" + trainingId + "/complete", null);
+
+        // 5. Query Muscle Volume
+        ResponseEntity<String> volumeResp = get("/api/analytics/muscle-volume");
+        assertStatus(volumeResp, 200);
+        assertEquals(3, jsonInt(volumeResp.getBody(), "$.totalWorkingSets"));
+        assertEquals(2400.0, jsonDouble(volumeResp.getBody(), "$.totalVolumeKg"));
+        assertEquals(4.5, jsonDouble(volumeResp.getBody(), "$.categoryVolumes.UPPER_BODY"));
+    }
 }

@@ -183,6 +183,107 @@ class AnalyticsControllerIntegrationTest {
                 .andExpect(jsonPath("$.dailyWorkloads[27].completedSessions").value(1));
     }
 
+    @Test
+    void getMuscleVolume_withDefaultDates_returns200() throws Exception {
+        mockMvc.perform(get("/api/analytics/muscle-volume"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.startDate").isNotEmpty())
+                .andExpect(jsonPath("$.endDate").isNotEmpty())
+                .andExpect(jsonPath("$.totalWorkingSets").value(0))
+                .andExpect(jsonPath("$.totalVolumeKg").value(0.0))
+                .andExpect(jsonPath("$.muscleVolumes").isArray())
+                .andExpect(jsonPath("$.recommendations").isArray());
+    }
+
+    @Test
+    void getMuscleVolume_withCustomDateRange_returns200() throws Exception {
+        mockMvc.perform(get("/api/analytics/muscle-volume")
+                        .param("startDate", "2026-09-15")
+                        .param("endDate", "2026-09-21"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.startDate").value("2026-09-15"))
+                .andExpect(jsonPath("$.endDate").value("2026-09-21"));
+    }
+
+    @Test
+    void getMuscleVolume_withCompletedWorkout_aggregatesMuscleVolume() throws Exception {
+        String exerciseJson = """
+                {
+                  "name": "Barbell Incline Bench",
+                  "primaryCategory": "RESISTANCE",
+                  "resistanceMetrics": {
+                    "primaryMuscles": ["CHEST"],
+                    "secondaryMuscles": ["TRICEPS"]
+                  }
+                }
+                """;
+        String exContent = mockMvc.perform(post("/api/exercises")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(exerciseJson))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        int exerciseId = com.jayway.jsonpath.JsonPath.read(exContent, "$.id");
+
+        String sessionJson = """
+                {
+                  "name": "Chest Hypertrophy",
+                  "sessionStatus": "PLANNED",
+                  "sessionExercises": [
+                    {
+                      "exerciseType": "resistance",
+                      "orderIndex": 1,
+                      "exercise": {
+                        "id": %d,
+                        "name": "Barbell Incline Bench",
+                        "primaryCategory": "RESISTANCE",
+                        "resistanceMetrics": {
+                          "primaryMuscles": ["CHEST"],
+                          "secondaryMuscles": ["TRICEPS"]
+                        }
+                      },
+                      "sets": [
+                        {
+                          "setNumber": 1,
+                          "setType": "WORKING",
+                          "weight": {"value": 80.0, "unit": "KG"},
+                          "repetitions": 10
+                        },
+                        {
+                          "setNumber": 2,
+                          "setType": "WORKING",
+                          "weight": {"value": 80.0, "unit": "KG"},
+                          "repetitions": 10
+                        }
+                      ]
+                    }
+                  ]
+                }
+                """.formatted(exerciseId);
+
+        String sessionContent = mockMvc.perform(post("/api/sessions")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(sessionJson))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        int sessionId = com.jayway.jsonpath.JsonPath.read(sessionContent, "$.id");
+
+        String trainingContent = mockMvc.perform(post("/api/trainings/from-session/" + sessionId))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        int trainingId = com.jayway.jsonpath.JsonPath.read(trainingContent, "$.id");
+
+        mockMvc.perform(post("/api/trainings/" + trainingId + "/start"))
+                .andExpect(status().isOk());
+        mockMvc.perform(post("/api/trainings/" + trainingId + "/complete"))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/analytics/muscle-volume"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalWorkingSets").value(2))
+                .andExpect(jsonPath("$.totalVolumeKg").value(1600.0))
+                .andExpect(jsonPath("$.categoryVolumes.UPPER_BODY").value(3.0));
+    }
+
     private int createExercise(String name) throws Exception {
         String exerciseJson = """
                 {

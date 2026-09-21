@@ -16,10 +16,12 @@ import com.david13penalver.foss_training_api.application.usecases.analytics.Calc
 import com.david13penalver.foss_training_api.application.usecases.analytics.CalculateWorkloadRatioUseCase;
 import com.david13penalver.foss_training_api.application.usecases.analytics.FindPersonalRecordsByExerciseUseCase;
 import com.david13penalver.foss_training_api.application.usecases.analytics.FindPersonalRecordsUseCase;
+import com.david13penalver.foss_training_api.application.usecases.analytics.GetWeeklyMuscleVolumeUseCase;
 import com.david13penalver.foss_training_api.application.usecases.exercise.exercise.ExerciseExistsUseCase;
 import com.david13penalver.foss_training_api.domain.model.analytics.OneRepMaxEstimate;
 import com.david13penalver.foss_training_api.domain.model.analytics.OneRepMaxFormula;
 import com.david13penalver.foss_training_api.domain.model.analytics.PersonalRecord;
+import com.david13penalver.foss_training_api.domain.model.analytics.WeeklyMuscleVolume;
 import com.david13penalver.foss_training_api.domain.model.analytics.WorkloadRatio;
 import com.david13penalver.foss_training_api.domain.model.common.Weight;
 import com.david13penalver.foss_training_api.domain.model.common.WeightUnit;
@@ -27,6 +29,7 @@ import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto
 import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.analytics.AnalyticsDtoMapper;
 import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.analytics.OneRepMaxResponseDto;
 import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.analytics.PersonalRecordResponseDto;
+import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.analytics.WeeklyMuscleVolumeResponseDto;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -42,6 +45,7 @@ public class AnalyticsRestController {
     private final FindPersonalRecordsUseCase findPersonalRecordsUseCase;
     private final FindPersonalRecordsByExerciseUseCase findPersonalRecordsByExerciseUseCase;
     private final CalculateWorkloadRatioUseCase calculateWorkloadRatioUseCase;
+    private final GetWeeklyMuscleVolumeUseCase getWeeklyMuscleVolumeUseCase;
     private final ExerciseExistsUseCase exerciseExistsUseCase;
     private final AnalyticsDtoMapper analyticsDtoMapper;
 
@@ -51,6 +55,15 @@ public class AnalyticsRestController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate targetDate) {
         WorkloadRatio ratio = calculateWorkloadRatioUseCase.execute(targetDate);
         return ResponseEntity.ok(analyticsDtoMapper.toResponseDto(ratio));
+    }
+
+    @GetMapping("/muscle-volume")
+    @Operation(summary = "Get weekly muscle group volume and hypertrophy balance analysis")
+    public ResponseEntity<WeeklyMuscleVolumeResponseDto> getMuscleVolume(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        WeeklyMuscleVolume volume = getWeeklyMuscleVolumeUseCase.execute(startDate, endDate);
+        return ResponseEntity.ok(analyticsDtoMapper.toResponseDto(volume));
     }
 
     @GetMapping("/1rm")

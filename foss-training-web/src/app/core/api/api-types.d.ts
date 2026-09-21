@@ -575,6 +575,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/analytics/heart-rate-zones": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Calculate Zone 1 to Zone 5 target heart rate cardio zones (Karvonen HRR or %HRmax) */
+        get: operations["calculateHeartRateZones"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/analytics/acwr": {
         parameters: {
             query?: never;
@@ -1481,6 +1498,105 @@ export interface components {
             overtrainedMuscleGroups?: ("CHEST" | "UPPER_BACK" | "LATS" | "LOWER_BACK" | "SHOULDERS" | "BICEPS" | "TRICEPS" | "FOREARMS" | "ABS" | "OBLIQUES" | "CORE" | "QUADRICEPS" | "HAMSTRINGS" | "GLUTES" | "CALVES" | "HIP_FLEXORS" | "ADDUCTORS" | "FULL_BODY")[];
             /** @description Actionable evidence-based coaching recommendations */
             recommendations?: string[];
+        };
+        /** @description Individual cardiovascular target training zone */
+        CalculatedHeartRateZoneDto: {
+            /**
+             * @description Cardio zone identifier
+             * @example ZONE_2
+             * @enum {string}
+             */
+            zone?: "ZONE_1" | "ZONE_2" | "ZONE_3" | "ZONE_4" | "ZONE_5";
+            /**
+             * Format: int32
+             * @description Zone number from 1 to 5
+             * @example 2
+             */
+            zoneNumber?: number;
+            /**
+             * @description Display name of the heart rate zone
+             * @example Aerobic Base
+             */
+            displayName?: string;
+            /**
+             * Format: double
+             * @description Minimum intensity percentage for this zone
+             * @example 60
+             */
+            minPercentage?: number;
+            /**
+             * Format: double
+             * @description Maximum intensity percentage for this zone
+             * @example 70
+             */
+            maxPercentage?: number;
+            /**
+             * Format: int32
+             * @description Lower heart rate bound in beats per minute (bpm)
+             * @example 138
+             */
+            minBpm?: number;
+            /**
+             * Format: int32
+             * @description Upper heart rate bound in beats per minute (bpm)
+             * @example 151
+             */
+            maxBpm?: number;
+            /**
+             * @description Physiological summary of this zone
+             * @example Builds endurance base, optimizes mitochondrial function
+             */
+            description?: string;
+            /**
+             * @description Target adaptations and training guidance for this zone
+             * @example Maximizes fat oxidation and stimulates mitochondrial biogenesis. Core foundation for endurance performance.
+             */
+            trainingBenefit?: string;
+        };
+        /** @description Cardiovascular training zones and target heart rate ranges */
+        HeartRateZonesResponseDto: {
+            /**
+             * Format: int32
+             * @description Maximum heart rate (bpm) used in calculation
+             * @example 190
+             */
+            maxHr?: number;
+            /**
+             * Format: int32
+             * @description Resting heart rate (bpm) if provided
+             * @example 60
+             */
+            restingHr?: number;
+            /**
+             * Format: int32
+             * @description Athlete age if provided
+             * @example 30
+             */
+            age?: number;
+            /**
+             * @description Calculation method applied
+             * @example KARVONEN
+             * @enum {string}
+             */
+            method?: "KARVONEN" | "PERCENT_MAX_HR";
+            /**
+             * @description Method display name
+             * @example Karvonen Heart Rate Reserve
+             */
+            methodDisplayName?: string;
+            /**
+             * @description Method description
+             * @example Calculates target training zones using Heart Rate Reserve (HRR = HRmax - HRrest)
+             */
+            methodDescription?: string;
+            /**
+             * Format: int32
+             * @description Heart rate reserve (maxHr - restingHr) in bpm
+             * @example 130
+             */
+            heartRateReserve?: number;
+            /** @description Cardiovascular training zones (Zone 1 to Zone 5) */
+            zones?: components["schemas"]["CalculatedHeartRateZoneDto"][];
         };
         /** @description Acute:Chronic Workload Ratio (ACWR) and fatigue status */
         AcwrResponse: {
@@ -2654,6 +2770,30 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["WeeklyMuscleVolumeResponse"];
+                };
+            };
+        };
+    };
+    calculateHeartRateZones: {
+        parameters: {
+            query?: {
+                maxHr?: number;
+                restingHr?: number;
+                age?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["HeartRateZonesResponseDto"];
                 };
             };
         };

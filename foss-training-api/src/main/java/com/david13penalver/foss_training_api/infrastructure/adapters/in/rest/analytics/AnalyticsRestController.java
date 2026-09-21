@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.david13penalver.foss_training_api.application.usecases.analytics.CalculateHeartRateZonesUseCase;
 import com.david13penalver.foss_training_api.application.usecases.analytics.CalculateOneRepMaxUseCase;
 import com.david13penalver.foss_training_api.application.usecases.analytics.CalculateWorkloadRatioUseCase;
 import com.david13penalver.foss_training_api.application.usecases.analytics.FindPersonalRecordsByExerciseUseCase;
@@ -20,6 +21,7 @@ import com.david13penalver.foss_training_api.application.usecases.analytics.GetE
 import com.david13penalver.foss_training_api.application.usecases.analytics.GetWeeklyMuscleVolumeUseCase;
 import com.david13penalver.foss_training_api.application.usecases.exercise.exercise.ExerciseExistsUseCase;
 import com.david13penalver.foss_training_api.domain.model.analytics.ExerciseProgression;
+import com.david13penalver.foss_training_api.domain.model.analytics.HeartRateZones;
 import com.david13penalver.foss_training_api.domain.model.analytics.OneRepMaxEstimate;
 import com.david13penalver.foss_training_api.domain.model.analytics.OneRepMaxFormula;
 import com.david13penalver.foss_training_api.domain.model.analytics.PersonalRecord;
@@ -30,6 +32,7 @@ import com.david13penalver.foss_training_api.domain.model.common.WeightUnit;
 import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.analytics.AcwrResponseDto;
 import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.analytics.AnalyticsDtoMapper;
 import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.analytics.ExerciseProgressionResponseDto;
+import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.analytics.HeartRateZonesResponseDto;
 import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.analytics.OneRepMaxResponseDto;
 import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.analytics.PersonalRecordResponseDto;
 import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.analytics.WeeklyMuscleVolumeResponseDto;
@@ -50,6 +53,7 @@ public class AnalyticsRestController {
     private final CalculateWorkloadRatioUseCase calculateWorkloadRatioUseCase;
     private final GetWeeklyMuscleVolumeUseCase getWeeklyMuscleVolumeUseCase;
     private final GetExerciseProgressionUseCase getExerciseProgressionUseCase;
+    private final CalculateHeartRateZonesUseCase calculateHeartRateZonesUseCase;
     private final ExerciseExistsUseCase exerciseExistsUseCase;
     private final AnalyticsDtoMapper analyticsDtoMapper;
 
@@ -116,5 +120,15 @@ public class AnalyticsRestController {
         return progression.map(analyticsDtoMapper::toResponseDto)
                      .map(ResponseEntity::ok)
                      .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/heart-rate-zones")
+    @Operation(summary = "Calculate Zone 1 to Zone 5 target heart rate cardio zones (Karvonen HRR or %HRmax)")
+    public ResponseEntity<HeartRateZonesResponseDto> calculateHeartRateZones(
+            @RequestParam(required = false) Integer maxHr,
+            @RequestParam(required = false) Integer restingHr,
+            @RequestParam(required = false) Integer age) {
+        HeartRateZones zones = calculateHeartRateZonesUseCase.execute(maxHr, restingHr, age);
+        return ResponseEntity.ok(analyticsDtoMapper.toResponseDto(zones));
     }
 }

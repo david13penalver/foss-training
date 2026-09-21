@@ -365,6 +365,55 @@ class AnalyticsControllerIntegrationTest {
                 .andExpect(jsonPath("$.dataPoints[0].estimated1RmKg").value(116.67));
     }
 
+    @Test
+    void calculateHeartRateZones_withKarvonen_returns200() throws Exception {
+        mockMvc.perform(get("/api/analytics/heart-rate-zones")
+                        .param("maxHr", "190")
+                        .param("restingHr", "60"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.maxHr").value(190))
+                .andExpect(jsonPath("$.restingHr").value(60))
+                .andExpect(jsonPath("$.method").value("KARVONEN"))
+                .andExpect(jsonPath("$.heartRateReserve").value(130))
+                .andExpect(jsonPath("$.zones.length()").value(5))
+                .andExpect(jsonPath("$.zones[0].zone").value("ZONE_1"))
+                .andExpect(jsonPath("$.zones[0].minBpm").value(125))
+                .andExpect(jsonPath("$.zones[0].maxBpm").value(138))
+                .andExpect(jsonPath("$.zones[1].minBpm").value(138))
+                .andExpect(jsonPath("$.zones[1].maxBpm").value(151))
+                .andExpect(jsonPath("$.zones[4].minBpm").value(177))
+                .andExpect(jsonPath("$.zones[4].maxBpm").value(190));
+    }
+
+    @Test
+    void calculateHeartRateZones_withPercentMaxHr_returns200() throws Exception {
+        mockMvc.perform(get("/api/analytics/heart-rate-zones")
+                        .param("maxHr", "200"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.maxHr").value(200))
+                .andExpect(jsonPath("$.method").value("PERCENT_MAX_HR"))
+                .andExpect(jsonPath("$.zones[0].minBpm").value(100))
+                .andExpect(jsonPath("$.zones[0].maxBpm").value(120));
+    }
+
+    @Test
+    void calculateHeartRateZones_withAgeOnly_returns200() throws Exception {
+        mockMvc.perform(get("/api/analytics/heart-rate-zones")
+                        .param("age", "30")
+                        .param("restingHr", "60"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.maxHr").value(187))
+                .andExpect(jsonPath("$.method").value("KARVONEN"))
+                .andExpect(jsonPath("$.heartRateReserve").value(127));
+    }
+
+    @Test
+    void calculateHeartRateZones_withoutInputs_returns400() throws Exception {
+        mockMvc.perform(get("/api/analytics/heart-rate-zones"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title").value("Invalid Request"));
+    }
+
     private int createExercise(String name) throws Exception {
         String exerciseJson = """
                 {

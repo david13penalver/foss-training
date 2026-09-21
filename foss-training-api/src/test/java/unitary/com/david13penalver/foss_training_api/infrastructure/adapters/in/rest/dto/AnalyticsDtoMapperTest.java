@@ -11,16 +11,22 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import com.david13penalver.foss_training_api.domain.model.analytics.CalculatedHeartRateZone;
 import com.david13penalver.foss_training_api.domain.model.analytics.ExerciseProgression;
+import com.david13penalver.foss_training_api.domain.model.analytics.HeartRateZoneMethod;
+import com.david13penalver.foss_training_api.domain.model.analytics.HeartRateZones;
 import com.david13penalver.foss_training_api.domain.model.analytics.OneRepMaxEstimate;
 import com.david13penalver.foss_training_api.domain.model.analytics.OneRepMaxFormula;
 import com.david13penalver.foss_training_api.domain.model.analytics.PersonalRecord;
 import com.david13penalver.foss_training_api.domain.model.analytics.ProgressionDataPoint;
 import com.david13penalver.foss_training_api.domain.model.analytics.ProgressionTrend;
+import com.david13penalver.foss_training_api.domain.model.common.HeartRateZone;
 import com.david13penalver.foss_training_api.domain.model.common.Weight;
 import com.david13penalver.foss_training_api.domain.model.common.WeightUnit;
 import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.analytics.AnalyticsDtoMapper;
+import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.analytics.CalculatedHeartRateZoneDto;
 import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.analytics.ExerciseProgressionResponseDto;
+import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.analytics.HeartRateZonesResponseDto;
 import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.analytics.OneRepMaxResponseDto;
 import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.analytics.PersonalRecordResponseDto;
 import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.analytics.ProgressionDataPointDto;
@@ -290,5 +296,57 @@ class AnalyticsDtoMapperTest {
     @Test
     void toResponseDto_progressionDataPoint_null() {
         assertNull(mapper.toResponseDto((ProgressionDataPoint) null));
+    }
+
+    @Test
+    void toResponseDto_heartRateZones() {
+        assertNull(mapper.toResponseDto((HeartRateZones) null));
+
+        CalculatedHeartRateZone zone = CalculatedHeartRateZone.builder()
+                .zone(HeartRateZone.ZONE_2)
+                .zoneNumber(2)
+                .displayName("Aerobic Base")
+                .minPercentage(60.0)
+                .maxPercentage(70.0)
+                .minBpm(138)
+                .maxBpm(151)
+                .description("Builds endurance base")
+                .trainingBenefit("Maximizes fat oxidation")
+                .build();
+
+        HeartRateZones hrz = HeartRateZones.builder()
+                .maxHr(190)
+                .restingHr(60)
+                .age(30)
+                .method(HeartRateZoneMethod.KARVONEN)
+                .heartRateReserve(130)
+                .zones(List.of(zone))
+                .build();
+
+        HeartRateZonesResponseDto dto = mapper.toResponseDto(hrz);
+
+        assertNotNull(dto);
+        assertEquals(190, dto.getMaxHr());
+        assertEquals(60, dto.getRestingHr());
+        assertEquals(30, dto.getAge());
+        assertEquals(HeartRateZoneMethod.KARVONEN, dto.getMethod());
+        assertEquals("Karvonen Heart Rate Reserve", dto.getMethodDisplayName());
+        assertNotNull(dto.getMethodDescription());
+        assertEquals(130, dto.getHeartRateReserve());
+        assertEquals(1, dto.getZones().size());
+
+        CalculatedHeartRateZoneDto zoneDto = dto.getZones().get(0);
+        assertEquals(HeartRateZone.ZONE_2, zoneDto.getZone());
+        assertEquals(2, zoneDto.getZoneNumber());
+        assertEquals("Aerobic Base", zoneDto.getDisplayName());
+        assertEquals(60.0, zoneDto.getMinPercentage());
+        assertEquals(70.0, zoneDto.getMaxPercentage());
+        assertEquals(138, zoneDto.getMinBpm());
+        assertEquals(151, zoneDto.getMaxBpm());
+    }
+
+    @Test
+    void toResponseDto_calculatedHeartRateZone_null() {
+        assertNull(mapper.toResponseDto((CalculatedHeartRateZone) null));
     }
 }

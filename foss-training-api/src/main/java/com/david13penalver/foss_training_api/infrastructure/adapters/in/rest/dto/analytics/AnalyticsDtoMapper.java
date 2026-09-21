@@ -5,8 +5,10 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
+import com.david13penalver.foss_training_api.domain.model.analytics.CalculatedHeartRateZone;
 import com.david13penalver.foss_training_api.domain.model.analytics.DailyWorkload;
 import com.david13penalver.foss_training_api.domain.model.analytics.ExerciseProgression;
+import com.david13penalver.foss_training_api.domain.model.analytics.HeartRateZones;
 import com.david13penalver.foss_training_api.domain.model.analytics.MuscleGroupVolume;
 import com.david13penalver.foss_training_api.domain.model.analytics.OneRepMaxEstimate;
 import com.david13penalver.foss_training_api.domain.model.analytics.PersonalRecord;
@@ -230,6 +232,46 @@ public class AnalyticsDtoMapper {
                 .topWeightRpe(dp.getTopWeightRpe())
                 .estimated1RmKg(dp.getEstimated1RmKg())
                 .averageIntensityKg(dp.getAverageIntensityKg())
+                .build();
+    }
+
+    public HeartRateZonesResponseDto toResponseDto(HeartRateZones heartRateZones) {
+        if (heartRateZones == null) {
+            return null;
+        }
+        List<CalculatedHeartRateZoneDto> zoneDtos = Collections.emptyList();
+        if (heartRateZones.getZones() != null) {
+            zoneDtos = heartRateZones.getZones().stream()
+                    .map(this::toResponseDto)
+                    .toList();
+        }
+
+        return HeartRateZonesResponseDto.builder()
+                .maxHr(heartRateZones.getMaxHr())
+                .restingHr(heartRateZones.getRestingHr())
+                .age(heartRateZones.getAge())
+                .method(heartRateZones.getMethod())
+                .methodDisplayName(heartRateZones.getMethod() != null ? heartRateZones.getMethod().getDisplayName() : null)
+                .methodDescription(heartRateZones.getMethod() != null ? heartRateZones.getMethod().getDescription() : null)
+                .heartRateReserve(heartRateZones.getHeartRateReserve())
+                .zones(zoneDtos)
+                .build();
+    }
+
+    public CalculatedHeartRateZoneDto toResponseDto(CalculatedHeartRateZone zone) {
+        if (zone == null) {
+            return null;
+        }
+        return CalculatedHeartRateZoneDto.builder()
+                .zone(zone.getZone())
+                .zoneNumber(zone.getZoneNumber())
+                .displayName(zone.getDisplayName())
+                .minPercentage(zone.getMinPercentage())
+                .maxPercentage(zone.getMaxPercentage())
+                .minBpm(zone.getMinBpm())
+                .maxBpm(zone.getMaxBpm())
+                .description(zone.getDescription())
+                .trainingBenefit(zone.getTrainingBenefit())
                 .build();
     }
 }

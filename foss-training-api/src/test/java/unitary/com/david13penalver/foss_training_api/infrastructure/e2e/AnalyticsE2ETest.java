@@ -319,4 +319,21 @@ class AnalyticsE2ETest extends E2EIntegrationTestBase {
         assertEquals(60.0, jsonDouble(progResp.getBody(), "$.dataPoints[0].topWeightKg"));
         assertEquals(70.0, jsonDouble(progResp.getBody(), "$.dataPoints[0].estimated1RmKg"));
     }
+
+    @Test
+    void heartRateZones_fullFlow_calculatesKarvonenZones() {
+        ResponseEntity<String> response = get("/api/analytics/heart-rate-zones?maxHr=190&restingHr=60");
+        assertStatus(response, 200);
+        assertEquals(190, jsonInt(response.getBody(), "$.maxHr"));
+        assertEquals(60, jsonInt(response.getBody(), "$.restingHr"));
+        assertEquals("KARVONEN", jsonString(response.getBody(), "$.method"));
+        assertEquals(130, jsonInt(response.getBody(), "$.heartRateReserve"));
+        assertEquals(5, jsonInt(response.getBody(), "$.zones.length()"));
+        assertEquals("ZONE_1", jsonString(response.getBody(), "$.zones[0].zone"));
+        assertEquals(125, jsonInt(response.getBody(), "$.zones[0].minBpm"));
+        assertEquals(138, jsonInt(response.getBody(), "$.zones[0].maxBpm"));
+        assertEquals("ZONE_5", jsonString(response.getBody(), "$.zones[4].zone"));
+        assertEquals(177, jsonInt(response.getBody(), "$.zones[4].minBpm"));
+        assertEquals(190, jsonInt(response.getBody(), "$.zones[4].maxBpm"));
+    }
 }

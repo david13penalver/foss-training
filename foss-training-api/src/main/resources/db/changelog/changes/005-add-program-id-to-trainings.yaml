@@ -1,0 +1,18 @@
+databaseChangeLog:
+  - changeSet:
+      id: 005-add-program-id-to-trainings
+      author: david13penalver
+      changes:
+        - addColumn:
+            tableName: trainings
+            columns:
+              - column:
+                  name: program_id
+                  type: int
+        - addForeignKeyConstraint:
+            baseTableName: trainings
+            baseColumnNames: program_id
+            constraintName: fk_trainings_program
+            referencedTableName: training_programs
+            referencedColumnNames: id
+            onDelete: SET NULL

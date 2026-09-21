@@ -53,4 +53,14 @@ public class TrainingRepositoryImpl implements TrainingRepository {
     public boolean existsById(Integer id) {
         return id != null && trainingRepository.existsById(id);
     }
+
+    @Override
+    public List<Training> findByProgramId(Integer programId) {
+        if (programId == null) {
+            return List.of();
+        }
+        return trainingRepository.findByProgramIdOrderByTrainingDateAsc(programId).stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
 }

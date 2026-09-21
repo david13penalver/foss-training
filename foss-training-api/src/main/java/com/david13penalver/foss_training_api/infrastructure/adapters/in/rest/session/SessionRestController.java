@@ -14,22 +14,27 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.david13penalver.foss_training_api.application.usecases.session.CloneSessionUseCase;
 import com.david13penalver.foss_training_api.application.usecases.session.DeleteSessionUseCase;
 import com.david13penalver.foss_training_api.application.usecases.session.FindAllSessionsUseCase;
 import com.david13penalver.foss_training_api.application.usecases.session.FindSessionByIdUseCase;
 import com.david13penalver.foss_training_api.application.usecases.session.SaveSessionUseCase;
 import com.david13penalver.foss_training_api.application.usecases.session.SessionExistsUseCase;
 import com.david13penalver.foss_training_api.domain.model.session.Session;
+import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.session.CloneSessionRequestDto;
 import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.session.SessionDtoMapper;
 import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.session.SessionRequestDto;
 import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.session.SessionResponseDto;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/sessions")
 @RequiredArgsConstructor
+@Tag(name = "Sessions", description = "Workout template sessions and routines")
 public class SessionRestController {
 
     private final FindAllSessionsUseCase findAllSessionsUseCase;
@@ -37,6 +42,7 @@ public class SessionRestController {
     private final SaveSessionUseCase saveSessionUseCase;
     private final DeleteSessionUseCase deleteSessionUseCase;
     private final SessionExistsUseCase sessionExistsUseCase;
+    private final CloneSessionUseCase cloneSessionUseCase;
     private final SessionDtoMapper sessionDtoMapper;
 
     @GetMapping
@@ -85,5 +91,20 @@ public class SessionRestController {
     public ResponseEntity<Boolean> sessionExists(@PathVariable Integer id) {
         boolean exists = sessionExistsUseCase.execute(id);
         return ResponseEntity.ok(exists);
+    }
+
+    @PostMapping("/{id}/clone")
+    @Operation(summary = "Clone an existing workout session template")
+    public ResponseEntity<SessionResponseDto> cloneSession(
+            @PathVariable Integer id,
+            @RequestBody(required = false) CloneSessionRequestDto requestDto) {
+
+        if (!sessionExistsUseCase.execute(id)) {
+            return ResponseEntity.notFound().build();
+        }
+        String customName = (requestDto != null) ? requestDto.getName() : null;
+        Session cloned = cloneSessionUseCase.execute(id, customName);
+        URI location = URI.create("/api/sessions/" + cloned.getId());
+        return ResponseEntity.created(location).body(sessionDtoMapper.toResponseDto(cloned));
     }
 }

@@ -18,14 +18,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.david13penalver.foss_training_api.application.usecases.program.CloneTrainingProgramUseCase;
 import com.david13penalver.foss_training_api.application.usecases.program.DeleteTrainingProgramUseCase;
 import com.david13penalver.foss_training_api.application.usecases.program.FindAllTrainingProgramsUseCase;
 import com.david13penalver.foss_training_api.application.usecases.program.FindTrainingProgramByIdUseCase;
 import com.david13penalver.foss_training_api.application.usecases.program.GenerateProgramScheduleUseCase;
+import com.david13penalver.foss_training_api.application.usecases.program.GetProgramAdherenceUseCase;
 import com.david13penalver.foss_training_api.application.usecases.program.SaveTrainingProgramUseCase;
 import com.david13penalver.foss_training_api.application.usecases.program.TrainingProgramExistsUseCase;
+import com.david13penalver.foss_training_api.domain.model.program.ProgramAdherence;
 import com.david13penalver.foss_training_api.domain.model.program.TrainingProgram;
 import com.david13penalver.foss_training_api.domain.model.training.Training;
+import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.program.CloneProgramRequestDto;
+import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.program.ProgramAdherenceResponseDto;
 import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.program.TrainingProgramDtoMapper;
 import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.program.TrainingProgramRequestDto;
 import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.program.TrainingProgramResponseDto;
@@ -49,6 +54,8 @@ public class TrainingProgramRestController {
     private final DeleteTrainingProgramUseCase deleteTrainingProgramUseCase;
     private final TrainingProgramExistsUseCase trainingProgramExistsUseCase;
     private final GenerateProgramScheduleUseCase generateProgramScheduleUseCase;
+    private final CloneTrainingProgramUseCase cloneTrainingProgramUseCase;
+    private final GetProgramAdherenceUseCase getProgramAdherenceUseCase;
     private final TrainingProgramDtoMapper trainingProgramDtoMapper;
     private final TrainingDtoMapper trainingDtoMapper;
 
@@ -117,5 +124,30 @@ public class TrainingProgramRestController {
         }
         List<Training> trainings = generateProgramScheduleUseCase.execute(id, startDate);
         return ResponseEntity.status(HttpStatus.CREATED).body(trainingDtoMapper.toResponseDtoList(trainings));
+    }
+
+    @PostMapping("/{id}/clone")
+    @Operation(summary = "Clone an existing multi-week training program")
+    public ResponseEntity<TrainingProgramResponseDto> cloneProgram(
+            @PathVariable Integer id,
+            @RequestBody(required = false) CloneProgramRequestDto requestDto) {
+
+        if (!trainingProgramExistsUseCase.execute(id)) {
+            return ResponseEntity.notFound().build();
+        }
+        String customName = (requestDto != null) ? requestDto.getName() : null;
+        TrainingProgram cloned = cloneTrainingProgramUseCase.execute(id, customName);
+        URI location = URI.create("/api/programs/" + cloned.getId());
+        return ResponseEntity.created(location).body(trainingProgramDtoMapper.toResponseDto(cloned));
+    }
+
+    @GetMapping("/{id}/adherence")
+    @Operation(summary = "Get program adherence and compliance tracking metrics")
+    public ResponseEntity<ProgramAdherenceResponseDto> getProgramAdherence(@PathVariable Integer id) {
+        if (!trainingProgramExistsUseCase.execute(id)) {
+            return ResponseEntity.notFound().build();
+        }
+        ProgramAdherence adherence = getProgramAdherenceUseCase.execute(id);
+        return ResponseEntity.ok(trainingProgramDtoMapper.toAdherenceDto(adherence));
     }
 }

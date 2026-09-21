@@ -81,4 +81,69 @@ public class TrainingProgramDtoMapper {
         }
         return programs.stream().map(this::toResponseDto).toList();
     }
+
+    public ProgramAdherenceResponseDto toAdherenceDto(com.david13penalver.foss_training_api.domain.model.program.ProgramAdherence adherence) {
+        if (adherence == null) {
+            return null;
+        }
+        List<WeeklyAdherenceDto> weeklyDtos = (adherence.getWeeklyBreakdowns() != null)
+                ? adherence.getWeeklyBreakdowns().stream().map(this::toWeeklyAdherenceDto).toList()
+                : Collections.emptyList();
+
+        List<WorkoutAdherenceItemDto> itemDtos = (adherence.getWorkoutDetails() != null)
+                ? adherence.getWorkoutDetails().stream().map(this::toWorkoutAdherenceItemDto).toList()
+                : Collections.emptyList();
+
+        return ProgramAdherenceResponseDto.builder()
+                .programId(adherence.getProgramId())
+                .programName(adherence.getProgramName())
+                .durationWeeks(adherence.getDurationWeeks())
+                .totalScheduledWorkouts(adherence.getTotalScheduledWorkouts())
+                .completedWorkouts(adherence.getCompletedWorkouts())
+                .inProgressWorkouts(adherence.getInProgressWorkouts())
+                .plannedWorkouts(adherence.getPlannedWorkouts())
+                .missedWorkouts(adherence.getMissedWorkouts())
+                .cancelledWorkouts(adherence.getCancelledWorkouts())
+                .overallCompletionRate(adherence.getOverallCompletionRate())
+                .currentAdherenceRate(adherence.getCurrentAdherenceRate())
+                .currentStreak(adherence.getCurrentStreak())
+                .longestStreak(adherence.getLongestStreak())
+                .status(adherence.getStatus())
+                .statusDescription(adherence.getStatusDescription())
+                .weeklyBreakdowns(weeklyDtos)
+                .workoutDetails(itemDtos)
+                .build();
+    }
+
+    public WeeklyAdherenceDto toWeeklyAdherenceDto(com.david13penalver.foss_training_api.domain.model.program.WeeklyAdherence weekly) {
+        if (weekly == null) {
+            return null;
+        }
+        return WeeklyAdherenceDto.builder()
+                .weekNumber(weekly.getWeekNumber())
+                .weekStartDate(weekly.getWeekStartDate())
+                .weekEndDate(weekly.getWeekEndDate())
+                .scheduledWorkouts(weekly.getScheduledWorkouts())
+                .completedWorkouts(weekly.getCompletedWorkouts())
+                .missedWorkouts(weekly.getMissedWorkouts())
+                .adherenceRate(weekly.getAdherenceRate())
+                .completed(weekly.isCompleted())
+                .build();
+    }
+
+    public WorkoutAdherenceItemDto toWorkoutAdherenceItemDto(com.david13penalver.foss_training_api.domain.model.program.WorkoutAdherenceItem item) {
+        if (item == null) {
+            return null;
+        }
+        return WorkoutAdherenceItemDto.builder()
+                .trainingId(item.getTrainingId())
+                .workoutName(item.getWorkoutName())
+                .scheduledDate(item.getScheduledDate())
+                .completedDate(item.getCompletedDate())
+                .status(item.getStatus())
+                .sessionRpe(item.getSessionRpe())
+                .volumeKg(item.getVolumeKg())
+                .onTime(item.isOnTime())
+                .build();
+    }
 }

@@ -40,5 +40,6 @@ public class TrainingRequestDto {
     private TrainingStatusEnum status;
     private String notes;
     private RpeDto rpe;
+    private Integer programId;
 
 }

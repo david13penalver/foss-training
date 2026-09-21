@@ -52,6 +52,7 @@ public class GenerateProgramScheduleService implements GenerateProgramScheduleUs
                 training.setSession(workout.getSession());
                 training.setTrainingDate(scheduledDate);
                 training.setStatus(TrainingStatusEnum.PLANNED);
+                training.setProgramId(program.getId());
 
                 Training saved = trainingRepository.save(training);
                 createdTrainings.add(saved);

@@ -16,4 +16,6 @@ public interface TrainingRepository {
     void deleteById(Integer id);
 
     boolean existsById(Integer id);
+
+    List<Training> findByProgramId(Integer programId);
 }

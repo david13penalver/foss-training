@@ -48,6 +48,15 @@ public class InMemoryTrainingDao {
         return id != null && store.containsKey(id);
     }
 
+    public synchronized List<Training> findByProgramId(Integer programId) {
+        if (programId == null) {
+            return List.of();
+        }
+        return store.values().stream()
+                .filter(t -> programId.equals(t.getProgramId()))
+                .toList();
+    }
+
     public synchronized void clear() {
         store.clear();
         sequence.set(0);

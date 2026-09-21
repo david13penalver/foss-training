@@ -31,5 +31,6 @@ public class TrainingResponseDto {
     private TrainingStatusEnum status;
     private String notes;
     private RpeDto rpe;
+    private Integer programId;
 
 }

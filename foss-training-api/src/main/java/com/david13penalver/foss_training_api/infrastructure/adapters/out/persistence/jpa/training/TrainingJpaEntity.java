@@ -52,4 +52,7 @@ public class TrainingJpaEntity {
 
     @Column(name = "session_json", length = 65535)
     private String sessionJson;
+
+    @Column(name = "program_id")
+    private Integer programId;
 }

@@ -48,6 +48,7 @@ public class TrainingDtoMapper {
         if (dto.getRpe() != null && dto.getRpe().getValue() != null) {
             training.setRpe(new Rpe(dto.getRpe().getValue()));
         }
+        training.setProgramId(dto.getProgramId());
         return training;
     }
 
@@ -67,6 +68,7 @@ public class TrainingDtoMapper {
         dto.setEndTime(training.getEndTime());
         dto.setStatus(training.getStatus());
         dto.setNotes(training.getNotes());
+        dto.setProgramId(training.getProgramId());
 
         Duration duration = training.calculateDuration();
         if (duration != null) {

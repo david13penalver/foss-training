@@ -30,6 +30,7 @@ public class TrainingPersistenceMapper {
                 .notes(domain.getNotes())
                 .rpeValue(domain.getRpe() != null ? domain.getRpe().getValue() : null)
                 .sessionJson(sessionPersistenceMapper.sessionToJson(domain.getSession()))
+                .programId(domain.getProgramId())
                 .build();
     }
 
@@ -50,6 +51,7 @@ public class TrainingPersistenceMapper {
             domain.setRpe(new Rpe(entity.getRpeValue()));
         }
         domain.setSession(sessionPersistenceMapper.sessionFromJson(entity.getSessionJson()));
+        domain.setProgramId(entity.getProgramId());
         return domain;
     }
 }

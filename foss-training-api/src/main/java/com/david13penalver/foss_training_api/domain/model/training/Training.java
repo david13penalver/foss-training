@@ -13,10 +13,12 @@ import com.david13penalver.foss_training_api.domain.model.session.Session;
 import com.david13penalver.foss_training_api.domain.model.session.SessionExercise;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class Training {
@@ -31,6 +33,12 @@ public class Training {
     private TrainingStatusEnum status;
     private String notes;
     private Rpe rpe;
+    private Integer programId;
+
+    public Training(Integer id, String name, String description, Session session, LocalDate trainingDate,
+            LocalDateTime startTime, LocalDateTime endTime, TrainingStatusEnum status, String notes, Rpe rpe) {
+        this(id, name, description, session, trainingDate, startTime, endTime, status, notes, rpe, null);
+    }
 
     public void start() {
         if (status == null) {

@@ -46,8 +46,12 @@ class TrainingStatusEnumTest {
     }
 
     @Test
-    void fromString_withInvalidOrNull_throwsException() {
+    void fromString_withInvalid_throwsException() {
         assertThrows(IllegalArgumentException.class, () -> TrainingStatusEnum.fromString("NON_EXISTENT"));
-        assertThrows(IllegalArgumentException.class, () -> TrainingStatusEnum.fromString(null));
+    }
+
+    @Test
+    void fromString_withNull_returnsNull() {
+        assertNull(TrainingStatusEnum.fromString(null));
     }
 }

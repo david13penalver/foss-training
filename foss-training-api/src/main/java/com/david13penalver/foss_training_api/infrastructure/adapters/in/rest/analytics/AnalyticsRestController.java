@@ -16,8 +16,10 @@ import com.david13penalver.foss_training_api.application.usecases.analytics.Calc
 import com.david13penalver.foss_training_api.application.usecases.analytics.CalculateWorkloadRatioUseCase;
 import com.david13penalver.foss_training_api.application.usecases.analytics.FindPersonalRecordsByExerciseUseCase;
 import com.david13penalver.foss_training_api.application.usecases.analytics.FindPersonalRecordsUseCase;
+import com.david13penalver.foss_training_api.application.usecases.analytics.GetExerciseProgressionUseCase;
 import com.david13penalver.foss_training_api.application.usecases.analytics.GetWeeklyMuscleVolumeUseCase;
 import com.david13penalver.foss_training_api.application.usecases.exercise.exercise.ExerciseExistsUseCase;
+import com.david13penalver.foss_training_api.domain.model.analytics.ExerciseProgression;
 import com.david13penalver.foss_training_api.domain.model.analytics.OneRepMaxEstimate;
 import com.david13penalver.foss_training_api.domain.model.analytics.OneRepMaxFormula;
 import com.david13penalver.foss_training_api.domain.model.analytics.PersonalRecord;
@@ -27,6 +29,7 @@ import com.david13penalver.foss_training_api.domain.model.common.Weight;
 import com.david13penalver.foss_training_api.domain.model.common.WeightUnit;
 import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.analytics.AcwrResponseDto;
 import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.analytics.AnalyticsDtoMapper;
+import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.analytics.ExerciseProgressionResponseDto;
 import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.analytics.OneRepMaxResponseDto;
 import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.analytics.PersonalRecordResponseDto;
 import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.analytics.WeeklyMuscleVolumeResponseDto;
@@ -46,6 +49,7 @@ public class AnalyticsRestController {
     private final FindPersonalRecordsByExerciseUseCase findPersonalRecordsByExerciseUseCase;
     private final CalculateWorkloadRatioUseCase calculateWorkloadRatioUseCase;
     private final GetWeeklyMuscleVolumeUseCase getWeeklyMuscleVolumeUseCase;
+    private final GetExerciseProgressionUseCase getExerciseProgressionUseCase;
     private final ExerciseExistsUseCase exerciseExistsUseCase;
     private final AnalyticsDtoMapper analyticsDtoMapper;
 
@@ -94,6 +98,22 @@ public class AnalyticsRestController {
         }
         Optional<PersonalRecord> record = findPersonalRecordsByExerciseUseCase.execute(exerciseId);
         return record.map(analyticsDtoMapper::toResponseDto)
+                     .map(ResponseEntity::ok)
+                     .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/progression/{exerciseId}")
+    @Operation(summary = "Get exercise strength progression time-series and trend analytics")
+    public ResponseEntity<ExerciseProgressionResponseDto> getProgression(
+            @PathVariable Integer exerciseId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(required = false, defaultValue = "EPLEY") OneRepMaxFormula formula) {
+        if (!exerciseExistsUseCase.execute(exerciseId)) {
+            return ResponseEntity.notFound().build();
+        }
+        Optional<ExerciseProgression> progression = getExerciseProgressionUseCase.execute(exerciseId, startDate, endDate, formula);
+        return progression.map(analyticsDtoMapper::toResponseDto)
                      .map(ResponseEntity::ok)
                      .orElse(ResponseEntity.notFound().build());
     }

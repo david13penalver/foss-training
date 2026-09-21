@@ -6,9 +6,11 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 import com.david13penalver.foss_training_api.domain.model.analytics.DailyWorkload;
+import com.david13penalver.foss_training_api.domain.model.analytics.ExerciseProgression;
 import com.david13penalver.foss_training_api.domain.model.analytics.MuscleGroupVolume;
 import com.david13penalver.foss_training_api.domain.model.analytics.OneRepMaxEstimate;
 import com.david13penalver.foss_training_api.domain.model.analytics.PersonalRecord;
+import com.david13penalver.foss_training_api.domain.model.analytics.ProgressionDataPoint;
 import com.david13penalver.foss_training_api.domain.model.analytics.WeeklyMuscleVolume;
 import com.david13penalver.foss_training_api.domain.model.analytics.WorkloadRatio;
 
@@ -177,6 +179,57 @@ public class AnalyticsDtoMapper {
                 .status(mv.getStatus())
                 .statusDisplayName(mv.getStatus() != null ? mv.getStatus().getDisplayName() : null)
                 .statusDescription(mv.getStatus() != null ? mv.getStatus().getDescription() : null)
+                .build();
+    }
+
+    public ExerciseProgressionResponseDto toResponseDto(ExerciseProgression progression) {
+        if (progression == null) {
+            return null;
+        }
+        List<ProgressionDataPointDto> pointDtos = Collections.emptyList();
+        if (progression.getDataPoints() != null) {
+            pointDtos = progression.getDataPoints().stream()
+                    .map(this::toResponseDto)
+                    .toList();
+        }
+
+        return ExerciseProgressionResponseDto.builder()
+                .exerciseId(progression.getExerciseId())
+                .exerciseName(progression.getExerciseName())
+                .formula(progression.getFormula())
+                .startDate(progression.getStartDate())
+                .endDate(progression.getEndDate())
+                .totalSessions(progression.getTotalSessions())
+                .initial1RmKg(progression.getInitial1RmKg())
+                .latest1RmKg(progression.getLatest1RmKg())
+                .absolute1RmGainKg(progression.getAbsolute1RmGainKg())
+                .relative1RmGainPercentage(progression.getRelative1RmGainPercentage())
+                .allTimeBest1RmKg(progression.getAllTimeBest1RmKg())
+                .allTimeBestTopWeightKg(progression.getAllTimeBestTopWeightKg())
+                .allTimeMaxVolumeKg(progression.getAllTimeMaxVolumeKg())
+                .trend(progression.getTrend())
+                .trendDisplayName(progression.getTrend() != null ? progression.getTrend().getDisplayName() : null)
+                .trendDescription(progression.getTrend() != null ? progression.getTrend().getDescription() : null)
+                .dataPoints(pointDtos)
+                .build();
+    }
+
+    public ProgressionDataPointDto toResponseDto(ProgressionDataPoint dp) {
+        if (dp == null) {
+            return null;
+        }
+        return ProgressionDataPointDto.builder()
+                .trainingId(dp.getTrainingId())
+                .date(dp.getDate())
+                .totalSets(dp.getTotalSets())
+                .workingSets(dp.getWorkingSets())
+                .totalReps(dp.getTotalReps())
+                .totalVolumeKg(dp.getTotalVolumeKg())
+                .topWeightKg(dp.getTopWeightKg())
+                .topWeightReps(dp.getTopWeightReps())
+                .topWeightRpe(dp.getTopWeightRpe())
+                .estimated1RmKg(dp.getEstimated1RmKg())
+                .averageIntensityKg(dp.getAverageIntensityKg())
                 .build();
     }
 }

@@ -507,6 +507,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/analytics/progression/{exerciseId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get exercise strength progression time-series and trend analytics */
+        get: operations["getProgression"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/analytics/personal-records": {
         parameters: {
             query?: never;
@@ -1115,6 +1132,173 @@ export interface components {
             safetyTips?: string[];
             alternativeExercises?: string[];
             tags?: string[];
+        };
+        /** @description Exercise strength progression time-series and trend analytics */
+        ExerciseProgressionResponseDto: {
+            /**
+             * Format: int32
+             * @description Exercise identifier
+             * @example 1
+             */
+            exerciseId?: number;
+            /**
+             * @description Exercise name
+             * @example Barbell Bench Press
+             */
+            exerciseName?: string;
+            /**
+             * @description Formula used for estimated 1RM calculations
+             * @example EPLEY
+             * @enum {string}
+             */
+            formula?: "EPLEY" | "BRZYCKI" | "LOMBARDI" | "MAYHEW" | "OCONNER" | "WATHEN";
+            /**
+             * Format: date
+             * @description Start date of analysis range
+             * @example 2026-08-01
+             */
+            startDate?: string;
+            /**
+             * Format: date
+             * @description End date of analysis range
+             * @example 2026-09-21
+             */
+            endDate?: string;
+            /**
+             * Format: int32
+             * @description Number of completed sessions with this exercise
+             * @example 8
+             */
+            totalSessions?: number;
+            /**
+             * Format: double
+             * @description Estimated 1RM from the earliest session in kg
+             * @example 95
+             */
+            initial1RmKg?: number;
+            /**
+             * Format: double
+             * @description Estimated 1RM from the most recent session in kg
+             * @example 115
+             */
+            latest1RmKg?: number;
+            /**
+             * Format: double
+             * @description Absolute change in estimated 1RM (latest - initial) in kg
+             * @example 20
+             */
+            absolute1RmGainKg?: number;
+            /**
+             * Format: double
+             * @description Relative change in estimated 1RM as a percentage
+             * @example 21.05
+             */
+            relative1RmGainPercentage?: number;
+            /**
+             * Format: double
+             * @description All-time peak estimated 1RM across sessions in kg
+             * @example 115
+             */
+            allTimeBest1RmKg?: number;
+            /**
+             * Format: double
+             * @description All-time peak top set weight across sessions in kg
+             * @example 105
+             */
+            allTimeBestTopWeightKg?: number;
+            /**
+             * Format: double
+             * @description All-time peak single-session volume across sessions in kg
+             * @example 3200
+             */
+            allTimeMaxVolumeKg?: number;
+            /**
+             * @description Strength progression trajectory trend
+             * @example IMPROVING
+             * @enum {string}
+             */
+            trend?: "IMPROVING" | "STAGNANT" | "DECLINING" | "INSUFFICIENT_DATA";
+            /**
+             * @description Display name for progression trend
+             * @example Improving
+             */
+            trendDisplayName?: string;
+            /**
+             * @description Explanation of progression trend status
+             * @example Strength performance has increased over time
+             */
+            trendDescription?: string;
+            /** @description Chronologically ordered session progression data points */
+            dataPoints?: components["schemas"]["ProgressionDataPointDto"][];
+        };
+        /** @description Exercise strength performance metrics for a specific completed session */
+        ProgressionDataPointDto: {
+            /**
+             * Format: int32
+             * @description ID of the completed training session
+             * @example 10
+             */
+            trainingId?: number;
+            /**
+             * Format: date
+             * @description Date the workout was completed
+             * @example 2026-09-15
+             */
+            date?: string;
+            /**
+             * Format: int32
+             * @description Total sets performed for this exercise in this session
+             * @example 4
+             */
+            totalSets?: number;
+            /**
+             * Format: int32
+             * @description Total working sets performed
+             * @example 3
+             */
+            workingSets?: number;
+            /**
+             * Format: int32
+             * @description Total repetitions completed across working sets
+             * @example 24
+             */
+            totalReps?: number;
+            /**
+             * Format: double
+             * @description Total session volume / tonnage for this exercise in kg
+             * @example 2400
+             */
+            totalVolumeKg?: number;
+            /**
+             * Format: double
+             * @description Heaviest weight lifted in a single set (converted to kg)
+             * @example 100
+             */
+            topWeightKg?: number;
+            /**
+             * Format: int32
+             * @description Repetitions performed on the top weight set
+             * @example 5
+             */
+            topWeightReps?: number;
+            /**
+             * Format: double
+             * @description RPE recorded on top weight set, if provided
+             * @example 8.5
+             */
+            topWeightRpe?: number;
+            /**
+             * Format: double
+             * @description Estimated 1RM for this session in kg
+             * @example 116.67
+             */
+            estimated1RmKg?: number;
+            /**
+             * Format: double
+             * @description Average load intensity (volume / total reps in kg)
+             * @example 83.33
+             */
+            averageIntensityKg?: number;
         };
         BestEstimated1RmRecord: {
             /** Format: double */
@@ -2379,6 +2563,32 @@ export interface operations {
                 };
                 content: {
                     "*/*": "AEROBIC" | "ANAEROBIC" | "HIIT" | "SIT" | "LISS" | "TEMPO" | "FARTLEK" | "STEADY_STATE";
+                };
+            };
+        };
+    };
+    getProgression: {
+        parameters: {
+            query?: {
+                startDate?: string;
+                endDate?: string;
+                formula?: "EPLEY" | "BRZYCKI" | "LOMBARDI" | "MAYHEW" | "OCONNER" | "WATHEN";
+            };
+            header?: never;
+            path: {
+                exerciseId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ExerciseProgressionResponseDto"];
                 };
             };
         };

@@ -11,14 +11,19 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import com.david13penalver.foss_training_api.domain.model.analytics.ExerciseProgression;
 import com.david13penalver.foss_training_api.domain.model.analytics.OneRepMaxEstimate;
 import com.david13penalver.foss_training_api.domain.model.analytics.OneRepMaxFormula;
 import com.david13penalver.foss_training_api.domain.model.analytics.PersonalRecord;
+import com.david13penalver.foss_training_api.domain.model.analytics.ProgressionDataPoint;
+import com.david13penalver.foss_training_api.domain.model.analytics.ProgressionTrend;
 import com.david13penalver.foss_training_api.domain.model.common.Weight;
 import com.david13penalver.foss_training_api.domain.model.common.WeightUnit;
 import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.analytics.AnalyticsDtoMapper;
+import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.analytics.ExerciseProgressionResponseDto;
 import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.analytics.OneRepMaxResponseDto;
 import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.analytics.PersonalRecordResponseDto;
+import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.analytics.ProgressionDataPointDto;
 
 class AnalyticsDtoMapperTest {
 
@@ -218,5 +223,72 @@ class AnalyticsDtoMapperTest {
         assertEquals(12.0, chestDto.getEffectiveSets());
         assertEquals(com.david13penalver.foss_training_api.domain.model.analytics.HypertrophyVolumeStatus.OPTIMAL, chestDto.getStatus());
         assertEquals("Optimal Hypertrophy", chestDto.getStatusDisplayName());
+    }
+
+    @Test
+    void toResponseDto_exerciseProgression() {
+        assertNull(mapper.toResponseDto((ExerciseProgression) null));
+
+        ProgressionDataPoint point = ProgressionDataPoint.builder()
+                .trainingId(10)
+                .date(LocalDate.of(2026, 9, 1))
+                .totalSets(3)
+                .workingSets(2)
+                .totalReps(10)
+                .totalVolumeKg(1000.0)
+                .topWeightKg(100.0)
+                .topWeightReps(5)
+                .topWeightRpe(8.5)
+                .estimated1RmKg(116.67)
+                .averageIntensityKg(100.0)
+                .build();
+
+        ExerciseProgression progression = ExerciseProgression.builder()
+                .exerciseId(1)
+                .exerciseName("Bench Press")
+                .formula(OneRepMaxFormula.EPLEY)
+                .startDate(LocalDate.of(2026, 9, 1))
+                .endDate(LocalDate.of(2026, 9, 1))
+                .totalSessions(1)
+                .initial1RmKg(116.67)
+                .latest1RmKg(116.67)
+                .absolute1RmGainKg(0.0)
+                .relative1RmGainPercentage(0.0)
+                .allTimeBest1RmKg(116.67)
+                .allTimeBestTopWeightKg(100.0)
+                .allTimeMaxVolumeKg(1000.0)
+                .trend(ProgressionTrend.INSUFFICIENT_DATA)
+                .dataPoints(List.of(point))
+                .build();
+
+        ExerciseProgressionResponseDto dto = mapper.toResponseDto(progression);
+
+        assertNotNull(dto);
+        assertEquals(1, dto.getExerciseId());
+        assertEquals("Bench Press", dto.getExerciseName());
+        assertEquals(OneRepMaxFormula.EPLEY, dto.getFormula());
+        assertEquals(1, dto.getTotalSessions());
+        assertEquals(116.67, dto.getInitial1RmKg());
+        assertEquals(ProgressionTrend.INSUFFICIENT_DATA, dto.getTrend());
+        assertEquals("Insufficient Data", dto.getTrendDisplayName());
+        assertNotNull(dto.getTrendDescription());
+        assertEquals(1, dto.getDataPoints().size());
+
+        ProgressionDataPointDto pointDto = dto.getDataPoints().get(0);
+        assertEquals(10, pointDto.getTrainingId());
+        assertEquals(3, pointDto.getTotalSets());
+        assertEquals(2, pointDto.getWorkingSets());
+        assertEquals(10, pointDto.getTotalReps());
+        assertEquals(1000.0, pointDto.getTotalVolumeKg());
+        assertEquals(100.0, pointDto.getTopWeightKg());
+        assertEquals(5, pointDto.getTopWeightReps());
+        assertEquals(8.5, pointDto.getTopWeightRpe());
+        assertEquals(116.67, pointDto.getEstimated1RmKg());
+        assertEquals(100.0, pointDto.getAverageIntensityKg());
+    }
+
+    @Test
+    void toResponseDto_progressionDataPoint_null() {
+        assertNull(mapper.toResponseDto((ProgressionDataPoint) null));
     }
 }

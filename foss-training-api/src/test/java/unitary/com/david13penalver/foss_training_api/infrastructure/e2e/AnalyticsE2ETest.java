@@ -249,4 +249,74 @@ class AnalyticsE2ETest extends E2EIntegrationTestBase {
         assertEquals(2400.0, jsonDouble(volumeResp.getBody(), "$.totalVolumeKg"));
         assertEquals(4.5, jsonDouble(volumeResp.getBody(), "$.categoryVolumes.UPPER_BODY"));
     }
+
+    @Test
+    void exerciseProgression_fullFlow_calculatesProgressionAndTrend() {
+        // 1. Create Exercise
+        String exerciseJson = """
+                {
+                  "name": "Overhead Press",
+                  "primaryCategory": "RESISTANCE",
+                  "resistanceMetrics": {
+                    "primaryMuscles": ["SHOULDERS"],
+                    "secondaryMuscles": ["TRICEPS"]
+                  }
+                }
+                """;
+        ResponseEntity<String> exResp = post("/api/exercises", exerciseJson);
+        assertStatus(exResp, 201);
+        int exerciseId = jsonInt(exResp.getBody(), "$.id");
+
+        // 2. Create Session with sets
+        String sessionJson = """
+                {
+                  "name": "Shoulder Day",
+                  "sessionStatus": "PLANNED",
+                  "sessionExercises": [
+                    {
+                      "exerciseType": "resistance",
+                      "orderIndex": 1,
+                      "exercise": {
+                        "id": %d,
+                        "name": "Overhead Press",
+                        "primaryCategory": "RESISTANCE"
+                      },
+                      "sets": [
+                        {
+                          "setNumber": 1,
+                          "setType": "WORKING",
+                          "weight": {"value": 60.0, "unit": "KG"},
+                          "repetitions": 5,
+                          "rpe": {"value": 8.0}
+                        }
+                      ]
+                    }
+                  ]
+                }
+                """.formatted(exerciseId);
+        ResponseEntity<String> sessionResp = post("/api/sessions", sessionJson);
+        assertStatus(sessionResp, 201);
+        int sessionId = jsonInt(sessionResp.getBody(), "$.id");
+
+        // 3. Create, start, complete training
+        ResponseEntity<String> trainingResp = post("/api/trainings/from-session/" + sessionId, null);
+        assertStatus(trainingResp, 201);
+        int trainingId = jsonInt(trainingResp.getBody(), "$.id");
+
+        post("/api/trainings/" + trainingId + "/start", null);
+        post("/api/trainings/" + trainingId + "/complete", null);
+
+        // 4. Query Progression
+        ResponseEntity<String> progResp = get("/api/analytics/progression/" + exerciseId);
+        assertStatus(progResp, 200);
+        assertEquals(exerciseId, jsonInt(progResp.getBody(), "$.exerciseId"));
+        assertEquals("Overhead Press", jsonString(progResp.getBody(), "$.exerciseName"));
+        assertEquals(1, jsonInt(progResp.getBody(), "$.totalSessions"));
+        assertEquals(70.0, jsonDouble(progResp.getBody(), "$.initial1RmKg")); // 60 * (1 + 5/30) = 70.0
+        assertEquals(70.0, jsonDouble(progResp.getBody(), "$.latest1RmKg"));
+        assertEquals("INSUFFICIENT_DATA", jsonString(progResp.getBody(), "$.trend"));
+        assertEquals(1, jsonInt(progResp.getBody(), "$.dataPoints.length()"));
+        assertEquals(60.0, jsonDouble(progResp.getBody(), "$.dataPoints[0].topWeightKg"));
+        assertEquals(70.0, jsonDouble(progResp.getBody(), "$.dataPoints[0].estimated1RmKg"));
+    }
 }

@@ -284,6 +284,87 @@ class AnalyticsControllerIntegrationTest {
                 .andExpect(jsonPath("$.categoryVolumes.UPPER_BODY").value(3.0));
     }
 
+    @Test
+    void getProgression_whenExerciseDoesNotExist_returns404() throws Exception {
+        mockMvc.perform(get("/api/analytics/progression/99999"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void getProgression_whenExerciseExistsWithoutSessions_returns200WithEmptyProgression() throws Exception {
+        int exerciseId = createExercise("Bench Press");
+
+        mockMvc.perform(get("/api/analytics/progression/" + exerciseId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.exerciseId").value(exerciseId))
+                .andExpect(jsonPath("$.exerciseName").value("Bench Press"))
+                .andExpect(jsonPath("$.totalSessions").value(0))
+                .andExpect(jsonPath("$.trend").value("INSUFFICIENT_DATA"))
+                .andExpect(jsonPath("$.dataPoints.length()").value(0));
+    }
+
+    @Test
+    void getProgression_whenCompletedSessionsExist_returnsProgressionDataPoints() throws Exception {
+        int exerciseId = createExercise("Bench Press");
+
+        String sessionJson = """
+                {
+                  "name": "Chest Day",
+                  "sessionStatus": "PLANNED",
+                  "sessionExercises": [
+                    {
+                      "exerciseType": "resistance",
+                      "orderIndex": 1,
+                      "exercise": {
+                        "id": %d,
+                        "name": "Bench Press",
+                        "primaryCategory": "RESISTANCE"
+                      },
+                      "sets": [
+                        {
+                          "setNumber": 1,
+                          "setType": "WORKING",
+                          "weight": {"value": 100.0, "unit": "KG"},
+                          "repetitions": 5,
+                          "rpe": {"value": 8.5}
+                        }
+                      ]
+                    }
+                  ]
+                }
+                """.formatted(exerciseId);
+
+        String sessionContent = mockMvc.perform(post("/api/sessions")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(sessionJson))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        int sessionId = com.jayway.jsonpath.JsonPath.read(sessionContent, "$.id");
+
+        String trainingContent = mockMvc.perform(post("/api/trainings/from-session/" + sessionId))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        int trainingId = com.jayway.jsonpath.JsonPath.read(trainingContent, "$.id");
+
+        mockMvc.perform(post("/api/trainings/" + trainingId + "/start"))
+                .andExpect(status().isOk());
+        mockMvc.perform(post("/api/trainings/" + trainingId + "/complete"))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/analytics/progression/" + exerciseId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.exerciseId").value(exerciseId))
+                .andExpect(jsonPath("$.totalSessions").value(1))
+                .andExpect(jsonPath("$.initial1RmKg").value(116.67))
+                .andExpect(jsonPath("$.latest1RmKg").value(116.67))
+                .andExpect(jsonPath("$.trend").value("INSUFFICIENT_DATA"))
+                .andExpect(jsonPath("$.dataPoints.length()").value(1))
+                .andExpect(jsonPath("$.dataPoints[0].trainingId").value(trainingId))
+                .andExpect(jsonPath("$.dataPoints[0].topWeightKg").value(100.0))
+                .andExpect(jsonPath("$.dataPoints[0].topWeightRpe").value(8.5))
+                .andExpect(jsonPath("$.dataPoints[0].estimated1RmKg").value(116.67));
+    }
+
     private int createExercise(String name) throws Exception {
         String exerciseJson = """
                 {

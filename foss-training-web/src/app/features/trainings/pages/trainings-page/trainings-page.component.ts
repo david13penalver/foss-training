@@ -7,6 +7,7 @@ import { TrainingCardComponent } from '../../components/training-card/training-c
 import { ActiveWorkoutModalComponent } from '../../components/active-workout-modal/active-workout-modal.component';
 import { TrainingScheduleModalComponent, ScheduleTrainingPayload } from '../../components/training-schedule-modal/training-schedule-modal.component';
 import { TrainingDetailModalComponent } from '../../components/training-detail-modal/training-detail-modal.component';
+import { WorkoutSummaryModalComponent } from '../../components/workout-summary-modal/workout-summary-modal.component';
 import { ConfirmDialogComponent } from '../../../../shared/ui/confirm-dialog/confirm-dialog.component';
 import type { Training } from '../../../../core/api/models';
 
@@ -20,6 +21,7 @@ import type { Training } from '../../../../core/api/models';
     ActiveWorkoutModalComponent,
     TrainingScheduleModalComponent,
     TrainingDetailModalComponent,
+    WorkoutSummaryModalComponent,
     ConfirmDialogComponent
   ],
   templateUrl: './trainings-page.component.html',
@@ -43,6 +45,9 @@ export class TrainingsPageComponent {
   readonly isActiveTrackerOpen = signal(false);
   readonly activeWorkout = signal<Training | null>(null);
 
+  readonly isSummaryOpen = signal(false);
+  readonly summaryWorkoutId = signal<number | null>(null);
+
   readonly isDetailOpen = signal(false);
   readonly detailWorkout = signal<Training | null>(null);
 
@@ -54,6 +59,7 @@ export class TrainingsPageComponent {
   readonly statuses = [
     'ALL',
     'In Progress',
+    'Paused',
     'Planned',
     'Completed',
     'Cancelled'
@@ -61,7 +67,7 @@ export class TrainingsPageComponent {
 
   // Derived KPI Metrics
   readonly activeCount = computed(() => {
-    return (this.trainings() ?? []).filter(t => t.status === 'In Progress').length;
+    return (this.trainings() ?? []).filter(t => t.status === 'In Progress' || t.status === 'Paused').length;
   });
 
   readonly completedCount = computed(() => {
@@ -131,19 +137,51 @@ export class TrainingsPageComponent {
 
   handleComplete(training: Training) {
     if (training.id) {
-      this.trainingService.completeTraining(training.id).subscribe({
+      const request = (training.rpe || training.notes) ? {
+        rpe: training.rpe,
+        notes: training.notes
+      } : undefined;
+
+      const call$ = request
+        ? this.trainingService.completeTraining(training.id, request)
+        : this.trainingService.completeTraining(training.id);
+
+      call$.subscribe({
         next: () => {
           this.trainingService.trainingsResource.reload();
           this.isActiveTrackerOpen.set(false);
+          this.activeWorkout.set(null);
           this.notify(`🎉 Workout "${training.name}" marked as Completed!`);
+          this.openSummaryModal(training.id!);
         },
         error: () => {
           this.trainingService.trainingsResource.reload();
           this.isActiveTrackerOpen.set(false);
+          this.activeWorkout.set(null);
           this.notify(`🎉 Workout "${training.name}" marked as Completed!`);
         }
       });
     }
+  }
+
+  handleCompleteWithDetails(details: { training: Training; rpe?: number; notes?: string }) {
+    const trainingWithDetails: Training = {
+      ...details.training,
+      notes: details.notes,
+      rpe: details.rpe !== undefined ? { value: details.rpe } : undefined
+    };
+    this.handleComplete(trainingWithDetails);
+  }
+
+  handleViewSummary(training: Training) {
+    if (training.id) {
+      this.openSummaryModal(training.id);
+    }
+  }
+
+  openSummaryModal(trainingId: number) {
+    this.summaryWorkoutId.set(trainingId);
+    this.isSummaryOpen.set(true);
   }
 
   handleCancel(training: Training) {
@@ -193,6 +231,8 @@ export class TrainingsPageComponent {
     this.detailWorkout.set(null);
     this.isDeleteConfirmOpen.set(false);
     this.workoutToDelete.set(null);
+    this.isSummaryOpen.set(false);
+    this.summaryWorkoutId.set(null);
   }
 
   private notify(msg: string) {

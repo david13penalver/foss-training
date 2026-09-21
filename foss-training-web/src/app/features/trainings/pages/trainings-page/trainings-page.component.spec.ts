@@ -75,7 +75,20 @@ describe('TrainingsPageComponent', () => {
       deleteTraining: vi.fn((id: number) => of(void 0)),
       startTraining: vi.fn((id: number) => of({ id, status: 'In Progress' } as Training)),
       completeTraining: vi.fn((id: number) => of({ id, status: 'Completed' } as Training)),
-      cancelTraining: vi.fn((id: number) => of({ id, status: 'Cancelled' } as Training))
+      cancelTraining: vi.fn((id: number) => of({ id, status: 'Cancelled' } as Training)),
+      getWorkoutSummary: vi.fn((id: number) =>
+        of({
+          trainingId: id,
+          trainingName: 'Push Strength Session',
+          status: 'Completed',
+          durationMinutes: 52,
+          totalVolumeKg: 4200,
+          totalWorkingSets: 8,
+          totalReps: 64,
+          averageIntensityRpe: 8.0,
+          exerciseSummaries: []
+        })
+      )
     };
 
     mockSessionService = {
@@ -146,10 +159,53 @@ describe('TrainingsPageComponent', () => {
     expect(component.activeWorkout()?.id).toBe(1);
   });
 
-  it('should call completeTraining when finishWorkout is called', () => {
+  it('should call completeTraining and open summary modal when finishWorkout is called', () => {
     component.handleComplete(mockTrainings[0]);
     expect(mockTrainingService.completeTraining).toHaveBeenCalledWith(1);
     expect(component.notificationMessage()).toContain('Completed');
+    expect(component.isSummaryOpen()).toBe(true);
+    expect(component.summaryWorkoutId()).toBe(1);
+  });
+
+  it('should pass RPE and notes payload to completeTraining when present', () => {
+    const trainingWithFeedback: Training = {
+      ...mockTrainings[0],
+      rpe: { value: 8.5 },
+      notes: 'Strong session with great chest pump'
+    };
+
+    component.handleComplete(trainingWithFeedback);
+    expect(mockTrainingService.completeTraining).toHaveBeenCalledWith(1, {
+      rpe: { value: 8.5 },
+      notes: 'Strong session with great chest pump'
+    });
+    expect(component.isSummaryOpen()).toBe(true);
+  });
+
+  it('should open summary modal when handleViewSummary is called', () => {
+    component.handleViewSummary(mockTrainings[1]);
+    expect(component.isSummaryOpen()).toBe(true);
+    expect(component.summaryWorkoutId()).toBe(2);
+  });
+
+  it('should filter trainings by Paused status and count them in activeCount', () => {
+    const pausedTraining: Training = {
+      id: 4,
+      name: 'Paused Circuit',
+      status: 'Paused',
+      trainingDate: '2026-09-11',
+      totalVolume: 1500
+    };
+    trainingsSignal.set([...mockTrainings, pausedTraining]);
+    fixture.detectChanges();
+
+    expect(component.activeCount()).toBe(2); // 1 In Progress + 1 Paused
+
+    component.selectedStatus.set('Paused');
+    fixture.detectChanges();
+
+    expect(component.filteredTrainings().length).toBe(1);
+    expect(component.filteredTrainings()[0].name).toBe('Paused Circuit');
   });
 
   it('should call cancelTraining when cancelWorkout is called', () => {

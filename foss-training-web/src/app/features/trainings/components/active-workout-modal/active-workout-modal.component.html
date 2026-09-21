@@ -4,10 +4,20 @@
     <header class="modal-header">
       <div class="header-titles">
         <div class="badge-row">
-          <span class="live-pill">
-            <span class="live-pulse"></span>
-            LIVE SESSION
-          </span>
+          @if (!isPaused()) {
+            <span class="live-pill">
+              <span class="live-pulse"></span>
+              LIVE SESSION
+            </span>
+          } @else {
+            <span class="paused-pill">
+              <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2.5" fill="none">
+                <rect x="6" y="4" width="4" height="16"></rect>
+                <rect x="14" y="4" width="4" height="16"></rect>
+              </svg>
+              PAUSED
+            </span>
+          }
           <span class="date-badge">{{ training().trainingDate }}</span>
         </div>
         <h2 class="modal-title">{{ training().name }}</h2>
@@ -16,15 +26,64 @@
         }
       </div>
 
-      <button class="icon-btn btn-close" (click)="onClose()" title="Close" type="button">
-        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none">
-          <line x1="18" y1="6" x2="6" y2="18"></line>
-          <line x1="6" y1="6" x2="18" y2="18"></line>
-        </svg>
-      </button>
+      <div class="header-right-controls">
+        <!-- Live Elapsed Timer & Pause Button -->
+        <div class="timer-control-group">
+          <div class="timer-display" [class.paused]="isPaused()">
+            <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" class="timer-icon">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            <span class="timer-digits">{{ formattedTimer() }}</span>
+          </div>
+
+          <button
+            class="btn-pause-toggle"
+            [class.is-paused]="isPaused()"
+            (click)="togglePause()"
+            [title]="isPaused() ? 'Resume Workout' : 'Pause Workout'"
+            type="button"
+          >
+            @if (isPaused()) {
+              <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2.5" fill="currentColor">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+              Resume
+            } @else {
+              <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2.5" fill="currentColor">
+                <rect x="6" y="4" width="4" height="16"></rect>
+                <rect x="14" y="4" width="4" height="16"></rect>
+              </svg>
+              Pause
+            }
+          </button>
+        </div>
+
+        <button class="icon-btn btn-close" (click)="onClose()" title="Close" type="button">
+          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
     </header>
 
-    <!-- Workout Summary Metrics -->
+    <!-- Rest Timer Banner (Floating when active) -->
+    @if (restTimerSeconds() !== null) {
+      <section class="rest-timer-bar">
+        <div class="rest-timer-info">
+          <span class="rest-pulse"></span>
+          <span class="rest-label">Resting:</span>
+          <span class="rest-seconds">{{ restTimerSeconds() }}s</span>
+        </div>
+        <div class="rest-actions">
+          <button class="btn-rest-action" (click)="addRestTime(30)" type="button">+30s</button>
+          <button class="btn-rest-action skip" (click)="stopRestTimer()" type="button">Skip Rest</button>
+        </div>
+      </section>
+    }
+
+    <!-- Workout Summary Metrics Bar -->
     <section class="live-metrics-bar">
       <div class="metric-block">
         <span class="metric-label">Completed Sets</span>
@@ -34,11 +93,15 @@
         <span class="metric-label">Logged Volume</span>
         <span class="metric-val volume-val">{{ currentVolume() | number }} kg</span>
       </div>
+      <div class="metric-block">
+        <span class="metric-label">Exercises</span>
+        <span class="metric-val">{{ editableExercises().length }}</span>
+      </div>
     </section>
 
     <!-- Exercise List with Sets Checklists -->
     <div class="modal-body exercises-scroll">
-      @for (ex of editableExercises(); track ex.id || $index; let exIdx = $index) {
+      @for (ex of editableExercises(); track ex.id || ex.exerciseId || $index; let exIdx = $index) {
         <section class="exercise-section">
           <div class="exercise-header">
             <span class="exercise-index">{{ exIdx + 1 }}</span>
@@ -52,11 +115,13 @@
             <table class="sets-table">
               <thead>
                 <tr>
-                  <th style="width: 50px;">Set</th>
+                  <th style="width: 44px;">Set</th>
                   <th>Type</th>
                   <th>Weight (kg)</th>
                   <th>Reps</th>
+                  <th>RPE</th>
                   <th style="width: 60px; text-align: center;">Done</th>
+                  <th style="width: 36px;"></th>
                 </tr>
               </thead>
               <tbody>
@@ -73,6 +138,7 @@
                         type="number"
                         class="input-clean weight-input"
                         [(ngModel)]="s.weight"
+                        (blur)="updateSetValues(exIdx, setIdx)"
                         [disabled]="s.completed"
                         min="0"
                         step="0.5"
@@ -83,9 +149,23 @@
                         type="number"
                         class="input-clean reps-input"
                         [(ngModel)]="s.reps"
+                        (blur)="updateSetValues(exIdx, setIdx)"
                         [disabled]="s.completed"
                         min="0"
                         step="1"
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="number"
+                        class="input-clean rpe-input"
+                        [(ngModel)]="s.rpe"
+                        (blur)="updateSetValues(exIdx, setIdx)"
+                        [disabled]="s.completed"
+                        min="1"
+                        max="10"
+                        step="0.5"
+                        placeholder="-"
                       />
                     </td>
                     <td style="text-align: center;">
@@ -99,13 +179,72 @@
                         <span class="checkmark"></span>
                       </label>
                     </td>
+                    <td>
+                      @if (!s.completed) {
+                        <button
+                          class="icon-btn btn-delete-set"
+                          (click)="deleteSet(exIdx, setIdx)"
+                          title="Remove Set"
+                          type="button"
+                        >
+                          <svg viewBox="0 0 24 24" width="13" height="13" stroke="currentColor" stroke-width="2" fill="none">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                          </svg>
+                        </button>
+                      }
+                    </td>
                   </tr>
                 }
               </tbody>
             </table>
           </div>
+
+          <div class="exercise-actions-bar">
+            <button class="btn btn-add-set" (click)="addSet(exIdx)" type="button">
+              <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              Add Set
+            </button>
+          </div>
         </section>
       }
+
+      <!-- Session Feedback & RPE Rating -->
+      <section class="session-feedback-section glass-panel">
+        <div class="feedback-header">
+          <h4 class="feedback-title">Session Rating & Feedback</h4>
+          <span class="rpe-badge">RPE {{ sessionRpe() | number:'1.1-1' }}</span>
+        </div>
+        <p class="rpe-descriptor-text">{{ rpeDescriptor() }}</p>
+
+        <div class="rpe-slider-row">
+          <span class="rpe-end-label">1 Easy</span>
+          <input
+            type="range"
+            class="rpe-range-slider"
+            min="1"
+            max="10"
+            step="0.5"
+            [ngModel]="sessionRpe()"
+            (ngModelChange)="sessionRpe.set($event)"
+          />
+          <span class="rpe-end-label">10 Max</span>
+        </div>
+
+        <div class="notes-field-group">
+          <label class="notes-label">Workout Reflections & Notes</label>
+          <textarea
+            class="notes-textarea"
+            rows="2"
+            placeholder="How did you feel? Energy, form notes, personal records..."
+            [ngModel]="sessionNotes()"
+            (ngModelChange)="sessionNotes.set($event)"
+          ></textarea>
+        </div>
+      </section>
     </div>
 
     <!-- Modal Footer Actions -->

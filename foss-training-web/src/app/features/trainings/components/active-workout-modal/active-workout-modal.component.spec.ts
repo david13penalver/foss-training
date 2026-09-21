@@ -1,10 +1,13 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { of } from 'rxjs';
 import { ActiveWorkoutModalComponent } from './active-workout-modal.component';
+import { TrainingService } from '../../../../core/services/training.service';
 import type { Training } from '../../../../core/api/models';
 
 describe('ActiveWorkoutModalComponent', () => {
   let component: ActiveWorkoutModalComponent;
   let fixture: ComponentFixture<ActiveWorkoutModalComponent>;
+  let mockTrainingService: any;
 
   const mockTraining: Training = {
     id: 1,
@@ -30,8 +33,18 @@ describe('ActiveWorkoutModalComponent', () => {
   };
 
   beforeEach(async () => {
+    mockTrainingService = {
+      pauseTraining: vi.fn((id: number) => of({ ...mockTraining, id, status: 'Paused' })),
+      resumeTraining: vi.fn((id: number) => of({ ...mockTraining, id, status: 'In Progress' })),
+      logSet: vi.fn(() => of(mockTraining)),
+      deleteSet: vi.fn(() => of(mockTraining))
+    };
+
     await TestBed.configureTestingModule({
-      imports: [ActiveWorkoutModalComponent]
+      imports: [ActiveWorkoutModalComponent],
+      providers: [
+        { provide: TrainingService, useValue: mockTrainingService }
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(ActiveWorkoutModalComponent);
@@ -71,14 +84,62 @@ describe('ActiveWorkoutModalComponent', () => {
     expect(component.isSetCompleted(101, 1)).toBe(true);
   });
 
-  it('should emit finishWorkout when Finish Workout button is clicked', () => {
+  it('should emit finishWorkout and completeWithDetails when Finish Workout button is clicked', () => {
     let finishedTraining: Training | undefined;
+    let finishedDetails: { training: Training; rpe?: number; notes?: string } | undefined;
+
     component.finishWorkout.subscribe((t: Training) => (finishedTraining = t));
+    component.completeWithDetails.subscribe((d) => (finishedDetails = d));
+
+    component.sessionRpe.set(9.0);
+    component.sessionNotes.set('Pushed through last rep!');
+    fixture.detectChanges();
 
     const finishBtn = fixture.nativeElement.querySelector('.btn-finish') as HTMLButtonElement;
     finishBtn.click();
 
     expect(finishedTraining?.id).toBe(1);
+    expect(finishedTraining?.notes).toBe('Pushed through last rep!');
+    expect(finishedTraining?.rpe?.value).toBe(9.0);
+
+    expect(finishedDetails?.rpe).toBe(9.0);
+    expect(finishedDetails?.notes).toBe('Pushed through last rep!');
+  });
+
+  it('should toggle pause and resume workout', () => {
+    component.togglePause();
+    expect(mockTrainingService.pauseTraining).toHaveBeenCalledWith(1);
+    expect(component.isPaused()).toBe(true);
+
+    component.togglePause();
+    expect(mockTrainingService.resumeTraining).toHaveBeenCalledWith(1);
+    expect(component.isPaused()).toBe(false);
+  });
+
+  it('should add set and sync to backend', () => {
+    const initialSetsCount = component.editableExercises()[0].sets.length;
+    component.addSet(0);
+
+    expect(component.editableExercises()[0].sets.length).toBe(initialSetsCount + 1);
+    expect(mockTrainingService.logSet).toHaveBeenCalled();
+  });
+
+  it('should delete set and sync to backend', () => {
+    component.deleteSet(0, 0);
+
+    expect(component.editableExercises()[0].sets.length).toBe(1);
+    expect(mockTrainingService.deleteSet).toHaveBeenCalledWith(1, 1, 1);
+  });
+
+  it('should start rest timer when completing a set', () => {
+    component.toggleSet(0, 0);
+    expect(component.restTimerSeconds()).toBe(90);
+
+    component.addRestTime(30);
+    expect(component.restTimerSeconds()).toBe(120);
+
+    component.stopRestTimer();
+    expect(component.restTimerSeconds()).toBeNull();
   });
 
   it('should emit cancelWorkout when Cancel Workout button is clicked', () => {

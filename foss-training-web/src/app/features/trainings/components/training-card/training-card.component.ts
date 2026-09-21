@@ -13,6 +13,7 @@ export class TrainingCardComponent {
   readonly training = input.required<Training>();
 
   readonly viewDetails = output<Training>();
+  readonly viewSummary = output<Training>();
   readonly start = output<Training>();
   readonly complete = output<Training>();
   readonly cancel = output<Training>();
@@ -23,6 +24,8 @@ export class TrainingCardComponent {
     switch (status) {
       case 'In Progress':
         return 'status-in-progress';
+      case 'Paused':
+        return 'status-paused';
       case 'Completed':
         return 'status-completed';
       case 'Cancelled':

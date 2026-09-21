@@ -93,6 +93,42 @@ describe('TrainingCardComponent', () => {
     expect(completeBtn.textContent).toContain('Finish');
   });
 
+  it('should show "Resume" and "Finish" when status is Paused', () => {
+    fixture.componentRef.setInput('training', {
+      ...mockTraining,
+      status: 'Paused'
+    });
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const resumeBtn = compiled.querySelector('.btn-resume') as HTMLButtonElement;
+    const completeBtn = compiled.querySelector('.btn-complete') as HTMLButtonElement;
+
+    expect(resumeBtn).toBeTruthy();
+    expect(completeBtn).toBeTruthy();
+    expect(component.statusClass()).toBe('status-paused');
+  });
+
+  it('should show "Summary" button and emit viewSummary when status is Completed', () => {
+    fixture.componentRef.setInput('training', {
+      ...mockTraining,
+      status: 'Completed'
+    });
+    fixture.detectChanges();
+
+    let summaryTraining: Training | undefined;
+    component.viewSummary.subscribe((t: Training) => (summaryTraining = t));
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const summaryBtn = compiled.querySelector('.btn-summary') as HTMLButtonElement;
+
+    expect(summaryBtn).toBeTruthy();
+    expect(summaryBtn.textContent).toContain('Summary');
+
+    summaryBtn.click();
+    expect(summaryTraining?.id).toBe(1);
+  });
+
   it('should emit viewDetails when card or view button is clicked', () => {
     let viewedTraining: Training | undefined;
     component.viewDetails.subscribe((t: Training) => (viewedTraining = t));

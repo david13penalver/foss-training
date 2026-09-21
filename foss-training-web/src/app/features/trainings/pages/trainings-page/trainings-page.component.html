@@ -105,6 +105,7 @@
         <app-training-card
           [training]="training"
           (viewDetails)="openDetailModal($event)"
+          (viewSummary)="handleViewSummary($event)"
           (start)="handleStart($event)"
           (complete)="handleComplete($event)"
           (cancel)="handleCancel($event)"
@@ -127,8 +128,16 @@
       [training]="activeWorkout()!"
       (close)="closeModals()"
       (finishWorkout)="handleComplete($event)"
+      (completeWithDetails)="handleCompleteWithDetails($event)"
       (cancelWorkout)="handleCancel($event)"
     ></app-active-workout-modal>
+  }
+
+  @if (isSummaryOpen() && summaryWorkoutId()) {
+    <app-workout-summary-modal
+      [trainingId]="summaryWorkoutId()!"
+      (close)="closeModals()"
+    ></app-workout-summary-modal>
   }
 
   @if (isDetailOpen() && detailWorkout()) {

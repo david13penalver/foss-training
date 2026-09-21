@@ -71,7 +71,7 @@
         </svg>
         Start Workout
       </button>
-    } @else if (training().status === 'In Progress') {
+    } @else if (training().status === 'In Progress' || training().status === 'Paused') {
       <div class="in-progress-actions">
         <button class="btn btn-primary btn-resume" (click)="start.emit(training())" type="button">
           Resume
@@ -80,6 +80,16 @@
           Finish
         </button>
       </div>
+    } @else if (training().status === 'Completed') {
+      <button class="btn btn-secondary btn-summary" (click)="viewSummary.emit(training())" type="button">
+        <svg viewBox="0 0 24 24" width="13" height="13" stroke="currentColor" stroke-width="2" fill="none">
+          <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+          <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+          <path d="M4 22h16"></path>
+          <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path>
+        </svg>
+        Summary
+      </button>
     }
   </div>
 </article>

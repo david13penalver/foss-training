@@ -1,0 +1,145 @@
+<div class="modal-backdrop" (click)="onClose()">
+  <div class="modal-container glass-card" (click)="$event.stopPropagation()">
+    <!-- Header -->
+    <header class="modal-header">
+      <div class="header-titles">
+        <div class="badge-row">
+          <span class="summary-pill">
+            <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2.5" fill="none">
+              <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+              <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+              <path d="M4 22h16"></path>
+              <path d="M10 14.66V17c0 .55-.45 1-1 1H7.5"></path>
+              <path d="M14 14.66V17c0 .55.45 1 1 1h1.5"></path>
+              <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path>
+            </svg>
+            WORKOUT SUMMARY
+          </span>
+          @if (loadedSummary()?.status) {
+            <span class="status-badge completed">{{ loadedSummary()?.status }}</span>
+          }
+        </div>
+        <h2 class="modal-title">{{ loadedSummary()?.trainingName || 'Session Performance' }}</h2>
+      </div>
+
+      <button class="icon-btn btn-close" (click)="onClose()" title="Close" type="button">
+        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </header>
+
+    <!-- Body -->
+    <div class="modal-body">
+      @if (isLoading()) {
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <span>Loading workout performance analytics...</span>
+        </div>
+      } @else if (errorMessage()) {
+        <div class="error-banner">
+          <p>{{ errorMessage() }}</p>
+        </div>
+      } @else if (loadedSummary(); as sum) {
+        <!-- High-level KPI Cards -->
+        <section class="summary-kpis">
+          <div class="kpi-card">
+            <span class="kpi-label">Duration</span>
+            <span class="kpi-value">{{ sum.formattedDuration || '00:00' }}</span>
+          </div>
+          <div class="kpi-card highlight-cyan">
+            <span class="kpi-label">Total Volume</span>
+            <span class="kpi-value">{{ (sum.totalVolumeKg || 0) | number:'1.0-1' }} <small>kg</small></span>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-label">Working Sets</span>
+            <span class="kpi-value">{{ sum.totalWorkingSets || 0 }}</span>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-label">Total Reps</span>
+            <span class="kpi-value">{{ sum.totalReps || 0 }}</span>
+          </div>
+        </section>
+
+        <!-- RPE and Notes Feedback Section -->
+        @if (sum.sessionRpe || sum.notes) {
+          <section class="feedback-card">
+            @if (sum.sessionRpe) {
+              <div class="rpe-row">
+                <span class="rpe-tag">RPE {{ sum.sessionRpe | number:'1.1-1' }}</span>
+                <span class="rpe-descriptor">{{ getRpeDescriptor(sum.sessionRpe) }}</span>
+              </div>
+            }
+            @if (sum.notes) {
+              <p class="summary-notes">"{{ sum.notes }}"</p>
+            }
+          </section>
+        }
+
+        <!-- Exercise Breakdown Table -->
+        <section class="exercise-breakdown-section">
+          <h4 class="section-subtitle">Exercise Performance Breakdown</h4>
+
+          <div class="table-responsive">
+            <table class="breakdown-table">
+              <thead>
+                <tr>
+                  <th>Exercise</th>
+                  <th>Category</th>
+                  <th style="text-align: center;">Sets</th>
+                  <th style="text-align: center;">Reps</th>
+                  <th style="text-align: right;">Top Weight</th>
+                  <th style="text-align: right;">Volume</th>
+                  <th style="text-align: right;">Estimated 1RM</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (ex of sum.exerciseSummaries || []; track ex.exerciseId || $index) {
+                  <tr>
+                    <td class="ex-name-cell">
+                      <strong>{{ ex.exerciseName }}</strong>
+                    </td>
+                    <td>
+                      <span class="cat-pill">{{ ex.category }}</span>
+                    </td>
+                    <td style="text-align: center;">{{ ex.completedSets }}</td>
+                    <td style="text-align: center;">{{ ex.totalReps || '-' }}</td>
+                    <td style="text-align: right;" class="num-cell">
+                      @if (ex.topWeightKg && ex.topWeightKg > 0) {
+                        {{ ex.topWeightKg | number:'1.0-1' }} kg
+                      } @else {
+                        -
+                      }
+                    </td>
+                    <td style="text-align: right;" class="num-cell volume-text">
+                      @if (ex.volumeKg && ex.volumeKg > 0) {
+                        {{ ex.volumeKg | number:'1.0-1' }} kg
+                      } @else {
+                        -
+                      }
+                    </td>
+                    <td style="text-align: right;" class="num-cell onerm-cell">
+                      @if (ex.estimated1RmKg && ex.estimated1RmKg > 0) {
+                        <span class="onerm-pill">{{ ex.estimated1RmKg | number:'1.1-1' }} kg</span>
+                      } @else {
+                        -
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </section>
+      }
+    </div>
+
+    <!-- Modal Footer -->
+    <footer class="modal-footer">
+      <button class="btn btn-primary" (click)="onClose()" type="button">
+        Done
+      </button>
+    </footer>
+  </div>
+</div>

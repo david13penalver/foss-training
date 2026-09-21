@@ -1,7 +1,14 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, httpResource } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import type { Training, TrainingRequest } from '../api/models';
+import type {
+  Training,
+  TrainingRequest,
+  CompleteTrainingRequest,
+  LogSetRequest,
+  LogIntervalRequest,
+  WorkoutSummaryResponse
+} from '../api/models';
 
 @Injectable({
   providedIn: 'root'
@@ -36,12 +43,44 @@ export class TrainingService {
     return this.http.post<Training>(`/api/trainings/${id}/start`, {});
   }
 
-  completeTraining(id: number): Observable<Training> {
-    return this.http.post<Training>(`/api/trainings/${id}/complete`, {});
+  pauseTraining(id: number): Observable<Training> {
+    return this.http.post<Training>(`/api/trainings/${id}/pause`, {});
+  }
+
+  resumeTraining(id: number): Observable<Training> {
+    return this.http.post<Training>(`/api/trainings/${id}/resume`, {});
+  }
+
+  completeTraining(id: number, request?: CompleteTrainingRequest): Observable<Training> {
+    return this.http.post<Training>(`/api/trainings/${id}/complete`, request || {});
   }
 
   cancelTraining(id: number): Observable<Training> {
     return this.http.post<Training>(`/api/trainings/${id}/cancel`, {});
+  }
+
+  logSet(trainingId: number, exerciseId: number, request: LogSetRequest): Observable<Training> {
+    return this.http.post<Training>(`/api/trainings/${trainingId}/exercises/${exerciseId}/sets`, request);
+  }
+
+  updateSet(trainingId: number, exerciseId: number, setNumber: number, request: LogSetRequest): Observable<Training> {
+    return this.http.put<Training>(`/api/trainings/${trainingId}/exercises/${exerciseId}/sets/${setNumber}`, request);
+  }
+
+  deleteSet(trainingId: number, exerciseId: number, setNumber: number): Observable<Training> {
+    return this.http.delete<Training>(`/api/trainings/${trainingId}/exercises/${exerciseId}/sets/${setNumber}`);
+  }
+
+  logInterval(trainingId: number, exerciseId: number, request: LogIntervalRequest): Observable<Training> {
+    return this.http.post<Training>(`/api/trainings/${trainingId}/exercises/${exerciseId}/intervals`, request);
+  }
+
+  deleteInterval(trainingId: number, exerciseId: number, intervalNumber: number): Observable<Training> {
+    return this.http.delete<Training>(`/api/trainings/${trainingId}/exercises/${exerciseId}/intervals/${intervalNumber}`);
+  }
+
+  getWorkoutSummary(id: number): Observable<WorkoutSummaryResponse> {
+    return this.http.get<WorkoutSummaryResponse>(`/api/trainings/${id}/summary`);
   }
 
   checkTrainingExists(id: number): Observable<boolean> {

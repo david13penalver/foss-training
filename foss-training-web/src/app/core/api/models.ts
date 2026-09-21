@@ -16,6 +16,11 @@ export type MobilitySessionExercise = Schemas['MobilitySessionExercise'];
 
 export type Training = Schemas['Training'];
 export type TrainingRequest = Schemas['TrainingRequest'];
+export type CompleteTrainingRequest = Schemas['CompleteTrainingRequest'];
+export type LogSetRequest = Schemas['LogSetRequest'];
+export type LogIntervalRequest = Schemas['LogIntervalRequest'];
+export type WorkoutSummaryResponse = Schemas['WorkoutSummaryResponse'];
+export type WorkoutExerciseSummary = Schemas['WorkoutExerciseSummary'];
 
 export type TrainingProgram = Schemas['TrainingProgramResponse'];
 export type TrainingProgramRequest = Schemas['TrainingProgramRequest'];

@@ -1,8 +1,10 @@
 package com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.analytics;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,14 +13,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.david13penalver.foss_training_api.application.usecases.analytics.CalculateOneRepMaxUseCase;
+import com.david13penalver.foss_training_api.application.usecases.analytics.CalculateWorkloadRatioUseCase;
 import com.david13penalver.foss_training_api.application.usecases.analytics.FindPersonalRecordsByExerciseUseCase;
 import com.david13penalver.foss_training_api.application.usecases.analytics.FindPersonalRecordsUseCase;
 import com.david13penalver.foss_training_api.application.usecases.exercise.exercise.ExerciseExistsUseCase;
 import com.david13penalver.foss_training_api.domain.model.analytics.OneRepMaxEstimate;
 import com.david13penalver.foss_training_api.domain.model.analytics.OneRepMaxFormula;
 import com.david13penalver.foss_training_api.domain.model.analytics.PersonalRecord;
+import com.david13penalver.foss_training_api.domain.model.analytics.WorkloadRatio;
 import com.david13penalver.foss_training_api.domain.model.common.Weight;
 import com.david13penalver.foss_training_api.domain.model.common.WeightUnit;
+import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.analytics.AcwrResponseDto;
 import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.analytics.AnalyticsDtoMapper;
 import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.analytics.OneRepMaxResponseDto;
 import com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.analytics.PersonalRecordResponseDto;
@@ -36,8 +41,17 @@ public class AnalyticsRestController {
     private final CalculateOneRepMaxUseCase calculateOneRepMaxUseCase;
     private final FindPersonalRecordsUseCase findPersonalRecordsUseCase;
     private final FindPersonalRecordsByExerciseUseCase findPersonalRecordsByExerciseUseCase;
+    private final CalculateWorkloadRatioUseCase calculateWorkloadRatioUseCase;
     private final ExerciseExistsUseCase exerciseExistsUseCase;
     private final AnalyticsDtoMapper analyticsDtoMapper;
+
+    @GetMapping("/acwr")
+    @Operation(summary = "Calculate Acute:Chronic Workload Ratio (ACWR) and fatigue status")
+    public ResponseEntity<AcwrResponseDto> calculateAcwr(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate targetDate) {
+        WorkloadRatio ratio = calculateWorkloadRatioUseCase.execute(targetDate);
+        return ResponseEntity.ok(analyticsDtoMapper.toResponseDto(ratio));
+    }
 
     @GetMapping("/1rm")
     @Operation(summary = "Calculate estimated 1RM and percentage load breakdown")

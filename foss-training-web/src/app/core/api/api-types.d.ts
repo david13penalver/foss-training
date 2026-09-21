@@ -541,6 +541,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/analytics/acwr": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Calculate Acute:Chronic Workload Ratio (ACWR) and fatigue status */
+        get: operations["calculateAcwr"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/analytics/1rm": {
         parameters: {
             query?: never;
@@ -1153,6 +1170,100 @@ export interface components {
             maxSessionVolume?: components["schemas"]["MaxSessionVolumeRecord"];
             /** @description Maximum repetitions record */
             maxReps?: components["schemas"]["MaxRepsRecord"];
+        };
+        /** @description Acute:Chronic Workload Ratio (ACWR) and fatigue status */
+        AcwrResponse: {
+            /**
+             * Format: date
+             * @description Reference evaluation date
+             * @example 2026-09-21
+             */
+            targetDate?: string;
+            /**
+             * Format: double
+             * @description Acute workload (fatigue over the last 7 days) in AU
+             * @example 1250
+             */
+            acuteWorkload?: number;
+            /**
+             * Format: double
+             * @description Acute daily average load in AU/day
+             * @example 178.57
+             */
+            acuteDailyAverage?: number;
+            /**
+             * Format: double
+             * @description Chronic workload (accumulated over the last 28 days) in AU
+             * @example 4200
+             */
+            chronicWorkload?: number;
+            /**
+             * Format: double
+             * @description Chronic weekly average load in AU/week
+             * @example 1050
+             */
+            chronicWeeklyAverage?: number;
+            /**
+             * Format: double
+             * @description Chronic daily average load in AU/day
+             * @example 150
+             */
+            chronicDailyAverage?: number;
+            /**
+             * Format: double
+             * @description Acute to Chronic Workload Ratio (ACWR)
+             * @example 1.19
+             */
+            acwr?: number;
+            /**
+             * @description Injury risk classification category
+             * @example OPTIMAL
+             * @enum {string}
+             */
+            riskZone?: "UNDERTRAINING" | "OPTIMAL" | "OVERREACHING" | "HIGH_RISK";
+            /**
+             * @description Human-readable label of the risk zone
+             * @example Optimal Zone
+             */
+            riskZoneDisplayName?: string;
+            /** @description Scientific explanation of the risk zone */
+            statusDescription?: string;
+            /**
+             * @description Whether a deload week or active recovery is recommended
+             * @example false
+             */
+            deloadRecommended?: boolean;
+            /** @description Actionable sports science training and recovery advice */
+            recommendation?: string;
+            /** @description Chronological 28-day daily workload breakdown */
+            dailyWorkloads?: components["schemas"]["DailyWorkloadResponse"][];
+        };
+        /** @description Workload metrics accumulated for a single day */
+        DailyWorkloadResponse: {
+            /**
+             * Format: date
+             * @description Calendar date
+             * @example 2026-09-21
+             */
+            date?: string;
+            /**
+             * Format: double
+             * @description Session RPE workload in arbitrary units (AU)
+             * @example 360
+             */
+            workloadAu?: number;
+            /**
+             * Format: double
+             * @description Total volume moved in kilograms
+             * @example 4500
+             */
+            totalVolumeKg?: number;
+            /**
+             * Format: int32
+             * @description Number of completed workouts on this day
+             * @example 1
+             */
+            completedSessions?: number;
         };
         /** @description Estimated 1RM and percentage-based training loads */
         OneRepMaxResponse: {
@@ -2183,6 +2294,28 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["PersonalRecordResponse"];
+                };
+            };
+        };
+    };
+    calculateAcwr: {
+        parameters: {
+            query?: {
+                targetDate?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["AcwrResponse"];
                 };
             };
         };

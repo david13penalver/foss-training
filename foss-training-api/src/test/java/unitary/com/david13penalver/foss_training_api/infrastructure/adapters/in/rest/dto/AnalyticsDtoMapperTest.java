@@ -1,6 +1,7 @@
 package unitary.com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -109,5 +110,57 @@ class AnalyticsDtoMapperTest {
 
         assertEquals(1, dtos.size());
         assertEquals("Bench", dtos.get(0).getExerciseName());
+    }
+
+    @Test
+    void toResponseDto_workloadRatio() {
+        assertNull(mapper.toResponseDto((com.david13penalver.foss_training_api.domain.model.analytics.WorkloadRatio) null));
+        assertNull(mapper.toResponseDto((com.david13penalver.foss_training_api.domain.model.analytics.DailyWorkload) null));
+
+        LocalDate date = LocalDate.of(2026, 9, 21);
+        com.david13penalver.foss_training_api.domain.model.analytics.DailyWorkload daily =
+                com.david13penalver.foss_training_api.domain.model.analytics.DailyWorkload.builder()
+                        .date(date)
+                        .workloadAu(350.0)
+                        .totalVolumeKg(4000.0)
+                        .completedSessions(1)
+                        .build();
+
+        com.david13penalver.foss_training_api.domain.model.analytics.WorkloadRatio ratio =
+                com.david13penalver.foss_training_api.domain.model.analytics.WorkloadRatio.builder()
+                        .targetDate(date)
+                        .acuteWorkload(1200.0)
+                        .acuteDailyAverage(171.43)
+                        .chronicWorkload(4200.0)
+                        .chronicWeeklyAverage(1050.0)
+                        .chronicDailyAverage(150.0)
+                        .acwr(1.14)
+                        .riskZone(com.david13penalver.foss_training_api.domain.model.analytics.AcwrRiskZone.OPTIMAL)
+                        .deloadRecommended(false)
+                        .recommendation("Optimal progression")
+                        .dailyWorkloads(List.of(daily))
+                        .build();
+
+        com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.analytics.AcwrResponseDto dto = mapper.toResponseDto(ratio);
+
+        assertNotNull(dto);
+        assertEquals(date, dto.getTargetDate());
+        assertEquals(1200.0, dto.getAcuteWorkload());
+        assertEquals(171.43, dto.getAcuteDailyAverage());
+        assertEquals(4200.0, dto.getChronicWorkload());
+        assertEquals(1050.0, dto.getChronicWeeklyAverage());
+        assertEquals(150.0, dto.getChronicDailyAverage());
+        assertEquals(1.14, dto.getAcwr());
+        assertEquals(com.david13penalver.foss_training_api.domain.model.analytics.AcwrRiskZone.OPTIMAL, dto.getRiskZone());
+        assertEquals("Optimal Zone", dto.getRiskZoneDisplayName());
+        assertFalse(dto.isDeloadRecommended());
+        assertEquals("Optimal progression", dto.getRecommendation());
+        assertEquals(1, dto.getDailyWorkloads().size());
+
+        com.david13penalver.foss_training_api.infrastructure.adapters.in.rest.dto.analytics.DailyWorkloadResponseDto dailyDto = dto.getDailyWorkloads().get(0);
+        assertEquals(date, dailyDto.getDate());
+        assertEquals(350.0, dailyDto.getWorkloadAu());
+        assertEquals(4000.0, dailyDto.getTotalVolumeKg());
+        assertEquals(1, dailyDto.getCompletedSessions());
     }
 }

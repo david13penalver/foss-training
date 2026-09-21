@@ -5,8 +5,10 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
+import com.david13penalver.foss_training_api.domain.model.analytics.DailyWorkload;
 import com.david13penalver.foss_training_api.domain.model.analytics.OneRepMaxEstimate;
 import com.david13penalver.foss_training_api.domain.model.analytics.PersonalRecord;
+import com.david13penalver.foss_training_api.domain.model.analytics.WorkloadRatio;
 
 @Component
 public class AnalyticsDtoMapper {
@@ -89,5 +91,45 @@ public class AnalyticsDtoMapper {
             return Collections.emptyList();
         }
         return records.stream().map(this::toResponseDto).toList();
+    }
+
+    public AcwrResponseDto toResponseDto(WorkloadRatio ratio) {
+        if (ratio == null) {
+            return null;
+        }
+        List<DailyWorkloadResponseDto> dailyDtos = Collections.emptyList();
+        if (ratio.getDailyWorkloads() != null) {
+            dailyDtos = ratio.getDailyWorkloads().stream()
+                    .map(this::toResponseDto)
+                    .toList();
+        }
+
+        return AcwrResponseDto.builder()
+                .targetDate(ratio.getTargetDate())
+                .acuteWorkload(ratio.getAcuteWorkload())
+                .acuteDailyAverage(ratio.getAcuteDailyAverage())
+                .chronicWorkload(ratio.getChronicWorkload())
+                .chronicWeeklyAverage(ratio.getChronicWeeklyAverage())
+                .chronicDailyAverage(ratio.getChronicDailyAverage())
+                .acwr(ratio.getAcwr())
+                .riskZone(ratio.getRiskZone())
+                .riskZoneDisplayName(ratio.getRiskZone() != null ? ratio.getRiskZone().getDisplayName() : null)
+                .statusDescription(ratio.getRiskZone() != null ? ratio.getRiskZone().getDescription() : null)
+                .deloadRecommended(ratio.isDeloadRecommended())
+                .recommendation(ratio.getRecommendation())
+                .dailyWorkloads(dailyDtos)
+                .build();
+    }
+
+    public DailyWorkloadResponseDto toResponseDto(DailyWorkload daily) {
+        if (daily == null) {
+            return null;
+        }
+        return DailyWorkloadResponseDto.builder()
+                .date(daily.getDate())
+                .workloadAu(daily.getWorkloadAu())
+                .totalVolumeKg(daily.getTotalVolumeKg())
+                .completedSessions(daily.getCompletedSessions())
+                .build();
     }
 }

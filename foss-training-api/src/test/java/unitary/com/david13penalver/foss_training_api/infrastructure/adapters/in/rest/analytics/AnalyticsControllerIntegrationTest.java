@@ -105,6 +105,84 @@ class AnalyticsControllerIntegrationTest {
                 .andExpect(status().isNotFound());
     }
 
+    @Test
+    void calculateAcwr_withDefaultTargetDate_returns200() throws Exception {
+        mockMvc.perform(get("/api/analytics/acwr"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.targetDate").isNotEmpty())
+                .andExpect(jsonPath("$.acuteWorkload").value(0.0))
+                .andExpect(jsonPath("$.chronicWorkload").value(0.0))
+                .andExpect(jsonPath("$.acwr").value(0.0))
+                .andExpect(jsonPath("$.riskZone").value("UNDERTRAINING"))
+                .andExpect(jsonPath("$.riskZoneDisplayName").value("Undertraining"))
+                .andExpect(jsonPath("$.deloadRecommended").value(false))
+                .andExpect(jsonPath("$.dailyWorkloads.length()").value(28));
+    }
+
+    @Test
+    void calculateAcwr_withSpecificDate_returns200() throws Exception {
+        mockMvc.perform(get("/api/analytics/acwr").param("targetDate", "2026-09-21"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.targetDate").value("2026-09-21"))
+                .andExpect(jsonPath("$.dailyWorkloads.length()").value(28))
+                .andExpect(jsonPath("$.dailyWorkloads[27].date").value("2026-09-21"));
+    }
+
+
+    @Test
+    void calculateAcwr_withCompletedWorkout_reflectsWorkload() throws Exception {
+        int exerciseId = createExercise("Barbell Deadlift");
+
+        String sessionJson = """
+                {
+                  "name": "Heavy Pull",
+                  "sessionStatus": "PLANNED",
+                  "sessionExercises": [
+                    {
+                      "exerciseType": "resistance",
+                      "orderIndex": 1,
+                      "exercise": {
+                        "id": %d,
+                        "name": "Barbell Deadlift",
+                        "primaryCategory": "RESISTANCE"
+                      },
+                      "sets": [
+                        {
+                          "setNumber": 1,
+                          "setType": "WORKING",
+                          "weight": {"value": 140.0, "unit": "KG"},
+                          "repetitions": 5
+                        }
+                      ]
+                    }
+                  ]
+                }
+                """.formatted(exerciseId);
+
+        String sessionContent = mockMvc.perform(post("/api/sessions")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(sessionJson))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        int sessionId = com.jayway.jsonpath.JsonPath.read(sessionContent, "$.id");
+
+        String trainingContent = mockMvc.perform(post("/api/trainings/from-session/" + sessionId))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        int trainingId = com.jayway.jsonpath.JsonPath.read(trainingContent, "$.id");
+
+        mockMvc.perform(post("/api/trainings/" + trainingId + "/start"))
+                .andExpect(status().isOk());
+        mockMvc.perform(post("/api/trainings/" + trainingId + "/complete"))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/analytics/acwr"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.acuteWorkload").isNumber())
+                .andExpect(jsonPath("$.chronicWorkload").isNumber())
+                .andExpect(jsonPath("$.dailyWorkloads[27].completedSessions").value(1));
+    }
+
     private int createExercise(String name) throws Exception {
         String exerciseJson = """
                 {

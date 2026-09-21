@@ -1,0 +1,318 @@
+<div class="progression-container">
+  <!-- Controls & Exercise Selection -->
+  <div class="glass-card controls-card">
+    <div class="card-header">
+      <div class="header-title">
+        <span class="header-icon">📈</span>
+        <div>
+          <h3>Exercise Strength Progression</h3>
+          <p class="header-subtitle">Estimated 1RM trajectory, volume trends, and strength performance over time</p>
+        </div>
+      </div>
+      <span class="info-tag">Time-Series Analytics</span>
+    </div>
+
+    <form (ngSubmit)="loadProgression()" class="filter-form">
+      <div class="form-grid">
+        <!-- Exercise Selection -->
+        <div class="form-group exercise-select-group">
+          <label for="exerciseSelect">Select Exercise</label>
+          <select
+            id="exerciseSelect"
+            [ngModel]="selectedExerciseId()"
+            (ngModelChange)="onExerciseChange($event)"
+            name="exerciseId"
+            class="glass-select"
+          >
+            @for (ex of exercises(); track ex.id) {
+              <option [value]="ex.id">{{ ex.name }} ({{ ex.primaryCategory || 'RESISTANCE' }})</option>
+            }
+          </select>
+        </div>
+
+        <!-- Formula Selection -->
+        <div class="form-group">
+          <label for="formulaSelect">1RM Formula</label>
+          <select
+            id="formulaSelect"
+            [ngModel]="formula()"
+            (ngModelChange)="formula.set($event)"
+            name="formula"
+            class="glass-select"
+          >
+            @for (f of formulas; track f) {
+              <option [value]="f">{{ f }}</option>
+            }
+          </select>
+        </div>
+
+        <!-- Start Date -->
+        <div class="form-group">
+          <label for="startDate">From</label>
+          <input
+            id="startDate"
+            type="date"
+            [ngModel]="startDate()"
+            (ngModelChange)="startDate.set($event)"
+            name="startDate"
+            class="glass-input"
+          />
+        </div>
+
+        <!-- End Date -->
+        <div class="form-group">
+          <label for="endDate">To</label>
+          <input
+            id="endDate"
+            type="date"
+            [ngModel]="endDate()"
+            (ngModelChange)="endDate.set($event)"
+            name="endDate"
+            class="glass-input"
+          />
+        </div>
+
+        <div class="form-group action-group">
+          <button
+            type="submit"
+            class="btn-gradient"
+            [disabled]="isLoading() || !selectedExerciseId()"
+          >
+            @if (isLoading()) {
+              Loading...
+            } @else {
+              Update
+            }
+          </button>
+        </div>
+      </div>
+
+      @if (error()) {
+        <div class="error-banner">{{ error() }}</div>
+      }
+    </form>
+  </div>
+
+  @if (progressionData(); as data) {
+    <!-- Trend & Assessment Banner -->
+    <div class="trend-banner" [class]="getTrendClass(data.trend)">
+      <div class="trend-status-group">
+        <span class="trend-icon">
+          @switch (data.trend) {
+            @case ('IMPROVING') { 🚀 }
+            @case ('DECLINING') { ⚠️ }
+            @case ('STAGNANT') { 🔄 }
+            @default { ℹ️ }
+          }
+        </span>
+        <div>
+          <div class="trend-title">
+            <h4>{{ data.trendDisplayName || data.trend }}</h4>
+            <span class="trend-sessions">Based on {{ data.totalSessions || 0 }} completed workouts</span>
+          </div>
+          <p class="trend-desc">{{ data.trendDescription }}</p>
+        </div>
+      </div>
+
+      @if (data.absolute1RmGainKg !== undefined && data.relative1RmGainPercentage !== undefined) {
+        <div class="gain-badge" [class.gain-positive]="data.absolute1RmGainKg >= 0" [class.gain-negative]="data.absolute1RmGainKg < 0">
+          <span class="gain-abs">{{ data.absolute1RmGainKg >= 0 ? '+' : '' }}{{ data.absolute1RmGainKg | number:'1.1-1' }} kg</span>
+          <span class="gain-rel">({{ data.relative1RmGainPercentage >= 0 ? '+' : '' }}{{ data.relative1RmGainPercentage | number:'1.1-1' }}%)</span>
+        </div>
+      }
+    </div>
+
+    <!-- Key Milestone Metrics Grid -->
+    <div class="metrics-grid">
+      <!-- 1RM Progression Card -->
+      <div class="glass-card metric-card">
+        <div class="metric-header">
+          <span class="metric-label">Estimated 1RM Trajectory</span>
+          <span class="metric-badge epley-badge">{{ data.formula }}</span>
+        </div>
+        <div class="metric-value">
+          <div class="trajectory-split">
+            <div class="split-col">
+              <span class="split-label">Initial</span>
+              <span class="split-val">{{ data.initial1RmKg ? (data.initial1RmKg | number:'1.1-1') : '—' }} <small>kg</small></span>
+            </div>
+            <span class="split-arrow">➔</span>
+            <div class="split-col">
+              <span class="split-label">Latest</span>
+              <span class="split-val current-val">{{ data.latest1RmKg ? (data.latest1RmKg | number:'1.1-1') : '—' }} <small>kg</small></span>
+            </div>
+          </div>
+        </div>
+        <div class="metric-footer">
+          <span>Formula: {{ data.formula }}</span>
+        </div>
+      </div>
+
+      <!-- All-Time Best 1RM -->
+      <div class="glass-card metric-card">
+        <div class="metric-header">
+          <span class="metric-label">Peak Estimated 1RM</span>
+          <span class="metric-badge record-badge">All-Time</span>
+        </div>
+        <div class="metric-value">
+          <span class="value-number">{{ data.allTimeBest1RmKg ? (data.allTimeBest1RmKg | number:'1.1-1') : '—' }}</span>
+          <span class="value-unit">kg</span>
+        </div>
+        <div class="metric-footer">
+          <span>Highest projected single-rep capacity</span>
+        </div>
+      </div>
+
+      <!-- All-Time Best Top Weight -->
+      <div class="glass-card metric-card">
+        <div class="metric-header">
+          <span class="metric-label">Heaviest Top Weight</span>
+          <span class="metric-badge top-badge">Peak Load</span>
+        </div>
+        <div class="metric-value">
+          <span class="value-number">{{ data.allTimeBestTopWeightKg ? (data.allTimeBestTopWeightKg | number:'1.1-1') : '—' }}</span>
+          <span class="value-unit">kg</span>
+        </div>
+        <div class="metric-footer">
+          <span>Max load executed on barbell/equipment</span>
+        </div>
+      </div>
+
+      <!-- Max Session Volume -->
+      <div class="glass-card metric-card">
+        <div class="metric-header">
+          <span class="metric-label">Max Session Volume</span>
+          <span class="metric-badge volume-badge">Tonnage</span>
+        </div>
+        <div class="metric-value">
+          <span class="value-number">{{ data.allTimeMaxVolumeKg ? (data.allTimeMaxVolumeKg | number:'1.0-0') : '—' }}</span>
+          <span class="value-unit">kg</span>
+        </div>
+        <div class="metric-footer">
+          <span>Highest single-session cumulative volume</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Visual 1RM Progression Chart (SVG) -->
+    @if (getChartPoints().length > 0) {
+      <div class="glass-card chart-card">
+        <div class="card-header">
+          <div class="header-title">
+            <span class="header-icon">📉</span>
+            <h4>Estimated 1RM Trajectory Curve</h4>
+          </div>
+          <span class="info-tag">{{ getChartPoints().length }} Sessions Plotted</span>
+        </div>
+
+        <div class="svg-chart-wrapper">
+          <svg viewBox="0 0 720 230" class="progression-svg" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#00f0ff" stop-opacity="0.35" />
+                <stop offset="100%" stop-color="#0a84ff" stop-opacity="0.0" />
+              </linearGradient>
+              <linearGradient id="lineGradient" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#0a84ff" />
+                <stop offset="100%" stop-color="#00f0ff" />
+              </linearGradient>
+            </defs>
+
+            <!-- Horizontal Guide Lines -->
+            <line x1="30" y1="35" x2="690" y2="35" stroke="rgba(255,255,255,0.06)" stroke-dasharray="4 4" />
+            <line x1="30" y1="115" x2="690" y2="115" stroke="rgba(255,255,255,0.06)" stroke-dasharray="4 4" />
+            <line x1="30" y1="195" x2="690" y2="195" stroke="rgba(255,255,255,0.06)" stroke-dasharray="4 4" />
+
+            <!-- Filled Area -->
+            <path [attr.d]="getSvgAreaPath()" fill="url(#areaGradient)" />
+
+            <!-- Stroke Line -->
+            <path [attr.d]="getSvgPath()" fill="none" stroke="url(#lineGradient)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+
+            <!-- Interactive Data Points -->
+            @for (pt of getChartPoints(); track pt.data.trainingId || pt.x) {
+              <g class="chart-point-group" (mouseenter)="hoveredPoint.set(pt)" (mouseleave)="hoveredPoint.set(null)">
+                <!-- Hit area -->
+                <circle [attr.cx]="pt.x" [attr.cy]="pt.y" r="14" fill="transparent" class="hit-circle" />
+                <!-- Glow ring -->
+                <circle [attr.cx]="pt.x" [attr.cy]="pt.y" r="6" fill="#00f0ff" fill-opacity="0.4" class="glow-circle" />
+                <!-- Center dot -->
+                <circle [attr.cx]="pt.x" [attr.cy]="pt.y" r="3.5" fill="#ffffff" class="dot-circle" />
+              </g>
+            }
+          </svg>
+
+          <!-- Hover Tooltip -->
+          @if (hoveredPoint(); as hp) {
+            <div
+              class="chart-tooltip"
+              [style.left.px]="hp.x"
+              [style.top.px]="hp.y - 12"
+            >
+              <div class="tooltip-date">{{ hp.data.date | date:'mediumDate' }}</div>
+              <div class="tooltip-row">
+                <span class="label">Top Set:</span>
+                <span class="value">{{ hp.data.topWeightKg }} kg × {{ hp.data.topWeightReps }} reps</span>
+              </div>
+              <div class="tooltip-row">
+                <span class="label">Est 1RM:</span>
+                <span class="value cyan">{{ hp.data.estimated1RmKg | number:'1.1-1' }} kg</span>
+              </div>
+              <div class="tooltip-row">
+                <span class="label">Volume:</span>
+                <span class="value">{{ hp.data.totalVolumeKg | number:'1.0-0' }} kg</span>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Chronological Session History Table -->
+    @if (data.dataPoints && data.dataPoints.length > 0) {
+      <div class="glass-card history-card">
+        <div class="card-header">
+          <div class="header-title">
+            <span class="header-icon">📋</span>
+            <h4>Session Workout History</h4>
+          </div>
+          <span class="record-count">{{ data.dataPoints.length }} Sessions</span>
+        </div>
+
+        <div class="table-container">
+          <table class="progression-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Top Weight Set</th>
+                <th>Est 1RM</th>
+                <th>Working Sets</th>
+                <th>Total Reps</th>
+                <th>Volume (kg)</th>
+                <th>Avg Intensity</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (point of data.dataPoints; track point.trainingId || point.date) {
+                <tr>
+                  <td class="date-cell">{{ point.date | date:'mediumDate' }}</td>
+                  <td class="top-set-cell font-mono">
+                    {{ point.topWeightKg }} kg × {{ point.topWeightReps }}
+                    @if (point.topWeightRpe) {
+                      <span class="rpe-tag">@RPE{{ point.topWeightRpe }}</span>
+                    }
+                  </td>
+                  <td class="est-1rm-cell font-mono font-bold">{{ point.estimated1RmKg | number:'1.1-1' }} kg</td>
+                  <td>{{ point.workingSets || point.totalSets || 0 }}</td>
+                  <td>{{ point.totalReps || 0 }}</td>
+                  <td class="volume-cell font-mono">{{ point.totalVolumeKg | number:'1.0-0' }} kg</td>
+                  <td class="intensity-cell">{{ point.averageIntensityKg ? (point.averageIntensityKg | number:'1.1-1') + ' kg' : '—' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
+  }
+</div>

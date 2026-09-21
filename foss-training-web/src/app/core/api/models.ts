@@ -57,5 +57,35 @@ export type MaxWeightRecord = Schemas['MaxWeightRecord'];
 export type MaxRepsRecord = Schemas['MaxRepsRecord'];
 export type MaxSessionVolumeRecord = Schemas['MaxSessionVolumeRecord'];
 
+// Sports Science Analytics Models
+export type AcwrResponse = Schemas['AcwrResponse'];
+export type DailyWorkloadResponse = Schemas['DailyWorkloadResponse'];
+export type AcwrRiskZone = NonNullable<AcwrResponse['riskZone']>;
+
+export type WeeklyMuscleVolumeResponse = Schemas['WeeklyMuscleVolumeResponse'];
+export type MuscleGroupVolume = Schemas['MuscleGroupVolume'];
+export type HypertrophyVolumeStatus = NonNullable<MuscleGroupVolume['status']>;
+
+export type ExerciseProgressionResponse = Schemas['ExerciseProgressionResponseDto'];
+export type ProgressionDataPoint = Schemas['ProgressionDataPointDto'];
+export type ProgressionTrend = NonNullable<ExerciseProgressionResponse['trend']>;
+
+export interface ExerciseProgressionParams {
+  exerciseId: number;
+  startDate?: string;
+  endDate?: string;
+  formula?: OneRepMaxFormula;
+}
+
+export type HeartRateZonesResponse = Schemas['HeartRateZonesResponseDto'];
+export type CalculatedHeartRateZone = Schemas['CalculatedHeartRateZoneDto'];
+export type HeartRateZoneMethod = NonNullable<HeartRateZonesResponse['method']>;
+
+export interface CalculateHeartRateZonesParams {
+  maxHr?: number;
+  restingHr?: number;
+  age?: number;
+}
+
 // Re-export full OpenAPI spec types
 export type { components, paths, operations };

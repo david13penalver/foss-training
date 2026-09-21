@@ -1,0 +1,174 @@
+<div class="cardio-zones-container">
+  <!-- Controls & Header -->
+  <div class="glass-card controls-card">
+    <div class="card-header">
+      <div class="header-title">
+        <span class="header-icon">❤️</span>
+        <div>
+          <h3>Cardiovascular Training Zones Calculator</h3>
+          <p class="header-subtitle">Target heart rate zones using Karvonen Heart Rate Reserve (HRR) and Tanaka HRmax formulas</p>
+        </div>
+      </div>
+      <span class="info-tag">Karvonen & Tanaka Models</span>
+    </div>
+
+    <form (ngSubmit)="calculateZones()" class="zones-form">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="age">Athlete Age</label>
+          <input
+            id="age"
+            type="number"
+            [ngModel]="age()"
+            (ngModelChange)="age.set($event ? +$event : undefined)"
+            name="age"
+            min="10"
+            max="120"
+            placeholder="e.g. 30"
+            class="glass-input"
+          />
+          <span class="field-hint">Used for Tanaka formula (208 - 0.7 × Age)</span>
+        </div>
+
+        <div class="form-group">
+          <label for="restingHr">Resting Heart Rate (bpm)</label>
+          <input
+            id="restingHr"
+            type="number"
+            [ngModel]="restingHr()"
+            (ngModelChange)="restingHr.set($event ? +$event : undefined)"
+            name="restingHr"
+            min="30"
+            max="120"
+            placeholder="e.g. 60"
+            class="glass-input"
+          />
+          <span class="field-hint">Enables precise Karvonen HRR method</span>
+        </div>
+
+        <div class="form-group">
+          <label for="maxHr">Measured Max HR (bpm)</label>
+          <input
+            id="maxHr"
+            type="number"
+            [ngModel]="maxHr()"
+            (ngModelChange)="maxHr.set($event ? +$event : undefined)"
+            name="maxHr"
+            min="100"
+            max="230"
+            placeholder="Optional (Auto-calculated)"
+            class="glass-input"
+          />
+          <span class="field-hint">Leave blank to auto-calculate from age</span>
+        </div>
+
+        <div class="form-group action-group">
+          <button
+            type="submit"
+            class="btn-gradient"
+            [disabled]="isLoading()"
+          >
+            @if (isLoading()) {
+              Calculating...
+            } @else {
+              Calculate Zones
+            }
+          </button>
+        </div>
+      </div>
+
+      @if (error()) {
+        <div class="error-banner">{{ error() }}</div>
+      }
+    </form>
+  </div>
+
+  @if (zonesData(); as data) {
+    <!-- Method & Heart Rate Reserve Banner -->
+    <div class="method-banner">
+      <div class="method-info">
+        <span class="method-chip">{{ data.methodDisplayName || data.method }}</span>
+        <p class="method-desc">{{ data.methodDescription }}</p>
+      </div>
+
+      <div class="method-stats">
+        <div class="method-stat">
+          <span class="stat-label">Max HR</span>
+          <span class="stat-val font-mono">{{ data.maxHr }} <small>bpm</small></span>
+        </div>
+        @if (data.restingHr) {
+          <div class="method-stat">
+            <span class="stat-label">Resting HR</span>
+            <span class="stat-val font-mono">{{ data.restingHr }} <small>bpm</small></span>
+          </div>
+        }
+        @if (data.heartRateReserve) {
+          <div class="method-stat">
+            <span class="stat-label">Heart Rate Reserve</span>
+            <span class="stat-val font-mono cyan">{{ data.heartRateReserve }} <small>bpm</small></span>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- 5 Cardio Zones Cards Grid -->
+    <div class="zones-grid">
+      @for (zone of data.zones; track zone.zone) {
+        <div
+          class="zone-card"
+          [class]="getZoneColorClass(zone.zone)"
+          [class.selected]="selectedZone()?.zone === zone.zone"
+          (click)="selectZone(zone)"
+        >
+          <div class="zone-card-header">
+            <span class="zone-title">{{ zone.displayName || zone.zone }}</span>
+            <span class="zone-pct">{{ zone.minPercentage | number:'1.0-0' }}% – {{ zone.maxPercentage | number:'1.0-0' }}%</span>
+          </div>
+
+          <div class="zone-bpm-range">
+            <span class="bpm-number">{{ zone.minBpm }} – {{ zone.maxBpm }}</span>
+            <span class="bpm-unit">BPM</span>
+          </div>
+
+          <p class="zone-summary">{{ zone.description }}</p>
+
+          <div class="zone-select-indicator">
+            @if (selectedZone()?.zone === zone.zone) {
+              <span>Selected for Details ✓</span>
+            } @else {
+              <span>Click for Prescription ➔</span>
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Selected Zone Detailed Prescription Card -->
+    @if (selectedZone(); as sz) {
+      <div class="glass-card detail-card" [class]="getZoneColorClass(sz.zone)">
+        <div class="card-header">
+          <div class="header-title">
+            <span class="header-icon">🎯</span>
+            <div>
+              <h4>{{ sz.displayName || sz.zone }} — Training Prescription & Adaptation</h4>
+              <p class="header-subtitle">Target Intensity: {{ sz.minPercentage | number:'1.0-0' }}% – {{ sz.maxPercentage | number:'1.0-0' }}% ({{ sz.minBpm }} – {{ sz.maxBpm }} BPM)</p>
+            </div>
+          </div>
+          <span class="info-tag font-mono">{{ sz.minBpm }} – {{ sz.maxBpm }} BPM</span>
+        </div>
+
+        <div class="detail-grid">
+          <div class="detail-box">
+            <h5>Physiological Focus</h5>
+            <p>{{ sz.description }}</p>
+          </div>
+
+          <div class="detail-box benefit-box">
+            <h5>Training Adaptations & Benefits</h5>
+            <p>{{ sz.trainingBenefit }}</p>
+          </div>
+        </div>
+      </div>
+    }
+  }
+</div>

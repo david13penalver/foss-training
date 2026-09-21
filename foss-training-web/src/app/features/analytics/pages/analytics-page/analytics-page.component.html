@@ -2,7 +2,7 @@
   <header class="page-header">
     <div class="header-main">
       <h1 class="page-title">Analytics & Records</h1>
-      <p class="page-subtitle">Sports science calculators, load projections, and workout performance tracking</p>
+      <p class="page-subtitle">Sports science calculators, workload ratios, hypertrophy balance, and performance tracking</p>
     </div>
 
     <div class="tab-switcher">
@@ -24,14 +24,66 @@
         <span class="tab-icon">🏆</span>
         Personal Records
       </button>
+      <button
+        type="button"
+        class="tab-btn"
+        [class.active]="activeTab() === 'acwr'"
+        (click)="setTab('acwr')"
+      >
+        <span class="tab-icon">⚖️</span>
+        ACWR Ratio
+      </button>
+      <button
+        type="button"
+        class="tab-btn"
+        [class.active]="activeTab() === 'muscle-volume'"
+        (click)="setTab('muscle-volume')"
+      >
+        <span class="tab-icon">💪</span>
+        Muscle Volume
+      </button>
+      <button
+        type="button"
+        class="tab-btn"
+        [class.active]="activeTab() === 'progression'"
+        (click)="setTab('progression')"
+      >
+        <span class="tab-icon">📈</span>
+        Progression
+      </button>
+      <button
+        type="button"
+        class="tab-btn"
+        [class.active]="activeTab() === 'cardio-zones'"
+        (click)="setTab('cardio-zones')"
+      >
+        <span class="tab-icon">❤️</span>
+        Cardio Zones
+      </button>
     </div>
   </header>
 
   <main class="page-content">
-    @if (activeTab() === '1rm') {
-      <app-one-rep-max-calculator />
-    } @else {
-      <app-personal-records-dashboard />
+    @switch (activeTab()) {
+      @case ('1rm') {
+        <app-one-rep-max-calculator />
+      }
+      @case ('records') {
+        <app-personal-records-dashboard />
+      }
+      @case ('acwr') {
+        <app-acwr-gauge />
+      }
+      @case ('muscle-volume') {
+        <app-muscle-volume-breakdown />
+      }
+      @case ('progression') {
+        <app-exercise-progression-chart />
+      }
+      @case ('cardio-zones') {
+        <app-heart-rate-zones-calculator />
+      }
     }
   </main>
 </div>
+

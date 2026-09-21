@@ -1,0 +1,254 @@
+<div class="muscle-volume-container">
+  <!-- Controls & Header -->
+  <div class="glass-card controls-card">
+    <div class="card-header">
+      <div class="header-title">
+        <span class="header-icon">💪</span>
+        <div>
+          <h3>Weekly Muscle Group Volume & Hypertrophy Balance</h3>
+          <p class="header-subtitle">Direct vs. indirect sets tracking, hypertrophy landmarks (MEV, MAV, MRV), and push/pull balance</p>
+        </div>
+      </div>
+      <span class="info-tag">Schoenfeld & Israetel Models</span>
+    </div>
+
+    <form (ngSubmit)="loadVolume()" class="filter-form">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="startDate">Start Date</label>
+          <input
+            id="startDate"
+            type="date"
+            [ngModel]="startDate()"
+            (ngModelChange)="startDate.set($event)"
+            name="startDate"
+            required
+            class="glass-input"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="endDate">End Date</label>
+          <input
+            id="endDate"
+            type="date"
+            [ngModel]="endDate()"
+            (ngModelChange)="endDate.set($event)"
+            name="endDate"
+            required
+            class="glass-input"
+          />
+        </div>
+
+        <button
+          type="submit"
+          class="btn-gradient"
+          [disabled]="isLoading()"
+        >
+          @if (isLoading()) {
+            Calculating...
+          } @else {
+            Analyze Volume
+          }
+        </button>
+      </div>
+
+      @if (error()) {
+        <div class="error-banner">{{ error() }}</div>
+      }
+    </form>
+  </div>
+
+  @if (volumeData(); as data) {
+    <!-- Overall Volume Metrics Grid -->
+    <div class="metrics-grid">
+      <!-- Total Working Sets -->
+      <div class="glass-card metric-card">
+        <div class="metric-header">
+          <span class="metric-label">Total Working Sets</span>
+          <span class="metric-badge sets-badge">Weekly Load</span>
+        </div>
+        <div class="metric-value">
+          <span class="value-number">{{ data.totalWorkingSets || 0 }}</span>
+          <span class="value-unit">sets</span>
+        </div>
+        <div class="metric-footer">
+          <span>Across all muscle groups</span>
+        </div>
+      </div>
+
+      <!-- Total Tonnage Volume -->
+      <div class="glass-card metric-card">
+        <div class="metric-header">
+          <span class="metric-label">Total Volume Load</span>
+          <span class="metric-badge volume-badge">Tonnage</span>
+        </div>
+        <div class="metric-value">
+          <span class="value-number">{{ (data.totalVolumeKg || 0) | number:'1.0-0' }}</span>
+          <span class="value-unit">kg</span>
+        </div>
+        <div class="metric-footer">
+          <span>Cumulative weight lifted</span>
+        </div>
+      </div>
+
+      <!-- Push / Pull Ratio -->
+      <div class="glass-card metric-card">
+        <div class="metric-header">
+          <span class="metric-label">Push / Pull Balance</span>
+          <span class="metric-badge ratio-badge">Agonist/Antagonist</span>
+        </div>
+        <div class="metric-value">
+          <span class="value-number">{{ data.pushPullRatio ? (data.pushPullRatio | number:'1.2-2') : '—' }}</span>
+          <span class="value-unit">ratio</span>
+        </div>
+        <div class="metric-footer">
+          <span>Target range: 0.9 – 1.2</span>
+        </div>
+      </div>
+
+      <!-- Upper / Lower Ratio -->
+      <div class="glass-card metric-card">
+        <div class="metric-header">
+          <span class="metric-label">Upper / Lower Balance</span>
+          <span class="metric-badge ratio-badge">Distribution</span>
+        </div>
+        <div class="metric-value">
+          <span class="value-number">{{ data.upperLowerRatio ? (data.upperLowerRatio | number:'1.2-2') : '—' }}</span>
+          <span class="value-unit">ratio</span>
+        </div>
+        <div class="metric-footer">
+          <span>Target range: 1.0 – 1.5</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Category Volumes Summary -->
+    @if (getCategoryVolumes().length > 0) {
+      <div class="glass-card category-summary-card">
+        <h4>Volume by Anatomical Division</h4>
+        <div class="category-pills">
+          @for (cat of getCategoryVolumes(); track cat.category) {
+            <div class="category-pill">
+              <span class="cat-name">{{ cat.category }}</span>
+              <span class="cat-sets">{{ cat.sets | number:'1.1-1' }} effective sets</span>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Muscle Groups Breakdown -->
+    <div class="glass-card breakdown-card">
+      <div class="card-header">
+        <div class="header-title">
+          <span class="header-icon">📊</span>
+          <h4>Muscle Group Volume Landmarks</h4>
+        </div>
+
+        <div class="filter-pills">
+          <button
+            type="button"
+            class="filter-btn"
+            [class.active]="categoryFilter() === 'ALL'"
+            (click)="setCategoryFilter('ALL')"
+          >All</button>
+          <button
+            type="button"
+            class="filter-btn"
+            [class.active]="categoryFilter() === 'UPPER_BODY'"
+            (click)="setCategoryFilter('UPPER_BODY')"
+          >Upper Body</button>
+          <button
+            type="button"
+            class="filter-btn"
+            [class.active]="categoryFilter() === 'LOWER_BODY'"
+            (click)="setCategoryFilter('LOWER_BODY')"
+          >Lower Body</button>
+          <button
+            type="button"
+            class="filter-btn"
+            [class.active]="categoryFilter() === 'CORE'"
+            (click)="setCategoryFilter('CORE')"
+          >Core</button>
+        </div>
+      </div>
+
+      <div class="muscle-grid">
+        @for (muscle of filteredMuscleVolumes(); track (muscle.muscleGroup || muscle.muscleGroupName)) {
+          <div class="muscle-item-card" [class]="getStatusClass(muscle.status)">
+            <div class="muscle-card-header">
+              <div>
+                <h5>{{ muscle.muscleGroupName || muscle.muscleGroup }}</h5>
+                <span class="category-tag">{{ muscle.category }}</span>
+              </div>
+              <span class="status-badge">{{ muscle.statusDisplayName || muscle.status }}</span>
+            </div>
+
+            <div class="sets-breakdown">
+              <div class="set-stat">
+                <span class="stat-label">Effective</span>
+                <span class="stat-val effective-val">{{ muscle.effectiveSets | number:'1.1-1' }}</span>
+              </div>
+              <div class="set-stat">
+                <span class="stat-label">Direct</span>
+                <span class="stat-val">{{ muscle.directSets || 0 }}</span>
+              </div>
+              <div class="set-stat">
+                <span class="stat-label">Indirect (0.5×)</span>
+                <span class="stat-val">{{ muscle.indirectSets || 0 }}</span>
+              </div>
+              <div class="set-stat">
+                <span class="stat-label">Tonnage</span>
+                <span class="stat-val">{{ (muscle.totalVolumeKg || 0) | number:'1.0-0' }} kg</span>
+              </div>
+            </div>
+
+            <!-- Volume Progress Bar -->
+            <div class="volume-bar-wrapper">
+              <div class="volume-bar-track">
+                <div class="zone-marker mev-marker" title="Minimum Effective Volume (10 sets)"></div>
+                <div class="zone-marker mrv-marker" title="Maximum Recoverable Volume (20 sets)"></div>
+                <div
+                  class="volume-bar-fill"
+                  [style.width.%]="getProgressWidth(muscle.effectiveSets)"
+                ></div>
+              </div>
+              <div class="volume-bar-labels">
+                <span>0</span>
+                <span>10 (MEV)</span>
+                <span>20 (MRV)</span>
+                <span>25+</span>
+              </div>
+            </div>
+
+            @if (muscle.statusDescription) {
+              <p class="status-desc">{{ muscle.statusDescription }}</p>
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Recommendations & Alerts Card -->
+    @if (data.recommendations && data.recommendations.length > 0) {
+      <div class="glass-card coaching-card">
+        <div class="card-header">
+          <div class="header-title">
+            <span class="header-icon">🎯</span>
+            <h4>Evidence-Based Coaching Recommendations</h4>
+          </div>
+        </div>
+
+        <div class="recommendations-list">
+          @for (rec of data.recommendations; track rec) {
+            <div class="rec-item">
+              <span class="rec-bullet">💡</span>
+              <span class="rec-text">{{ rec }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  }
+</div>

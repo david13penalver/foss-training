@@ -128,5 +128,17 @@ export interface CalculateHeartRateZonesParams {
   age?: number;
 }
 
+// Athlete & Anthropometric Models
+export type BodyweightEntry = Schemas['BodyweightResponse'];
+export type BodyweightRequest = Schemas['BodyweightRequest'];
+export type RelativeStrengthRequest = Schemas['RelativeStrengthRequest'];
+export type RelativeStrengthResponse = Schemas['RelativeStrengthResponse'];
+export type AthleteGender = 'MALE' | 'FEMALE';
+
+// Data Sovereignty & Portability Models
+export type FullBackupData = Schemas['FullBackupData'];
+export type ImportSummary = Schemas['ImportSummary'];
+
 // Re-export full OpenAPI spec types
 export type { components, paths, operations };
+

@@ -25,5 +25,9 @@ export const routes: Routes = [
   {
     path: 'analytics',
     loadChildren: () => import('./features/analytics/analytics.routes')
+  },
+  {
+    path: 'profile',
+    loadChildren: () => import('./features/profile/profile.routes')
   }
 ];

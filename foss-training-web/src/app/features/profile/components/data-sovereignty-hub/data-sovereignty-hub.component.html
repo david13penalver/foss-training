@@ -1,0 +1,127 @@
+<div class="sovereignty-layout">
+  <!-- Ethos Banner -->
+  <div class="ethos-banner">
+    <div class="banner-icon">🛡️</div>
+    <div class="banner-body">
+      <h2 class="banner-title">FOSS Ethos: Complete Data Sovereignty</h2>
+      <p class="banner-subtitle">
+        Your fitness journeys, training logs, exercise catalogs, and personal records belong entirely to you.
+        Export all data anytime in standardized formats (JSON & CSV) with zero proprietary lock-in.
+      </p>
+    </div>
+  </div>
+
+  @if (successMessage()) {
+    <div class="alert-banner success">{{ successMessage() }}</div>
+  }
+  @if (errorMessage()) {
+    <div class="alert-banner error">{{ errorMessage() }}</div>
+  }
+
+  <!-- Restore Breakdown Summary -->
+  @if (importSummary(); as summary) {
+    <div class="summary-card">
+      <h3 class="summary-title">Restore Summary</h3>
+      <div class="summary-chips">
+        <div class="chip"><strong>{{ summary.exercisesImported }}</strong> Exercises</div>
+        <div class="chip"><strong>{{ summary.sessionsImported }}</strong> Sessions</div>
+        <div class="chip"><strong>{{ summary.programsImported }}</strong> Programs</div>
+        <div class="chip"><strong>{{ summary.trainingsImported }}</strong> Workouts</div>
+        <div class="chip"><strong>{{ summary.bodyweightImported }}</strong> Bodyweight Logs</div>
+      </div>
+    </div>
+  }
+
+  <!-- Main Grid: Export & Import Cards -->
+  <div class="portability-grid">
+    <!-- Export Section -->
+    <div class="glass-card">
+      <div class="card-header">
+        <h3 class="card-title">📦 Data Export</h3>
+        <p class="card-subtitle">Download your entire training history or raw workout logs.</p>
+      </div>
+
+      <div class="export-actions">
+        <div class="action-item">
+          <div class="action-info">
+            <span class="action-name">Full Database Backup (JSON)</span>
+            <span class="action-desc">Comprehensive database snapshot containing exercises, sessions, programs, workouts, and bodyweight history.</span>
+          </div>
+          <button
+            type="button"
+            class="action-btn primary"
+            [disabled]="isExporting()"
+            (click)="downloadBackup()"
+          >
+            Download JSON
+          </button>
+        </div>
+
+        <div class="action-divider"></div>
+
+        <div class="action-item">
+          <div class="action-info">
+            <span class="action-name">Workout Execution Logs (CSV)</span>
+            <span class="action-desc">Tabular CSV export of all completed exercises, sets, weights, repetitions, and RPE for spreadsheet analysis.</span>
+          </div>
+          <button
+            type="button"
+            class="action-btn secondary"
+            [disabled]="isExporting()"
+            (click)="downloadWorkoutsCsv()"
+          >
+            Export CSV
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Import Section -->
+    <div class="glass-card">
+      <div class="card-header">
+        <h3 class="card-title">📥 Data Restore & Migration</h3>
+        <p class="card-subtitle">Restore your database from an existing backup or import workout logs.</p>
+      </div>
+
+      <div class="import-actions">
+        <!-- JSON Restore -->
+        <div class="action-item">
+          <div class="action-info">
+            <span class="action-name">Restore from JSON Backup</span>
+            <span class="action-desc">Upload a previously exported <code>.json</code> snapshot to restore exercises, sessions, and history.</span>
+          </div>
+          <label class="file-upload-btn primary" [class.disabled]="isImporting()">
+            <span>Choose JSON File</span>
+            <input
+              type="file"
+              accept=".json,application/json"
+              [disabled]="isImporting()"
+              (change)="onJsonFileSelected($event)"
+              class="hidden-file-input"
+            />
+          </label>
+        </div>
+
+        <div class="action-divider"></div>
+
+        <!-- CSV Import -->
+        <div class="action-item">
+          <div class="action-info">
+            <span class="action-name">Import Workouts from CSV</span>
+            <span class="action-desc">Bulk import historical workout sessions and logged sets from a CSV file.</span>
+          </div>
+          <label class="file-upload-btn secondary" [class.disabled]="isImporting()">
+            <span>Choose CSV File</span>
+            <input
+              type="file"
+              accept=".csv,text/csv,text/plain"
+              [disabled]="isImporting()"
+              (change)="onCsvFileSelected($event)"
+              class="hidden-file-input"
+            />
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,54 @@
+<div class="page-container">
+  <header class="page-header">
+    <div class="header-main">
+      <h1 class="page-title">Athlete Profile & Portability</h1>
+      <p class="page-subtitle">Bodyweight analytics, powerlifting relative strength scoring, and data sovereignty</p>
+    </div>
+
+    <div class="tab-switcher">
+      <button
+        type="button"
+        class="tab-btn"
+        [class.active]="activeTab() === 'bodyweight'"
+        (click)="setTab('bodyweight')"
+      >
+        <span class="tab-icon">⚖️</span>
+        Bodyweight Tracker
+      </button>
+
+      <button
+        type="button"
+        class="tab-btn"
+        [class.active]="activeTab() === 'relative-strength'"
+        (click)="setTab('relative-strength')"
+      >
+        <span class="tab-icon">🏋️</span>
+        Relative Strength
+      </button>
+
+      <button
+        type="button"
+        class="tab-btn"
+        [class.active]="activeTab() === 'data-sovereignty'"
+        (click)="setTab('data-sovereignty')"
+      >
+        <span class="tab-icon">🛡️</span>
+        Data Sovereignty
+      </button>
+    </div>
+  </header>
+
+  <main class="page-content">
+    @switch (activeTab()) {
+      @case ('bodyweight') {
+        <app-bodyweight-tracker />
+      }
+      @case ('relative-strength') {
+        <app-relative-strength-calculator />
+      }
+      @case ('data-sovereignty') {
+        <app-data-sovereignty-hub />
+      }
+    }
+  </main>
+</div>

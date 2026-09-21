@@ -21,6 +21,7 @@ export class NavBarComponent {
     { label: 'Sessions', path: '/sessions', icon: '📋' },
     { label: 'Trainings', path: '/trainings', icon: '⚡' },
     { label: 'Programs', path: '/programs', icon: '🗓️' },
-    { label: 'Analytics', path: '/analytics', icon: '📊' }
+    { label: 'Analytics', path: '/analytics', icon: '📊' },
+    { label: 'Profile', path: '/profile', icon: '👤' }
   ];
 }

@@ -88,4 +88,34 @@ public class ExerciseDtoMapper {
                 .hasPrevious(pagedResult.hasPrevious())
                 .build();
     }
+
+    public Exercise toDomain(ExerciseResponseDto dto) {
+        if (dto == null) {
+            return null;
+        }
+        Exercise exercise = new Exercise();
+        exercise.setId(dto.getId());
+        exercise.setName(dto.getName());
+        exercise.setDescription(dto.getDescription());
+        exercise.setImages(dto.getImages());
+        exercise.setVideo(dto.getVideo());
+        exercise.setPrimaryCategory(dto.getPrimaryCategory());
+        exercise.setSecondaryCategories(dto.getSecondaryCategories());
+        exercise.setResistanceMetrics(dto.getResistanceMetrics());
+        exercise.setEnduranceMetrics(dto.getEnduranceMetrics());
+        exercise.setMobilityMetrics(dto.getMobilityMetrics());
+        exercise.setEquipmentRequired(dto.getEquipmentRequired());
+        exercise.setDifficultyLevel(dto.getDifficultyLevel());
+        exercise.setStepByStepInstructions(dto.getStepByStepInstructions());
+        exercise.setCommonMistakes(dto.getCommonMistakes());
+        exercise.setSafetyTips(dto.getSafetyTips());
+        exercise.setAlternativeExercises(dto.getAlternativeExercises());
+        exercise.setCreatedBy(dto.getCreatedBy());
+        exercise.setCreatedAt(dto.getCreatedAt());
+        exercise.setUpdatedAt(dto.getUpdatedAt());
+        exercise.setActive(dto.isActive());
+        exercise.setTags(dto.getTags());
+        return exercise;
+    }
 }
+

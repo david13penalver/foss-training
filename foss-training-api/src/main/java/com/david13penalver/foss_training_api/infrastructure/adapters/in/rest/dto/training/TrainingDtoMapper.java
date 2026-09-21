@@ -194,4 +194,28 @@ public class TrainingDtoMapper {
                 .hasPrevious(pagedResult.hasPrevious())
                 .build();
     }
+
+    public Training toDomain(TrainingResponseDto dto) {
+        if (dto == null) {
+            return null;
+        }
+        Training training = new Training();
+        training.setId(dto.getId());
+        training.setName(dto.getName());
+        training.setDescription(dto.getDescription());
+        if (dto.getSession() != null) {
+            training.setSession(sessionDtoMapper.toDomain(dto.getSession()));
+        }
+        training.setTrainingDate(dto.getTrainingDate());
+        training.setStartTime(dto.getStartTime());
+        training.setEndTime(dto.getEndTime());
+        training.setStatus(dto.getStatus() != null ? dto.getStatus() : TrainingStatusEnum.PLANNED);
+        training.setNotes(dto.getNotes());
+        if (dto.getRpe() != null && dto.getRpe().getValue() != null) {
+            training.setRpe(new Rpe(dto.getRpe().getValue()));
+        }
+        training.setProgramId(dto.getProgramId());
+        return training;
+    }
 }
+

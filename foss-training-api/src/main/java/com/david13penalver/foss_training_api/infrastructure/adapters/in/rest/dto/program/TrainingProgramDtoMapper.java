@@ -146,4 +146,35 @@ public class TrainingProgramDtoMapper {
                 .onTime(item.isOnTime())
                 .build();
     }
+
+    public TrainingProgram toDomain(TrainingProgramResponseDto dto) {
+        if (dto == null) {
+            return null;
+        }
+        TrainingProgram program = new TrainingProgram();
+        program.setId(dto.getId());
+        program.setName(dto.getName());
+        program.setDescription(dto.getDescription());
+        program.setDurationWeeks(dto.getDurationWeeks());
+        program.setPeriodizationType(dto.getPeriodizationType());
+        program.setLevel(dto.getLevel());
+        program.setIsActive(dto.getIsActive() != null ? dto.getIsActive() : true);
+        if (dto.getWorkouts() != null) {
+            List<ProgramWorkout> workouts = new ArrayList<>();
+            for (ProgramWorkoutResponseDto wDto : dto.getWorkouts()) {
+                if (wDto != null) {
+                    ProgramWorkout workout = new ProgramWorkout();
+                    workout.setDayOfWeek(wDto.getDayOfWeek());
+                    workout.setFocus(wDto.getFocus());
+                    if (wDto.getSession() != null) {
+                        workout.setSession(sessionDtoMapper.toDomain(wDto.getSession()));
+                    }
+                    workouts.add(workout);
+                }
+            }
+            program.setWorkouts(workouts);
+        }
+        return program;
+    }
 }
+

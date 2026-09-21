@@ -9,3 +9,5 @@ databaseChangeLog:
       file: db/changelog/changes/004-create-training-programs-table.yaml
   - include:
       file: db/changelog/changes/005-add-program-id-to-trainings.yaml
+  - include:
+      file: db/changelog/changes/006-create-bodyweight-table.yaml

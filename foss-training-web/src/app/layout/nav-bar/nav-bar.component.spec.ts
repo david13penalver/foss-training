@@ -26,10 +26,10 @@ describe('NavBarComponent', () => {
     expect(compiled.querySelector('.brand-title')?.textContent).toContain('FOSS Training');
   });
 
-  it('should render all 5 main tabs with correct router links', () => {
+  it('should render all 6 main tabs with correct router links', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     const links = compiled.querySelectorAll<HTMLAnchorElement>('.nav-tab');
-    expect(links.length).toBe(5);
+    expect(links.length).toBe(6);
 
     const tabTexts = Array.from(links).map(l => l.textContent?.trim());
 
@@ -38,5 +38,6 @@ describe('NavBarComponent', () => {
     expect(tabTexts.some(t => t?.includes('Trainings'))).toBe(true);
     expect(tabTexts.some(t => t?.includes('Programs'))).toBe(true);
     expect(tabTexts.some(t => t?.includes('Analytics'))).toBe(true);
+    expect(tabTexts.some(t => t?.includes('Profile'))).toBe(true);
   });
 });

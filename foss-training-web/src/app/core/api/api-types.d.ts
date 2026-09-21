@@ -332,6 +332,74 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/data/import/workouts.csv": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Import workout execution logs from CSV format */
+        post: operations["importWorkoutsCsv"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/data/import/backup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Restore database entities from full JSON backup snapshot */
+        post: operations["importBackup"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/athlete/relative-strength": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Calculate relative strength ratio, DOTS formula, and Wilks score */
+        post: operations["calculateRelativeStrength"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/athlete/bodyweight": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Log or update an athlete bodyweight measurement */
+        post: operations["logBodyweight"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/trainings/{id}/summary": {
         parameters: {
             query?: never;
@@ -686,6 +754,74 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/data/export/workouts.csv": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Export all workout logs and exercise sets as CSV */
+        get: operations["exportWorkoutsCsv"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/data/export/backup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Export complete database snapshot as JSON file */
+        get: operations["exportBackup"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/athlete/bodyweight/latest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get the most recent bodyweight measurement */
+        get: operations["getLatestBodyweight"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/athlete/bodyweight/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get historical bodyweight logs sorted chronologically */
+        get: operations["getBodyweightHistory"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/analytics/progression/{exerciseId}": {
         parameters: {
             query?: never;
@@ -816,6 +952,23 @@ export interface paths {
         put?: never;
         post?: never;
         delete: operations["deleteInterval"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/athlete/bodyweight/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete a bodyweight record by ID */
+        delete: operations["deleteBodyweight"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1456,6 +1609,196 @@ export interface components {
              * @example 12-Week Hypertrophy Mesocycle (Cycle 2)
              */
             name?: string;
+        };
+        /** @description Summary of restored records count */
+        ImportSummary: {
+            /**
+             * Format: int32
+             * @description Number of exercises restored
+             * @example 42
+             */
+            exercisesImported?: number;
+            /**
+             * Format: int32
+             * @description Number of sessions restored
+             * @example 8
+             */
+            sessionsImported?: number;
+            /**
+             * Format: int32
+             * @description Number of training programs restored
+             * @example 2
+             */
+            programsImported?: number;
+            /**
+             * Format: int32
+             * @description Number of workout trainings restored
+             * @example 15
+             */
+            trainingsImported?: number;
+            /**
+             * Format: int32
+             * @description Number of bodyweight records restored
+             * @example 30
+             */
+            bodyweightImported?: number;
+            /**
+             * Format: int32
+             * @description Total number of entities restored across all modules
+             * @example 97
+             */
+            totalImported?: number;
+        };
+        /** @description Logged bodyweight entry record */
+        BodyweightResponse: {
+            /**
+             * Format: int32
+             * @description Unique record ID
+             * @example 1
+             */
+            id?: number;
+            /**
+             * Format: date
+             * @description Date of measurement
+             * @example 2026-09-21
+             */
+            entryDate?: string;
+            /**
+             * Format: double
+             * @description Athlete weight in kilograms
+             * @example 82.5
+             */
+            weightKg?: number;
+            /**
+             * Format: double
+             * @description Body fat percentage estimate
+             * @example 14.2
+             */
+            bodyFatPercentage?: number;
+            /**
+             * @description Measurement context or notes
+             * @example Morning weigh-in
+             */
+            notes?: string;
+            /**
+             * Format: date-time
+             * @description Creation timestamp
+             */
+            createdAt?: string;
+        };
+        /** @description Complete database snapshot for FOSS data portability and backup migration */
+        FullBackupData: {
+            /**
+             * @description Backup export format version
+             * @example 1.0
+             */
+            exportVersion?: string;
+            /**
+             * Format: date-time
+             * @description Export creation timestamp
+             */
+            exportedAt?: string;
+            /** @description Exercise catalog snapshot */
+            exercises?: components["schemas"]["Exercise"][];
+            /** @description Workout session templates snapshot */
+            sessions?: components["schemas"]["Session"][];
+            /** @description Training programs snapshot */
+            programs?: components["schemas"]["TrainingProgramResponse"][];
+            /** @description Executed and planned workouts snapshot */
+            trainings?: components["schemas"]["Training"][];
+            /** @description Athlete bodyweight tracking entries snapshot */
+            bodyweightEntries?: components["schemas"]["BodyweightResponse"][];
+        };
+        /** @description Relative strength score calculation input */
+        RelativeStrengthRequest: {
+            /**
+             * Format: double
+             * @description Total lifted weight or 1RM in kilograms
+             * @example 500
+             */
+            totalWeightKg: number;
+            /**
+             * Format: double
+             * @description Athlete bodyweight in kilograms
+             * @example 80
+             */
+            bodyweightKg: number;
+            /**
+             * @description Athlete biological sex for coefficient formulas
+             * @example MALE
+             * @enum {string}
+             */
+            gender?: "MALE" | "FEMALE";
+        };
+        /** @description Calculated relative strength scores, DOTS and Wilks points */
+        RelativeStrengthResponse: {
+            /**
+             * Format: double
+             * @description Total weight lifted in kg
+             * @example 500
+             */
+            totalWeightKg?: number;
+            /**
+             * Format: double
+             * @description Athlete bodyweight in kg
+             * @example 80
+             */
+            bodyweightKg?: number;
+            /**
+             * @description Athlete gender
+             * @example MALE
+             * @enum {string}
+             */
+            gender?: "MALE" | "FEMALE";
+            /**
+             * Format: double
+             * @description Bodyweight ratio (total / bodyweight)
+             * @example 6.25
+             */
+            ratio?: number;
+            /**
+             * Format: double
+             * @description DOTS formula score
+             * @example 356.18
+             */
+            dots?: number;
+            /**
+             * Format: double
+             * @description Wilks formula score
+             * @example 342.91
+             */
+            wilks?: number;
+            /**
+             * @description Powerlifting strength tier classification
+             * @example Proficient
+             */
+            classification?: string;
+        };
+        /** @description Bodyweight logging request payload */
+        BodyweightRequest: {
+            /**
+             * Format: date
+             * @description Date of the bodyweight measurement
+             * @example 2026-09-21
+             */
+            entryDate: string;
+            /**
+             * Format: double
+             * @description Athlete weight in kilograms
+             * @example 82.5
+             */
+            weightKg: number;
+            /**
+             * Format: double
+             * @description Optional body fat percentage estimate
+             * @example 14.2
+             */
+            bodyFatPercentage?: number;
+            /**
+             * @description Optional measurement context or notes
+             * @example Morning weigh-in before breakfast
+             */
+            notes?: string;
         };
         /** @description Per-exercise volume and performance breakdown */
         WorkoutExerciseSummary: {
@@ -3246,6 +3589,104 @@ export interface operations {
             };
         };
     };
+    importWorkoutsCsv: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "text/csv": string;
+                "text/plain": string;
+                "*/*": string;
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ImportSummary"];
+                };
+            };
+        };
+    };
+    importBackup: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FullBackupData"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ImportSummary"];
+                };
+            };
+        };
+    };
+    calculateRelativeStrength: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RelativeStrengthRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RelativeStrengthResponse"];
+                };
+            };
+        };
+    };
+    logBodyweight: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BodyweightRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["BodyweightResponse"];
+                };
+            };
+        };
+    };
     getWorkoutSummary: {
         parameters: {
             query?: never;
@@ -3734,6 +4175,86 @@ export interface operations {
             };
         };
     };
+    exportWorkoutsCsv: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/csv": string;
+                };
+            };
+        };
+    };
+    exportBackup: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["FullBackupData"];
+                };
+            };
+        };
+    };
+    getLatestBodyweight: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["BodyweightResponse"];
+                };
+            };
+        };
+    };
+    getBodyweightHistory: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["BodyweightResponse"][];
+                };
+            };
+        };
+    };
     getProgression: {
         parameters: {
             query?: {
@@ -3917,6 +4438,26 @@ export interface operations {
                 content: {
                     "*/*": components["schemas"]["Training"];
                 };
+            };
+        };
+    };
+    deleteBodyweight: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

@@ -1,0 +1,43 @@
+databaseChangeLog:
+  - changeSet:
+      id: 006-create-bodyweight-table
+      author: david13penalver
+      changes:
+        - createTable:
+            tableName: bodyweight_entries
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: entry_date
+                  type: date
+                  constraints:
+                    nullable: false
+              - column:
+                  name: weight_kg
+                  type: double precision
+                  constraints:
+                    nullable: false
+              - column:
+                  name: body_fat_percentage
+                  type: double precision
+              - column:
+                  name: notes
+                  type: varchar(1000)
+              - column:
+                  name: created_at
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+        - createIndex:
+            indexName: idx_bodyweight_entry_date
+            tableName: bodyweight_entries
+            columns:
+              - column:
+                  name: entry_date

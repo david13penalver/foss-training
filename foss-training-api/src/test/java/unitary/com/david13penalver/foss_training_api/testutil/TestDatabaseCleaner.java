@@ -23,6 +23,7 @@ public class TestDatabaseCleaner {
     private final SpringDataTrainingProgramRepository programRepository;
     private final SpringDataSessionRepository sessionRepository;
     private final SpringDataExerciseRepository exerciseRepository;
+    private final com.david13penalver.foss_training_api.infrastructure.adapters.out.persistence.jpa.athlete.SpringDataBodyweightRepository bodyweightRepository;
 
     @Autowired
     private org.springframework.jdbc.core.JdbcTemplate jdbcTemplate;
@@ -45,12 +46,14 @@ public class TestDatabaseCleaner {
         programRepository.deleteAll();
         sessionRepository.deleteAll();
         exerciseRepository.deleteAll();
+        bodyweightRepository.deleteAll();
 
         if (jdbcTemplate != null) {
             jdbcTemplate.execute("ALTER TABLE trainings ALTER COLUMN id RESTART WITH 1");
             jdbcTemplate.execute("ALTER TABLE training_programs ALTER COLUMN id RESTART WITH 1");
             jdbcTemplate.execute("ALTER TABLE sessions ALTER COLUMN id RESTART WITH 1");
             jdbcTemplate.execute("ALTER TABLE exercises ALTER COLUMN id RESTART WITH 1");
+            jdbcTemplate.execute("ALTER TABLE bodyweight_entries ALTER COLUMN id RESTART WITH 1");
         }
 
         if (exerciseDao != null) exerciseDao.clear();

@@ -1,0 +1,177 @@
+<div class="tracker-layout">
+  <!-- Summary Cards -->
+  <section class="summary-section">
+    <div class="stat-card">
+      <span class="stat-label">Current Weight</span>
+      <div class="stat-value-group">
+        <span class="stat-number">{{ latestEntry()?.weightKg ?? '--' }}</span>
+        <span class="stat-unit">kg</span>
+      </div>
+      <span class="stat-date">{{ latestEntry()?.entryDate ? 'As of ' + latestEntry()?.entryDate : 'No weigh-ins recorded' }}</span>
+    </div>
+
+    <div class="stat-card">
+      <span class="stat-label">Recent Change</span>
+      <div class="stat-value-group">
+        @if (weightDelta() !== undefined) {
+          <span class="delta-badge" [class.positive]="weightDelta()! > 0" [class.negative]="weightDelta()! < 0">
+            {{ weightDelta()! > 0 ? '+' : '' }}{{ weightDelta() }} kg
+          </span>
+        } @else {
+          <span class="stat-number">--</span>
+        }
+      </div>
+      <span class="stat-date">Compared to previous entry</span>
+    </div>
+
+    <div class="stat-card">
+      <span class="stat-label">Body Fat %</span>
+      <div class="stat-value-group">
+        <span class="stat-number">{{ latestEntry()?.bodyFatPercentage ?? '--' }}</span>
+        <span class="stat-unit">%</span>
+      </div>
+      <span class="stat-date">Latest estimate</span>
+    </div>
+  </section>
+
+  <!-- Logging Form & History Grid -->
+  <div class="content-grid">
+    <!-- Log Form Card -->
+    <div class="glass-card form-card">
+      <h2 class="card-title">Log Weigh-in</h2>
+      <p class="card-subtitle">Track your weight and body composition progress over time.</p>
+
+      @if (errorMessage()) {
+        <div class="alert-banner error">{{ errorMessage() }}</div>
+      }
+
+      <form (ngSubmit)="logWeight()" class="tracker-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="entryDate" class="input-label">Date</label>
+            <input
+              id="entryDate"
+              type="date"
+              class="text-input"
+              [ngModel]="entryDate()"
+              (ngModelChange)="entryDate.set($event)"
+              name="entryDate"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="weightKg" class="input-label">Weight (kg) *</label>
+            <input
+              id="weightKg"
+              type="number"
+              step="0.1"
+              min="1"
+              placeholder="e.g. 80.5"
+              class="text-input"
+              [ngModel]="weightKg()"
+              (ngModelChange)="weightKg.set($event)"
+              name="weightKg"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="bodyFat" class="input-label">Body Fat % (optional)</label>
+            <input
+              id="bodyFat"
+              type="number"
+              step="0.1"
+              min="0"
+              max="60"
+              placeholder="e.g. 14.5"
+              class="text-input"
+              [ngModel]="bodyFatPercentage()"
+              (ngModelChange)="bodyFatPercentage.set($event)"
+              name="bodyFatPercentage"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="notes" class="input-label">Notes (optional)</label>
+            <input
+              id="notes"
+              type="text"
+              placeholder="e.g. Fasted morning weigh-in"
+              class="text-input"
+              [ngModel]="notes()"
+              (ngModelChange)="notes.set($event)"
+              name="notes"
+            />
+          </div>
+        </div>
+
+        <button type="submit" class="submit-btn" [disabled]="isSubmitting()">
+          @if (isSubmitting()) {
+            Logging...
+          } @else {
+            Log Weigh-In
+          }
+        </button>
+      </form>
+    </div>
+
+    <!-- History Table Card -->
+    <div class="glass-card history-card">
+      <div class="history-header">
+        <h2 class="card-title">History Logs</h2>
+        <span class="count-badge">{{ entries().length }} entries</span>
+      </div>
+
+      @if (entries().length === 0) {
+        <div class="empty-state">
+          <p>No bodyweight logs recorded yet. Log your first measurement above!</p>
+        </div>
+      } @else {
+        <div class="table-container">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Weight</th>
+                <th>Body Fat</th>
+                <th>Notes</th>
+                <th class="action-col">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (entry of entries(); track entry.id) {
+                <tr>
+                  <td class="date-cell">{{ entry.entryDate }}</td>
+                  <td class="weight-cell">
+                    <strong>{{ entry.weightKg }}</strong> kg
+                  </td>
+                  <td>
+                    @if (entry.bodyFatPercentage) {
+                      <span class="bf-tag">{{ entry.bodyFatPercentage }}%</span>
+                    } @else {
+                      <span class="muted-dash">--</span>
+                    }
+                  </td>
+                  <td class="notes-cell">{{ entry.notes || '--' }}</td>
+                  <td class="action-col">
+                    <button
+                      type="button"
+                      class="delete-btn"
+                      title="Delete measurement"
+                      (click)="deleteEntry(entry.id)"
+                    >
+                      ✕
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  </div>
+</div>

@@ -1,0 +1,155 @@
+<div class="calculator-layout">
+  <!-- Input Form Card -->
+  <div class="glass-card form-card">
+    <div class="card-header">
+      <h2 class="card-title">Powerlifting Relative Strength</h2>
+      <p class="card-subtitle">
+        Calculate DOTS, Wilks, and Bodyweight strength ratio to evaluate pound-for-pound performance normalized across body mass.
+      </p>
+    </div>
+
+    @if (errorMessage()) {
+      <div class="alert-banner error">{{ errorMessage() }}</div>
+    }
+
+    <form (ngSubmit)="calculate()" class="calc-form">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="totalWeight" class="input-label">Total Weight Lifted (kg) *</label>
+          <input
+            id="totalWeight"
+            type="number"
+            step="0.5"
+            min="1"
+            placeholder="e.g. 500 (Squat + Bench + Deadlift or 1RM)"
+            class="text-input"
+            [ngModel]="totalWeightKg()"
+            (ngModelChange)="totalWeightKg.set($event)"
+            name="totalWeightKg"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <div class="label-with-action">
+            <label for="calcBodyweight" class="input-label">Athlete Bodyweight (kg) *</label>
+            @if (latestWeight()) {
+              <button type="button" class="link-btn" (click)="useLatestBodyweight()">
+                Use latest ({{ latestWeight() }}kg)
+              </button>
+            }
+          </div>
+          <input
+            id="calcBodyweight"
+            type="number"
+            step="0.1"
+            min="1"
+            placeholder="e.g. 80.0"
+            class="text-input"
+            [ngModel]="bodyweightKg()"
+            (ngModelChange)="bodyweightKg.set($event)"
+            name="bodyweightKg"
+            required
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="input-label">Biological Sex (for coefficient formulas)</label>
+        <div class="gender-toggle">
+          <button
+            type="button"
+            class="toggle-btn"
+            [class.active]="gender() === 'MALE'"
+            (click)="gender.set('MALE')"
+          >
+            Male
+          </button>
+          <button
+            type="button"
+            class="toggle-btn"
+            [class.active]="gender() === 'FEMALE'"
+            (click)="gender.set('FEMALE')"
+          >
+            Female
+          </button>
+        </div>
+      </div>
+
+      <button type="submit" class="submit-btn" [disabled]="isLoading()">
+        @if (isLoading()) {
+          Computing...
+        } @else {
+          Calculate Relative Strength
+        }
+      </button>
+    </form>
+  </div>
+
+  <!-- Results Section -->
+  @if (result(); as res) {
+    <div class="results-grid">
+      <!-- Strength Ratio -->
+      <div class="metric-card">
+        <span class="metric-title">Bodyweight Ratio</span>
+        <div class="metric-value-row">
+          <span class="metric-value">{{ res.ratio }}</span>
+          <span class="metric-unit">x BW</span>
+        </div>
+        <span class="metric-desc">Total mass moved divided by athlete weight</span>
+      </div>
+
+      <!-- DOTS Points -->
+      <div class="metric-card highlight">
+        <span class="metric-title">DOTS Score</span>
+        <div class="metric-value-row">
+          <span class="metric-value">{{ res.dots }}</span>
+          <span class="metric-unit">points</span>
+        </div>
+        <span class="metric-desc">Official IPF powerlifting standard formula</span>
+      </div>
+
+      <!-- Wilks Points -->
+      <div class="metric-card">
+        <span class="metric-title">Wilks Score</span>
+        <div class="metric-value-row">
+          <span class="metric-value">{{ res.wilks }}</span>
+          <span class="metric-unit">points</span>
+        </div>
+        <span class="metric-desc">Traditional comparative strength coefficient</span>
+      </div>
+
+      <!-- Strength Tier Badge -->
+      <div class="metric-card tier-card">
+        <span class="metric-title">Classification Tier</span>
+        <div class="tier-badge-container">
+          <span class="tier-badge" [attr.data-tier]="res.classification">
+            {{ res.classification }}
+          </span>
+        </div>
+        <span class="metric-desc">Normalized strength proficiency tier</span>
+      </div>
+    </div>
+  }
+
+  <!-- Sports Science Reference Card -->
+  <div class="glass-card info-card">
+    <h3 class="info-title">About Strength Scoring</h3>
+    <div class="info-columns">
+      <div class="info-col">
+        <h4>DOTS Formula</h4>
+        <p>
+          The DOTS formula is the modern international powerlifting standard for comparing lifters of different bodyweights.
+          It uses a 4th-degree polynomial to balance biological scaling advantages between lighter and heavier athletes.
+        </p>
+      </div>
+      <div class="info-col">
+        <h4>Wilks Formula</h4>
+        <p>
+          The classic Wilks coefficient relies on a 5th-degree polynomial. While historically ubiquitous, DOTS provides better
+          fairness at the extreme weight classes.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

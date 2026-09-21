@@ -288,4 +288,33 @@ public class SessionDtoMapper {
         }
         return sessions.stream().map(this::toResponseDto).toList();
     }
+
+    public Session toDomain(SessionResponseDto dto) {
+        if (dto == null) {
+            return null;
+        }
+        Session session = new Session();
+        session.setId(dto.getId());
+        session.setName(dto.getName());
+        session.setDescription(dto.getDescription());
+        session.setSessionStatus(dto.getSessionStatus());
+        session.setStartTime(dto.getStartTime());
+        session.setEndTime(dto.getEndTime());
+        session.setNotes(dto.getNotes());
+        if (dto.getRpe() != null && dto.getRpe().getValue() != null) {
+            session.setRpe(new Rpe(dto.getRpe().getValue()));
+        }
+        if (dto.getSessionExercises() != null) {
+            List<SessionExercise> exercises = new ArrayList<>();
+            for (SessionExerciseDto exerciseDto : dto.getSessionExercises()) {
+                SessionExercise entity = toExerciseEntity(exerciseDto);
+                if (entity != null) {
+                    exercises.add(entity);
+                }
+            }
+            session.setSessionExercises(exercises);
+        }
+        return session;
+    }
 }
+

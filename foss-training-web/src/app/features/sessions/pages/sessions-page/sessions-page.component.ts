@@ -69,7 +69,16 @@ export class SessionsPageComponent {
         (item.description && item.description.toLowerCase().includes(query)) ||
         (item.sessionExercises?.some(se => se.exercise?.name?.toLowerCase().includes(query)));
 
-      const matchesStatus = st === 'ALL' || item.sessionStatus === st;
+      const statusStr = (item.sessionStatus as string)?.toUpperCase();
+      const matchesStatus =
+        st === 'ALL' ||
+        item.sessionStatus === st ||
+        statusStr === st.toUpperCase() ||
+        (st === 'Planned' && statusStr === 'PLANNED') ||
+        (st === 'Draft' && statusStr === 'DRAFT') ||
+        (st === 'Ready to Start' && (statusStr === 'READY' || statusStr === 'READY_TO_START')) ||
+        (st === 'In Progress' && statusStr === 'IN_PROGRESS') ||
+        (st === 'Completed' && statusStr === 'COMPLETED');
 
       return matchesSearch && matchesStatus;
     });

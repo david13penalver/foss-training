@@ -64,13 +64,9 @@ public final class AppEnvironment {
         ])
 
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: inMemory)
-        do {
-            let container = try ModelContainer(for: schema, configurations: [config])
-            self.modelContainer = container
-            self.modelContext = container.mainContext
-        } catch {
-            fatalError("Failed to initialize SwiftData ModelContainer: \(error)")
-        }
+        let container = try! ModelContainer(for: schema, configurations: [config])
+        self.modelContainer = container
+        self.modelContext = container.mainContext
 
         let savedTier = UserDefaults.standard.string(forKey: Keys.tierMode) ?? AppTierMode.local.rawValue
         let currentMode = AppTierMode(rawValue: savedTier) ?? .local

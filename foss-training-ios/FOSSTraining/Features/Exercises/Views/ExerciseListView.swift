@@ -1,10 +1,14 @@
 import SwiftUI
 
 public struct ExerciseListView: View {
+    private let exerciseRepository: ExerciseRepository
     @Environment(\.theme) private var theme
     @State private var viewModel: ExerciseListViewModel
+    @State private var isPresentingCreateSheet: Bool = false
+    @State private var exerciseToEdit: Exercise? = nil
 
     public init(exerciseRepository: ExerciseRepository) {
+        self.exerciseRepository = exerciseRepository
         self._viewModel = State(initialValue: ExerciseListViewModel(exerciseRepository: exerciseRepository))
     }
 
@@ -57,6 +61,21 @@ public struct ExerciseListView: View {
                                 ExerciseRow(exercise: exercise)
                             }
                             .listRowBackground(theme.surfaceStyle.cardBackgroundColor)
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) {
+                                    Task { await viewModel.deleteExercise(id: exercise.id) }
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
+                            }
+                            .swipeActions(edge: .leading) {
+                                Button {
+                                    exerciseToEdit = exercise
+                                } label: {
+                                    Label("Edit", systemImage: "pencil")
+                                }
+                                .tint(theme.selectedAccent.color)
+                            }
                         }
                     }
                     .scrollContentBackground(.hidden)
@@ -65,9 +84,30 @@ public struct ExerciseListView: View {
             }
             .background(theme.surfaceStyle.backgroundColor)
             .navigationTitle("Exercises")
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    Button {
+                        isPresentingCreateSheet = true
+                    } label: {
+                        Image(systemName: "plus")
+                            .fontWeight(.bold)
+                    }
+                    .tint(theme.selectedAccent.color)
+                }
+            }
             .searchable(text: $viewModel.searchText, prompt: "Search exercise or muscle...")
             .onChange(of: viewModel.searchText) { _, _ in
                 Task { await viewModel.loadExercises() }
+            }
+            .sheet(isPresented: $isPresentingCreateSheet) {
+                ExerciseEditorSheet(exerciseRepository: exerciseRepository) {
+                    Task { await viewModel.loadExercises() }
+                }
+            }
+            .sheet(item: $exerciseToEdit) { ex in
+                ExerciseEditorSheet(exerciseRepository: exerciseRepository, exerciseToEdit: ex) {
+                    Task { await viewModel.loadExercises() }
+                }
             }
             .task {
                 await viewModel.loadExercises()

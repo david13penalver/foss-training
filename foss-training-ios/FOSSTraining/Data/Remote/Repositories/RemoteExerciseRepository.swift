@@ -14,7 +14,7 @@ public final class RemoteExerciseRepository: ExerciseRepository, @unchecked Send
             queryItems.append("category=\(category.rawValue)")
         }
         if let search = search, !search.isEmpty {
-            queryItems.append("search=\(search.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? search)")
+            queryItems.append("search=\(search.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!)")
         }
         if !queryItems.isEmpty {
             endpoint += "?" + queryItems.joined(separator: "&")
@@ -33,7 +33,7 @@ public final class RemoteExerciseRepository: ExerciseRepository, @unchecked Send
 
     public func saveExercise(_ exercise: Exercise) async throws -> Exercise {
         if exercise.id > 0 {
-            return try await client.post(endpoint: "/api/exercises/\(exercise.id)", body: exercise)
+            return try await client.put(endpoint: "/api/exercises/\(exercise.id)", body: exercise)
         } else {
             return try await client.post(endpoint: "/api/exercises", body: exercise)
         }

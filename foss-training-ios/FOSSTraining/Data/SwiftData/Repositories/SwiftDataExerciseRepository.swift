@@ -24,7 +24,12 @@ public final class SwiftDataExerciseRepository: ExerciseRepository {
 
         if let search = search, !search.trimmingCharacters(in: .whitespaces).isEmpty {
             let lower = search.lowercased()
-            filtered = filtered.filter { $0.name.lowercased().contains(lower) || $0.tags.contains { $0.lowercased().contains(lower) } }
+            filtered = filtered.filter { exercise in
+                exercise.name.lowercased().contains(lower) ||
+                (exercise.primaryMuscleGroup?.lowercased().contains(lower) ?? false) ||
+                exercise.secondaryMuscleGroups.contains { $0.lowercased().contains(lower) } ||
+                exercise.tags.contains { $0.lowercased().contains(lower) }
+            }
         }
 
         return filtered

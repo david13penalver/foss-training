@@ -3,7 +3,7 @@ import SwiftData
 
 @main
 struct FOSSTrainingApp: App {
-    private static var isRunningTests: Bool {
+    static var isRunningTests: Bool {
         NSClassFromString("XCTestCase") != nil ||
         ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
     }
@@ -24,12 +24,16 @@ struct FOSSTrainingApp: App {
         }
     }
 
-    private var colorScheme: ColorScheme? {
-        switch themeManager.surfaceStyle {
+    static func colorScheme(for style: SurfaceStyle) -> ColorScheme? {
+        switch style {
         case .oledBlack, .charcoal:
             return .dark
         case .systemAdaptive:
             return nil
         }
+    }
+
+    private var colorScheme: ColorScheme? {
+        Self.colorScheme(for: themeManager.surfaceStyle)
     }
 }

@@ -77,4 +77,47 @@ public struct Exercise: Identifiable, Codable, Hashable, Sendable {
         self.createdAt = createdAt
         self.updatedAt = updatedAt
     }
+
+    public func validate() throws(ExerciseValidationError) {
+        if name.trimmingCharacters(in: .whitespacesAndNewlines).count < 2 {
+            throw .nameTooShort
+        }
+
+        switch primaryCategory {
+        case .resistance:
+            if movementPattern == nil {
+                throw .missingMovementPattern
+            }
+        case .endurance:
+            if enduranceType == nil || enduranceType?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == true {
+                throw .missingEnduranceType
+            }
+        case .mobility:
+            let hasMobilityType = mobilityType != nil && !mobilityType!.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            let hasTargetJoints = !targetJoints.isEmpty
+            if !hasMobilityType && !hasTargetJoints {
+                throw .missingMobilityDetails
+            }
+        }
+    }
+}
+
+public enum ExerciseValidationError: LocalizedError, Equatable, Sendable {
+    case nameTooShort
+    case missingMovementPattern
+    case missingEnduranceType
+    case missingMobilityDetails
+
+    public var errorDescription: String? {
+        switch self {
+        case .nameTooShort:
+            return "Exercise name must be at least 2 characters long."
+        case .missingMovementPattern:
+            return "Resistance exercises require a movement pattern."
+        case .missingEnduranceType:
+            return "Endurance exercises require an endurance type."
+        case .missingMobilityDetails:
+            return "Mobility exercises require target joints or a mobility type."
+        }
+    }
 }

@@ -33,8 +33,8 @@ public enum AcwrRiskZone: String, CaseIterable, Identifiable, Codable, Sendable 
 public enum WorkloadRatioCalculator {
     public static func computeACWR(trainings: [Training], targetDate: Date = Date()) -> Double {
         let calendar = Calendar.current
-        let acuteCutoff = calendar.date(byAdding: .day, value: -7, to: targetDate) ?? targetDate
-        let chronicCutoff = calendar.date(byAdding: .day, value: -28, to: targetDate) ?? targetDate
+        let acuteCutoff = calendar.date(byAdding: .day, value: -7, to: targetDate)!
+        let chronicCutoff = calendar.date(byAdding: .day, value: -28, to: targetDate)!
 
         var acuteLoad = 0.0
         var chronicLoad = 0.0

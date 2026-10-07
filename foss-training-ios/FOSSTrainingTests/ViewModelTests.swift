@@ -79,4 +79,60 @@ struct ViewModelTests {
         #expect(vm.training.status == .completed)
         #expect(vm.training.overallRpe == 9.0)
     }
+
+    @Test("ExerciseListViewModel: delete exercise")
+    func testExerciseListViewModelDelete() async throws {
+        let container = try createTestContainer()
+        let repo = SwiftDataExerciseRepository(modelContext: container.mainContext)
+
+        _ = try await repo.saveExercise(Exercise(id: 10, name: "Leg Press", primaryCategory: .resistance))
+        let vm = ExerciseListViewModel(exerciseRepository: repo)
+        await vm.loadExercises()
+        #expect(vm.exercises.count == 1)
+
+        await vm.deleteExercise(id: 10)
+        #expect(vm.exercises.isEmpty)
+
+        let reloaded = try await repo.getExercises(category: nil, search: nil)
+        #expect(reloaded.isEmpty)
+    }
+
+    @Test("ExerciseEditorViewModel: create valid exercise")
+    func testExerciseEditorViewModelCreateValid() async throws {
+        let container = try createTestContainer()
+        let repo = SwiftDataExerciseRepository(modelContext: container.mainContext)
+
+        let vm = ExerciseEditorViewModel(exerciseRepository: repo)
+        vm.name = "Incline Dumbbell Press"
+        vm.primaryCategory = .resistance
+        vm.movementPattern = .push
+        vm.primaryMuscleGroup = "Upper Chest"
+        vm.newInstructionText = "Set bench to 30 degrees"
+        vm.addInstruction()
+
+        let success = await vm.save()
+        #expect(success == true)
+        #expect(vm.errorMessage == nil)
+
+        let saved = try await repo.getExercises(category: .resistance, search: "Incline")
+        #expect(saved.count == 1)
+        #expect(saved.first?.name == "Incline Dumbbell Press")
+        #expect(saved.first?.stepByStepInstructions.count == 1)
+    }
+
+    @Test("ExerciseEditorViewModel: validation failure on empty name")
+    func testExerciseEditorViewModelValidationFailure() async throws {
+        let container = try createTestContainer()
+        let repo = SwiftDataExerciseRepository(modelContext: container.mainContext)
+
+        let vm = ExerciseEditorViewModel(exerciseRepository: repo)
+        vm.name = ""
+        vm.primaryCategory = .resistance
+        vm.movementPattern = .push
+
+        let success = await vm.save()
+        #expect(success == false)
+        #expect(vm.errorMessage != nil)
+    }
 }
+

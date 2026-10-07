@@ -45,12 +45,17 @@ public final class SwiftDataSessionRepository: SessionRepository {
         }
     }
 
+    public func sessionExists(id: Int) async throws -> Bool {
+        let descriptor = FetchDescriptor<SDSession>(predicate: #Predicate<SDSession> { $0.id == id })
+        return try modelContext.fetchCount(descriptor) > 0
+    }
+
     public func cloneSession(id: Int) async throws -> Session {
         guard let original = try await getSession(id: id) else {
             throw NSError(domain: "FOSSTraining", code: 404, userInfo: [NSLocalizedDescriptionKey: "Session not found"])
         }
         let allSessions = try await getSessions()
-        let nextId = (allSessions.map(\.id).max() ?? 0) + 1
+        let nextId = (allSessions.map(\.id).max()!) + 1
         let cloned = original
         let clonedSession = Session(
             id: nextId,

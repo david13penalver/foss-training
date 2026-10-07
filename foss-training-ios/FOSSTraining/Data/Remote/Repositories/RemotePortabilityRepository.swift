@@ -24,9 +24,7 @@ public final class RemotePortabilityRepository: DataPortabilityRepository, @unch
     }
 
     public func exportWorkoutsCSV() async throws -> String {
-        guard let url = URL(string: "http://localhost:8080/api/data/export/workouts.csv") else {
-            throw APIError.invalidURL
-        }
+        let url = URL(string: "http://localhost:8080/api/data/export/workouts.csv")!
         let (data, _) = try await URLSession.shared.data(from: url)
         return String(data: data, encoding: .utf8) ?? ""
     }

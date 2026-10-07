@@ -13,6 +13,13 @@ public protocol SessionRepository: Sendable {
     func saveSession(_ session: Session) async throws -> Session
     func deleteSession(id: Int) async throws
     func cloneSession(id: Int) async throws -> Session
+    func sessionExists(id: Int) async throws -> Bool
+}
+
+public extension SessionRepository {
+    func sessionExists(id: Int) async throws -> Bool {
+        try await getSession(id: id) != nil
+    }
 }
 
 public protocol TrainingRepository: Sendable {

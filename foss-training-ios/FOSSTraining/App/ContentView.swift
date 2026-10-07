@@ -17,7 +17,8 @@ public struct ContentView: View {
 
             SessionListView(
                 sessionRepository: appEnvironment.sessionRepository,
-                trainingRepository: appEnvironment.trainingRepository
+                trainingRepository: appEnvironment.trainingRepository,
+                exerciseRepository: appEnvironment.exerciseRepository
             )
             .tabItem {
                 Label("Templates", systemImage: "list.bullet.rectangle.portrait.fill")

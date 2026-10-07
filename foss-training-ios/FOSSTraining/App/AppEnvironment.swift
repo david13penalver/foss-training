@@ -64,13 +64,9 @@ public final class AppEnvironment {
         ])
 
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: inMemory)
-        do {
-            let container = try ModelContainer(for: schema, configurations: [config])
-            self.modelContainer = container
-            self.modelContext = container.mainContext
-        } catch {
-            fatalError("Failed to initialize SwiftData ModelContainer: \(error)")
-        }
+        let container = try! ModelContainer(for: schema, configurations: [config])
+        self.modelContainer = container
+        self.modelContext = container.mainContext
 
         let savedTier = UserDefaults.standard.string(forKey: Keys.tierMode) ?? AppTierMode.local.rawValue
         let currentMode = AppTierMode(rawValue: savedTier) ?? .local
@@ -90,7 +86,7 @@ public final class AppEnvironment {
 
         if currentMode == .premium {
             self.exerciseRepository = RemoteExerciseRepository(client: networkClient)
-            self.sessionRepository = localSes // Can be swapped when backend template CRUD is used
+            self.sessionRepository = RemoteSessionRepository(client: networkClient)
             self.trainingRepository = RemoteTrainingRepository(client: networkClient)
             self.athleteRepository = localAth
             self.dataPortabilityRepository = RemotePortabilityRepository(client: networkClient)
@@ -109,7 +105,7 @@ public final class AppEnvironment {
     private func updateRepositories() {
         if tierMode == .premium {
             self.exerciseRepository = RemoteExerciseRepository(client: networkClient)
-            self.sessionRepository = SwiftDataSessionRepository(modelContext: modelContext)
+            self.sessionRepository = RemoteSessionRepository(client: networkClient)
             self.trainingRepository = RemoteTrainingRepository(client: networkClient)
             self.athleteRepository = SwiftDataAthleteRepository(modelContext: modelContext)
             self.dataPortabilityRepository = RemotePortabilityRepository(client: networkClient)

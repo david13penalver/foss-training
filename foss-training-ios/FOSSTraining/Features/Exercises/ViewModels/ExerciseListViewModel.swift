@@ -34,4 +34,13 @@ public final class ExerciseListViewModel {
         }
         await loadExercises()
     }
+
+    public func deleteExercise(id: Int) async {
+        do {
+            try await exerciseRepository.deleteExercise(id: id)
+            exercises.removeAll { $0.id == id }
+        } catch {
+            self.errorMessage = error.localizedDescription
+        }
+    }
 }

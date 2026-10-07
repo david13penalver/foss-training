@@ -26,7 +26,16 @@ struct PortabilityTests {
         let portabilityRepo = SwiftDataPortabilityRepository(modelContext: container.mainContext)
         let exerciseRepo = SwiftDataExerciseRepository(modelContext: container.mainContext)
 
+        let sessionRepo = SwiftDataSessionRepository(modelContext: container.mainContext)
+        let trainingRepo = SwiftDataTrainingRepository(modelContext: container.mainContext)
+        let athleteRepo = SwiftDataAthleteRepository(modelContext: container.mainContext)
+
         _ = try await exerciseRepo.saveExercise(Exercise(id: 99, name: "Overhead Press", primaryCategory: .resistance))
+        _ = try await sessionRepo.saveSession(Session(id: 1, name: "Shoulders", exercises: []))
+        let tr = Training(id: 1, name: "Shoulder Workout", status: .completed)
+        container.mainContext.insert(SDTraining.fromDomain(tr))
+        _ = try await athleteRepo.logBodyweight(entry: BodyweightEntry(id: 1, weightKg: 80.0, measuredDate: Date()))
+        try container.mainContext.save()
 
         let exportPayload = try await portabilityRepo.exportFullBackup()
         #expect(exportPayload.exportVersion == "1.0")

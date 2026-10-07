@@ -57,6 +57,33 @@ public struct SessionExerciseItem: Identifiable, Codable, Hashable, Sendable {
         self.restSeconds = restSeconds
         self.sets = sets
     }
+
+    public var totalVolumeKg: Double {
+        sets.reduce(0.0) { $0 + $1.volumeKg }
+    }
+}
+
+public enum SessionValidationError: LocalizedError, Equatable, Sendable {
+    case nameTooShort
+    case nameTooLong
+    case invalidDuration
+    case noExercises
+    case missingSets(exerciseName: String)
+
+    public var errorDescription: String? {
+        switch self {
+        case .nameTooShort:
+            return "Session name must be at least 2 characters."
+        case .nameTooLong:
+            return "Session name must be at most 100 characters."
+        case .invalidDuration:
+            return "Estimated duration must be greater than zero."
+        case .noExercises:
+            return "Session must contain at least one exercise."
+        case .missingSets(let exerciseName):
+            return "Exercise '\(exerciseName)' must contain at least one set."
+        }
+    }
 }
 
 public struct Session: Identifiable, Codable, Hashable, Sendable {
@@ -81,5 +108,42 @@ public struct Session: Identifiable, Codable, Hashable, Sendable {
         self.notes = notes
         self.estimatedDurationMinutes = estimatedDurationMinutes
         self.exercises = exercises
+    }
+
+    public func validate() throws(SessionValidationError) {
+        let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmedName.count < 2 {
+            throw .nameTooShort
+        }
+        if trimmedName.count > 100 {
+            throw .nameTooLong
+        }
+        if let duration = estimatedDurationMinutes, duration <= 0 {
+            throw .invalidDuration
+        }
+        if exercises.isEmpty {
+            throw .noExercises
+        }
+        for ex in exercises {
+            if ex.sets.isEmpty {
+                throw .missingSets(exerciseName: ex.exerciseName)
+            }
+        }
+    }
+
+    public var warmUpExercises: [SessionExerciseItem] {
+        exercises.filter { $0.part == .warmUp }.sorted { $0.orderIndex < $1.orderIndex }
+    }
+
+    public var mainExercises: [SessionExerciseItem] {
+        exercises.filter { $0.part == .main }.sorted { $0.orderIndex < $1.orderIndex }
+    }
+
+    public var coolDownExercises: [SessionExerciseItem] {
+        exercises.filter { $0.part == .coolDown }.sorted { $0.orderIndex < $1.orderIndex }
+    }
+
+    public var totalSetsCount: Int {
+        exercises.reduce(0) { $0 + $1.sets.count }
     }
 }

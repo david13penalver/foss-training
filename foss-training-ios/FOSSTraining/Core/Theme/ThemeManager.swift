@@ -28,7 +28,7 @@ public final class ThemeManager: @unchecked Sendable {
         }
     }
 
-    private init() {
+    init() {
         let savedAccent = UserDefaults.standard.string(forKey: Keys.accentColor) ?? AppAccentColor.volt.rawValue
         self.selectedAccent = AppAccentColor(rawValue: savedAccent) ?? .volt
 

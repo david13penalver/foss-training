@@ -5,7 +5,7 @@ import SwiftData
 public enum ExerciseCatalogSeed {
     public static func seedInitialDataIfNeeded(context: ModelContext) {
         let descriptor = FetchDescriptor<SDExercise>()
-        let count = (try? context.fetchCount(descriptor)) ?? 0
+        let count = try! context.fetchCount(descriptor)
         guard count == 0 else { return }
 
         let defaultExercises: [Exercise] = [

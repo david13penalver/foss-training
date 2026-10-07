@@ -8,7 +8,9 @@ Monorepo containing backend REST API, frontend SPA, and local infrastructure:
 foss-training/
 ├── foss-training-api/   — Backend REST API (Spring Boot, JDK 26, PostgreSQL, Liquibase)
 ├── foss-training-web/   — Frontend SPA (Angular 22, TypeScript, Vitest, Tailwind/CSS)
+├── foss-training-ios/   — Native iOS app (Swift 6, SwiftUI, SwiftData, Swift Testing)
 ├── docker-compose.yml   — Local PostgreSQL 17 database service
+├── .agents/             — Multi-platform skills, specialized subagents, and persistent memory
 └── AGENTS.md            — Agent architectural guide and developer conventions
 ```
 
@@ -19,6 +21,7 @@ foss-training/
 ### Prerequisites & Runtimes
 - **Java 26 (JDK 26)**: Managed via `mise` (located at `~/.local/share/mise/installs/java/26.0.2`). When running Maven commands, always prefix with `JAVA_HOME=$(mise where java)` or `mise exec --`.
 - **Node.js / npm**: Node 20+, npm 11.
+- **Swift 6 / Xcode**: Target iOS 26+ (on macOS with Xcode 16+ / XcodeGen).
 - **Docker**: For running PostgreSQL locally.
 
 ### Backend (`foss-training-api/`)
@@ -52,6 +55,15 @@ npm start                       # ng serve -> http://localhost:4200
 
 # Regenerate API TypeScript types from OpenAPI spec
 npm run codegen:api
+```
+
+### Mobile iOS (`foss-training-ios/`)
+
+```sh
+cd foss-training-ios
+
+# Run tests via xcodebuild (on macOS)
+xcodebuild -project FOSSTraining.xcodeproj -scheme FOSSTraining -destination 'generic/platform=iOS Simulator' test
 ```
 
 ### Infrastructure (Docker)
@@ -107,6 +119,43 @@ foss-training-api/src/main/java/com/david13penalver/foss_training_api/
   - `/analytics`: Volume tracking, personal record milestones, and 1RM calculators.
 - **UI Design System**: Dark-themed, glassmorphic UI with translucent panels, responsive modals, animated status badges, and accessible form controls.
 - **Testing**: Unit and integration testing powered by Vitest and `@angular/build` using jsdom.
+
+---
+
+## iOS Native Architecture (`foss-training-ios`)
+
+- **Swift 6 & Strict Concurrency**: Configured with `SWIFT_STRICT_CONCURRENCY: complete`, targeting iOS 26+. ViewModels are isolated to `@MainActor`, and data crossing actor boundaries conforms to `Sendable`.
+- **Architecture**: MVVM + Hexagonal Ports & Adapters.
+  - **Domain Layer**: Pure Swift with zero framework dependencies (no SwiftUI, no SwiftData).
+  - **Ports (Protocols)**: `ExerciseRepository`, `SessionRepository`, `TrainingRepository`, `AthleteRepository`, `DataPortabilityRepository`.
+  - **Adapters**: Local-first `SwiftData*Repository` (on-device `ModelContext`) and `Remote*Repository` (Spring Boot REST API).
+- **Theming Invariant**: Theme settings (accent color, OLED Pure Black, surface style) must be stored in `UserDefaults` / `@AppStorage` via `ThemeManager`, never in SwiftData (ensures zero theme flash on launch).
+- **Testing**: Modern Swift Testing (`import Testing`, `@Suite`, `@Test`, `#expect`) with hermetic in-memory SwiftData containers (`ModelConfiguration(isStoredInMemoryOnly: true)`).
+
+---
+
+## Agent Ecosystem (`.agents/`)
+
+The `.agents/` directory provides specialized subagents, procedural skills, and persistent memory configured specifically for FOSS Training:
+
+### Specialized Subagents (`.agents/subagents/`)
+- `orchestrator`: Cross-platform feature coordinator across Backend, Web, and iOS.
+- `planner`: Technical specification and task planner (`plan.md`, `tasks.md`).
+- `backend_architect`: Java 26, Spring Boot, Hexagonal Architecture, JPA, Liquibase, OpenAPI.
+- `frontend_angular_specialist`: Angular 22, Signals, Tailwind glassmorphic UI, Vitest.
+- `ios_tdd_architect`: Swift 6, SwiftUI, SwiftData, Swift Testing, strict concurrency.
+- `sports_science_domain_agent`: 1RM calculations, ACWR, DOTS/Wilks, mathematical parity.
+- `reviewer`: Multi-platform quality, architectural boundary, and test gatekeeper.
+
+### Specialized Skills (`.agents/skills/`)
+- `spring-boot-hexagonal`: Spring Boot + Java 26 hexagonal patterns and testing rules.
+- `angular-best-practices`: Angular 22 standalone components, signals reactivity, and Vitest.
+- `swift-swiftui-best-practices`: Swift 6 concurrency, SwiftUI `@Observable`, SwiftData.
+- `sports-science-parity`: Canonical definitions and parity checks for 1RM, ACWR, and DOTS/Wilks.
+- `tdd-workflow`: Red-Green-Refactor workflows tailored for Java, Angular, and Swift.
+- `spec-generator`: Feature specification interview and EARS-compliant requirements generation.
+- `accessibility`: WCAG 2.2 web guidelines and iOS Dynamic Type / VoiceOver patterns.
+- `playwright-cli`: Web browser automation and E2E testing for Angular SPA.
 
 ---
 

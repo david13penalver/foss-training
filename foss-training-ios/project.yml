@@ -1,0 +1,46 @@
+name: FOSSTraining
+options:
+  bundleIdPrefix: com.david13penalver
+  createIntermediateGroups: true
+  xcodeVersion: "16.0"
+  defaultConfig: Debug
+
+settings:
+  base:
+    IPHONEOS_DEPLOYMENT_TARGET: "26.0"
+    SWIFT_VERSION: "6.0"
+    SWIFT_STRICT_CONCURRENCY: complete
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+
+targets:
+  FOSSTraining:
+    type: application
+    platform: iOS
+    deploymentTarget: "26.0"
+    sources:
+      - path: FOSSTraining
+    settings:
+      base:
+        PRODUCT_NAME: FOSSTraining
+        PRODUCT_BUNDLE_IDENTIFIER: com.david13penalver.fosstraining
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: FOSS Training
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: UIInterfaceOrientationPortrait
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+        SWIFT_EMIT_LOC_STRINGS: YES
+  FOSSTrainingTests:
+    type: bundle.unit-test
+    platform: iOS
+    deploymentTarget: "26.0"
+    sources:
+      - path: FOSSTrainingTests
+    dependencies:
+      - target: FOSSTraining
+    settings:
+      base:
+        PRODUCT_NAME: FOSSTrainingTests
+        PRODUCT_BUNDLE_IDENTIFIER: com.david13penalver.fosstraining.tests
+        GENERATE_INFOPLIST_FILE: YES
+        SWIFT_VERSION: "6.0"
+        SWIFT_STRICT_CONCURRENCY: complete

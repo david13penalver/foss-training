@@ -42,17 +42,20 @@ public final class AnalyticsViewModel {
                 for ex in tr.loggedExercises {
                     let exVol = ex.sets.filter(\.isCompleted).reduce(0.0) { $0 + $1.volumeKg }
                     let nameLower = ex.exerciseName.lowercased()
+                    let targetMuscle: String
                     if nameLower.contains("bench") || nameLower.contains("chest") || nameLower.contains("push") {
-                        volumeMap["Chest", default: 0] += exVol
+                        targetMuscle = "Chest"
                     } else if nameLower.contains("pull") || nameLower.contains("deadlift") || nameLower.contains("row") {
-                        volumeMap["Back", default: 0] += exVol
+                        targetMuscle = "Back"
                     } else if nameLower.contains("squat") || nameLower.contains("leg") {
-                        volumeMap["Legs", default: 0] += exVol
+                        targetMuscle = "Legs"
                     } else if nameLower.contains("press") || nameLower.contains("shoulder") {
-                        volumeMap["Shoulders", default: 0] += exVol
+                        targetMuscle = "Shoulders"
                     } else {
-                        volumeMap["Arms", default: 0] += exVol
+                        targetMuscle = "Arms"
                     }
+                    let current = volumeMap[targetMuscle]!
+                    volumeMap[targetMuscle] = current + exVol
                 }
             }
 

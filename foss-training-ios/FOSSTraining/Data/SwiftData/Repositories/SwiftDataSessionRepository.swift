@@ -50,7 +50,7 @@ public final class SwiftDataSessionRepository: SessionRepository {
             throw NSError(domain: "FOSSTraining", code: 404, userInfo: [NSLocalizedDescriptionKey: "Session not found"])
         }
         let allSessions = try await getSessions()
-        let nextId = (allSessions.map(\.id).max() ?? 0) + 1
+        let nextId = (allSessions.map(\.id).max()!) + 1
         let cloned = original
         let clonedSession = Session(
             id: nextId,

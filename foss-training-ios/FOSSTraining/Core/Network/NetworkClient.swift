@@ -69,6 +69,20 @@ public actor NetworkClient {
         return try await performRequest(request)
     }
 
+    public func put<B: Encodable, T: Decodable>(endpoint: String, body: B) async throws -> T {
+        guard let url = URL(string: "\(baseURLString)\(endpoint)") else {
+            throw APIError.invalidURL
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "PUT"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
+        request.httpBody = try jsonEncoder.encode(body)
+
+        return try await performRequest(request)
+    }
+
     public func postNoResponse<B: Encodable>(endpoint: String, body: B) async throws {
         guard let url = URL(string: "\(baseURLString)\(endpoint)") else {
             throw APIError.invalidURL
@@ -80,9 +94,11 @@ public actor NetworkClient {
         request.httpBody = try jsonEncoder.encode(body)
 
         let (_, response) = try await session.data(for: request)
-        guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
-            let statusCode = (response as? HTTPURLResponse)?.statusCode ?? 500
-            throw APIError.serverError(statusCode: statusCode, message: "Request failed")
+        guard let http = response as? HTTPURLResponse else {
+            throw APIError.networkError("Invalid HTTP response")
+        }
+        guard (200...299).contains(http.statusCode) else {
+            throw APIError.serverError(statusCode: http.statusCode, message: "Request failed")
         }
     }
 
@@ -107,9 +123,11 @@ public actor NetworkClient {
         request.httpMethod = "DELETE"
 
         let (_, response) = try await session.data(for: request)
-        guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
-            let statusCode = (response as? HTTPURLResponse)?.statusCode ?? 500
-            throw APIError.serverError(statusCode: statusCode, message: "DELETE failed")
+        guard let http = response as? HTTPURLResponse else {
+            throw APIError.networkError("Invalid HTTP response")
+        }
+        guard (200...299).contains(http.statusCode) else {
+            throw APIError.serverError(statusCode: http.statusCode, message: "DELETE failed")
         }
     }
 

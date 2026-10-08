@@ -49,6 +49,7 @@ public final class AppEnvironment {
     public private(set) var trainingRepository: TrainingRepository
     public private(set) var athleteRepository: AthleteRepository
     public private(set) var dataPortabilityRepository: DataPortabilityRepository
+    public private(set) var trainingProgramRepository: TrainingProgramRepository
 
     // Local Repositories for Migration Bridge
     public let localPortabilityRepository: SwiftDataPortabilityRepository
@@ -60,7 +61,9 @@ public final class AppEnvironment {
             SDSessionExercise.self,
             SDResistanceSet.self,
             SDTraining.self,
-            SDBodyweightEntry.self
+            SDBodyweightEntry.self,
+            SDTrainingProgram.self,
+            SDProgramWorkout.self
         ])
 
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: inMemory)
@@ -83,6 +86,7 @@ public final class AppEnvironment {
         let localSes = SwiftDataSessionRepository(modelContext: modelContext)
         let localTr = SwiftDataTrainingRepository(modelContext: modelContext)
         let localAth = SwiftDataAthleteRepository(modelContext: modelContext)
+        let localProg = SwiftDataTrainingProgramRepository(modelContext: modelContext)
 
         if currentMode == .premium {
             self.exerciseRepository = RemoteExerciseRepository(client: networkClient)
@@ -90,12 +94,14 @@ public final class AppEnvironment {
             self.trainingRepository = RemoteTrainingRepository(client: networkClient)
             self.athleteRepository = localAth
             self.dataPortabilityRepository = RemotePortabilityRepository(client: networkClient)
+            self.trainingProgramRepository = RemoteTrainingProgramRepository(client: networkClient)
         } else {
             self.exerciseRepository = localEx
             self.sessionRepository = localSes
             self.trainingRepository = localTr
             self.athleteRepository = localAth
             self.dataPortabilityRepository = localPortabilityRepository
+            self.trainingProgramRepository = localProg
         }
 
         // Seed initial data if needed
@@ -109,12 +115,14 @@ public final class AppEnvironment {
             self.trainingRepository = RemoteTrainingRepository(client: networkClient)
             self.athleteRepository = SwiftDataAthleteRepository(modelContext: modelContext)
             self.dataPortabilityRepository = RemotePortabilityRepository(client: networkClient)
+            self.trainingProgramRepository = RemoteTrainingProgramRepository(client: networkClient)
         } else {
             self.exerciseRepository = SwiftDataExerciseRepository(modelContext: modelContext)
             self.sessionRepository = SwiftDataSessionRepository(modelContext: modelContext)
             self.trainingRepository = SwiftDataTrainingRepository(modelContext: modelContext)
             self.athleteRepository = SwiftDataAthleteRepository(modelContext: modelContext)
             self.dataPortabilityRepository = localPortabilityRepository
+            self.trainingProgramRepository = SwiftDataTrainingProgramRepository(modelContext: modelContext)
         }
     }
 

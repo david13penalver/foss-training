@@ -24,6 +24,14 @@ public struct ContentView: View {
                 Label("Templates", systemImage: "list.bullet.rectangle.portrait.fill")
             }
 
+            ProgramsListView(
+                programRepository: appEnvironment.trainingProgramRepository,
+                sessionRepository: appEnvironment.sessionRepository
+            )
+            .tabItem {
+                Label("Programs", systemImage: "calendar.badge.clock")
+            }
+
             ExerciseListView(exerciseRepository: appEnvironment.exerciseRepository)
                 .tabItem {
                     Label("Exercises", systemImage: "dumbbell.fill")

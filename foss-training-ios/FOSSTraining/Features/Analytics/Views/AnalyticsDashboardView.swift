@@ -3,10 +3,22 @@ import Charts
 
 public struct AnalyticsDashboardView: View {
     @Environment(\.theme) private var theme
-    @State private var viewModel: AnalyticsViewModel
+    @State private var dashboardViewModel: AnalyticsDashboardViewModel
+    @State private var legacyViewModel: AnalyticsViewModel
+    private let analyticsRepository: AnalyticsRepository
 
-    public init(trainingRepository: TrainingRepository, athleteRepository: AthleteRepository) {
-        self._viewModel = State(initialValue: AnalyticsViewModel(
+    public init(
+        trainingRepository: TrainingRepository,
+        athleteRepository: AthleteRepository,
+        analyticsRepository: AnalyticsRepository,
+        exerciseRepository: ExerciseRepository
+    ) {
+        self.analyticsRepository = analyticsRepository
+        self._dashboardViewModel = State(initialValue: AnalyticsDashboardViewModel(
+            analyticsRepository: analyticsRepository,
+            exerciseRepository: exerciseRepository
+        ))
+        self._legacyViewModel = State(initialValue: AnalyticsViewModel(
             trainingRepository: trainingRepository,
             athleteRepository: athleteRepository
         ))
@@ -14,109 +26,283 @@ public struct AnalyticsDashboardView: View {
 
     public var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 20) {
-                    // ACWR Workload Ratio Card
-                    VStack(alignment: .leading, spacing: 12) {
-                        HStack {
-                            Text("Workload Ratio (ACWR)")
-                                .font(.headline)
-                            Spacer()
-                            Text("Optimal Zone")
-                                .themedBadge()
-                        }
-
-                        Gauge(value: viewModel.currentAcwrRatio, in: 0.5...2.0) {
-                            Text("ACWR")
-                        } currentValueLabel: {
-                            Text(String(format: "%.2f", viewModel.currentAcwrRatio))
-                                .font(.title3.monospacedDigit().weight(.bold))
-                        }
-                        .gaugeStyle(.accessoryLinearCapacity)
-                        .tint(Gradient(colors: [.green, theme.selectedAccent.color, .orange, .red]))
-
-                        Text("Acute (7-day) vs Chronic (28-day) workload ratio. Range between 0.8 and 1.3 optimizes fitness and minimizes injury risk.")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    .themedCard()
-
-                    // Muscle Group Volume Chart
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("Volume Load by Muscle Group")
-                            .font(.headline)
-
-                        if viewModel.muscleVolumes.allSatisfy({ $0.volumeKg == 0 }) {
-                            Text("Complete workouts to see your volume distribution across muscle groups.")
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                                .padding(.vertical, 20)
-                        } else {
-                            Chart(viewModel.muscleVolumes) { item in
-                                BarMark(
-                                    x: .value("Volume (kg)", item.volumeKg),
-                                    y: .value("Muscle", item.muscle)
-                                )
-                                .foregroundStyle(theme.selectedAccent.color)
-                                .cornerRadius(4)
+            VStack(spacing: 0) {
+                // Tab Selection Bar
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(AnalyticsTab.allCases) { tab in
+                            Button {
+                                dashboardViewModel.selectedTab = tab
+                            } label: {
+                                Text(tab.displayName)
+                                    .font(.subheadline.weight(dashboardViewModel.selectedTab == tab ? .bold : .medium))
+                                    .padding(.horizontal, 14)
+                                    .padding(.vertical, 8)
+                                    .background(
+                                        dashboardViewModel.selectedTab == tab
+                                            ? theme.selectedAccent.color
+                                            : theme.surfaceStyle.backgroundColor
+                                    )
+                                    .foregroundStyle(
+                                        dashboardViewModel.selectedTab == tab
+                                            ? theme.selectedAccent.badgeTextColor
+                                            : .primary
+                                    )
+                                    .clipShape(Capsule())
                             }
-                            .frame(height: 200)
+                            .buttonStyle(.plain)
                         }
                     }
-                    .themedCard()
-
-                    // Bodyweight Tracking Card
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("Athlete Bodyweight")
-                            .font(.headline)
-
-                        HStack {
-                            TextField("e.g. 78.5", text: $viewModel.newBodyweightString)
-                                .keyboardType(.decimalPad)
-                                .textFieldStyle(.roundedBorder)
-
-                            Button("Log kg") {
-                                Task { await viewModel.logCurrentBodyweight() }
-                            }
-                            .buttonStyle(.borderedProminent)
-                            .tint(theme.selectedAccent.color)
-                            .foregroundStyle(theme.selectedAccent.badgeTextColor)
-                        }
-
-                        if !viewModel.bodyweightHistory.isEmpty {
-                            VStack(alignment: .leading, spacing: 6) {
-                                ForEach(viewModel.bodyweightHistory.suffix(5).reversed()) { entry in
-                                    HStack {
-                                        Text(entry.measuredDate, style: .date)
-                                            .font(.caption)
-                                            .foregroundStyle(.secondary)
-                                        Spacer()
-                                        Text("\(String(format: "%.1f", entry.weightKg)) kg")
-                                            .font(.subheadline.monospacedDigit().weight(.semibold))
-                                    }
-                                }
-                            }
-                            .padding(.top, 4)
-                        }
-                    }
-                    .themedCard()
-
-                    // 1RM Estimator Card (Sports Science)
-                    OneRepMaxCalculatorCard()
-
-                    // Relative Strength Scoring Card (Powerlifting Wilks/DOTS)
-                    RelativeStrengthScoreCard()
+                    .padding(.horizontal)
+                    .padding(.vertical, 10)
                 }
-                .padding()
+                .background(theme.surfaceStyle.backgroundColor.opacity(0.5))
+
+                // Tab Content
+                ScrollView {
+                    VStack(spacing: 20) {
+                        if dashboardViewModel.isLoading {
+                            ProgressView("Loading sports analytics...")
+                                .padding(.vertical, 40)
+                        } else {
+                            switch dashboardViewModel.selectedTab {
+                            case .overview:
+                                overviewSection
+                            case .acwr:
+                                acwrSection
+                            case .hypertrophy:
+                                hypertrophySection
+                            case .progression:
+                                progressionSection
+                            case .records:
+                                recordsSection
+                            case .oneRepMax:
+                                OneRepMaxCalculatorView(analyticsRepository: analyticsRepository)
+                            }
+                        }
+                    }
+                    .padding()
+                }
             }
             .background(theme.surfaceStyle.backgroundColor)
             .navigationTitle("Analytics")
             .task {
-                await viewModel.loadAnalytics()
+                await dashboardViewModel.loadDashboard()
+                await legacyViewModel.loadAnalytics()
+            }
+            .refreshable {
+                await dashboardViewModel.loadDashboard()
+                await legacyViewModel.loadAnalytics()
             }
         }
     }
+
+    // MARK: - Sections
+
+    @ViewBuilder
+    private var overviewSection: some View {
+        if let acwr = dashboardViewModel.workloadRatio {
+            AcwrGaugeCard(workloadRatio: acwr)
+        }
+
+        if let volume = dashboardViewModel.weeklyMuscleVolume {
+            HypertrophyVolumeChart(weeklyVolume: volume)
+        }
+
+        if !dashboardViewModel.personalRecords.isEmpty {
+            PersonalRecordsCard(records: Array(dashboardViewModel.personalRecords.prefix(5)))
+        }
+
+        OneRepMaxCalculatorCard()
+        RelativeStrengthScoreCard()
+        bodyweightTrackingCard
+    }
+
+    @ViewBuilder
+    private var acwrSection: some View {
+        if let acwr = dashboardViewModel.workloadRatio {
+            AcwrGaugeCard(workloadRatio: acwr)
+
+            if !acwr.dailyWorkloads.isEmpty {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Daily Workload Breakdown (Last 28 Days)")
+                        .font(.headline)
+
+                    ForEach(acwr.dailyWorkloads.suffix(7).reversed()) { daily in
+                        HStack {
+                            Text(daily.date, format: .dateTime.month(.abbreviated).day())
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                            Spacer()
+                            Text("\(daily.completedSessions) session(s)")
+                                .font(.caption)
+                                .foregroundStyle(.tertiary)
+                            Text("\(Int(daily.workloadAu)) AU")
+                                .font(.subheadline.monospacedDigit().weight(.semibold))
+                                .foregroundStyle(theme.selectedAccent.color)
+                        }
+                        Divider()
+                    }
+                }
+                .themedCard()
+            }
+        } else {
+            emptySectionPlaceholder(title: "No ACWR Data", message: "Complete sessions to monitor your acute to chronic workload balance.")
+        }
+    }
+
+    @ViewBuilder
+    private var hypertrophySection: some View {
+        if let volume = dashboardViewModel.weeklyMuscleVolume {
+            HypertrophyVolumeChart(weeklyVolume: volume)
+
+            if !volume.recommendations.isEmpty {
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("Hypertrophy Recommendations")
+                        .font(.headline)
+
+                    ForEach(volume.recommendations, id: \.self) { rec in
+                        HStack(alignment: .top, spacing: 8) {
+                            Image(systemName: "lightbulb.fill")
+                                .foregroundStyle(.yellow)
+                                .font(.caption)
+                                .padding(.top, 2)
+                            Text(rec)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+                .themedCard()
+            }
+        } else {
+            emptySectionPlaceholder(title: "No Volume Data", message: "Log workout exercises to analyze hypertrophy set distribution.")
+        }
+    }
+
+    @ViewBuilder
+    private var progressionSection: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            // Exercise picker & Timeframe controls
+            HStack {
+                Menu {
+                    ForEach(dashboardViewModel.exercises) { ex in
+                        Button(ex.name) {
+                            Task {
+                                await dashboardViewModel.selectExerciseForProgression(ex)
+                            }
+                        }
+                    }
+                } label: {
+                    HStack {
+                        Text(dashboardViewModel.selectedExerciseForProgression?.name ?? "Select Exercise")
+                            .font(.headline)
+                        Image(systemName: "chevron.down")
+                            .font(.caption)
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(theme.surfaceStyle.backgroundColor)
+                    .clipShape(Capsule())
+                }
+
+                Spacer()
+
+                HStack(spacing: 4) {
+                    timeframeButton(months: 1, label: "1M")
+                    timeframeButton(months: 3, label: "3M")
+                    timeframeButton(months: 6, label: "6M")
+                    timeframeButton(months: 12, label: "1Y")
+                }
+            }
+
+            if let progression = dashboardViewModel.exerciseProgression {
+                ExerciseProgressionChart(progression: progression)
+            } else {
+                emptySectionPlaceholder(title: "No Progression Found", message: "Complete multiple workouts containing this exercise to track progression.")
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func timeframeButton(months: Int, label: String) -> some View {
+        Button {
+            Task {
+                await dashboardViewModel.setProgressionMonths(months)
+            }
+        } label: {
+            Text(label)
+                .font(.caption.weight(dashboardViewModel.progressionMonths == months ? .bold : .medium))
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(dashboardViewModel.progressionMonths == months ? theme.selectedAccent.color : Color.clear)
+                .foregroundStyle(dashboardViewModel.progressionMonths == months ? theme.selectedAccent.badgeTextColor : .secondary)
+                .clipShape(Capsule())
+        }
+        .buttonStyle(.plain)
+    }
+
+    @ViewBuilder
+    private var recordsSection: some View {
+        PersonalRecordsCard(records: dashboardViewModel.personalRecords)
+    }
+
+    @ViewBuilder
+    private var bodyweightTrackingCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Athlete Bodyweight")
+                .font(.headline)
+
+            HStack {
+                TextField("e.g. 78.5", text: $legacyViewModel.newBodyweightString)
+                    .keyboardType(.decimalPad)
+                    .textFieldStyle(.roundedBorder)
+
+                Button("Log kg") {
+                    Task { await legacyViewModel.logCurrentBodyweight() }
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(theme.selectedAccent.color)
+                .foregroundStyle(theme.selectedAccent.badgeTextColor)
+            }
+
+            if !legacyViewModel.bodyweightHistory.isEmpty {
+                VStack(alignment: .leading, spacing: 6) {
+                    ForEach(legacyViewModel.bodyweightHistory.suffix(5).reversed()) { entry in
+                        HStack {
+                            Text(entry.measuredDate, style: .date)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                            Spacer()
+                            Text("\(String(format: "%.1f", entry.weightKg)) kg")
+                                .font(.subheadline.monospacedDigit().weight(.semibold))
+                        }
+                    }
+                }
+                .padding(.top, 4)
+            }
+        }
+        .themedCard()
+    }
+
+    private func emptySectionPlaceholder(title: String, message: String) -> some View {
+        VStack(spacing: 8) {
+            Image(systemName: "chart.xyaxis.line")
+                .font(.largeTitle)
+                .foregroundStyle(.secondary)
+            Text(title)
+                .font(.headline)
+            Text(message)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity, minHeight: 180)
+        .themedCard()
+    }
 }
+
+// MARK: - Legacy Embedded Cards
 
 private struct OneRepMaxCalculatorCard: View {
     @Environment(\.theme) private var theme
@@ -131,7 +317,7 @@ private struct OneRepMaxCalculatorCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
             HStack {
-                Text("1RM Estimator")
+                Text("Quick 1RM Estimator")
                     .font(.headline)
                 Spacer()
                 Text("\(String(format: "%.1f", estimated1RM)) kg")
@@ -236,3 +422,4 @@ private struct RelativeStrengthScoreCard: View {
         .themedCard()
     }
 }
+

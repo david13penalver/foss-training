@@ -398,16 +398,20 @@ struct RemoteRepositoriesAndNetworkCoverageTests {
 
     @Test("AppEnvironment: tier mode switching and backendURL updates")
     func testAppEnvironmentTierModeSwitching() {
+        UserDefaults.standard.set(AppTierMode.local.rawValue, forKey: "app_tier_mode")
         let env = AppEnvironment(inMemory: true)
+        #expect(env.analyticsRepository is SwiftDataAnalyticsRepository)
 
         env.tierMode = .premium
         #expect(env.tierMode == .premium)
+        #expect(env.analyticsRepository is RemoteAnalyticsRepository)
 
         env.backendURL = "http://127.0.0.1:8080"
         #expect(env.backendURL == "http://127.0.0.1:8080")
 
         env.tierMode = .local
         #expect(env.tierMode == .local)
+        #expect(env.analyticsRepository is SwiftDataAnalyticsRepository)
 
         // AppEnvironment init variations
         // 1. Missing keys in UserDefaults
@@ -426,6 +430,7 @@ struct RemoteRepositoriesAndNetworkCoverageTests {
         UserDefaults.standard.set(AppTierMode.premium.rawValue, forKey: "app_tier_mode")
         let envPremium = AppEnvironment(inMemory: true)
         #expect(envPremium.tierMode == .premium)
+        #expect(envPremium.analyticsRepository is RemoteAnalyticsRepository)
 
         // Reset to local
         UserDefaults.standard.set(AppTierMode.local.rawValue, forKey: "app_tier_mode")

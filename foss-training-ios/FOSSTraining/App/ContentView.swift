@@ -39,7 +39,9 @@ public struct ContentView: View {
 
             AnalyticsDashboardView(
                 trainingRepository: appEnvironment.trainingRepository,
-                athleteRepository: appEnvironment.athleteRepository
+                athleteRepository: appEnvironment.athleteRepository,
+                analyticsRepository: appEnvironment.analyticsRepository,
+                exerciseRepository: appEnvironment.exerciseRepository
             )
             .tabItem {
                 Label("Analytics", systemImage: "chart.bar.xaxis")

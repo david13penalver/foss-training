@@ -113,6 +113,10 @@ public enum SetType: String, Codable, CaseIterable, Identifiable, Sendable {
         case .restPause: return "RP"
         }
     }
+
+    public var countsAsWorkingVolume: Bool {
+        self != .warmUp
+    }
 }
 
 public enum TrainingStatus: String, Codable, CaseIterable, Identifiable, Sendable {

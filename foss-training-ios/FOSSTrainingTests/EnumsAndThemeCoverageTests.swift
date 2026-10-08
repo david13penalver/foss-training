@@ -67,12 +67,17 @@ struct EnumsAndThemeCoverageTests {
         }
     }
 
-    @Test("SetType displayName and shortTag")
+    @Test("SetType displayName, shortTag and countsAsWorkingVolume")
     func testSetType() {
         for st in SetType.allCases {
             #expect(!st.id.isEmpty)
             #expect(!st.displayName.isEmpty)
             #expect(!st.shortTag.isEmpty)
+            if st == .warmUp {
+                #expect(!st.countsAsWorkingVolume)
+            } else {
+                #expect(st.countsAsWorkingVolume)
+            }
         }
     }
 

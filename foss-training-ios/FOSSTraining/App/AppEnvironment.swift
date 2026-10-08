@@ -86,7 +86,7 @@ public final class AppEnvironment {
 
         if currentMode == .premium {
             self.exerciseRepository = RemoteExerciseRepository(client: networkClient)
-            self.sessionRepository = localSes // Can be swapped when backend template CRUD is used
+            self.sessionRepository = RemoteSessionRepository(client: networkClient)
             self.trainingRepository = RemoteTrainingRepository(client: networkClient)
             self.athleteRepository = localAth
             self.dataPortabilityRepository = RemotePortabilityRepository(client: networkClient)
@@ -105,7 +105,7 @@ public final class AppEnvironment {
     private func updateRepositories() {
         if tierMode == .premium {
             self.exerciseRepository = RemoteExerciseRepository(client: networkClient)
-            self.sessionRepository = SwiftDataSessionRepository(modelContext: modelContext)
+            self.sessionRepository = RemoteSessionRepository(client: networkClient)
             self.trainingRepository = RemoteTrainingRepository(client: networkClient)
             self.athleteRepository = SwiftDataAthleteRepository(modelContext: modelContext)
             self.dataPortabilityRepository = RemotePortabilityRepository(client: networkClient)

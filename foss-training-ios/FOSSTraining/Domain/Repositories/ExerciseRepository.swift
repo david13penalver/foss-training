@@ -13,6 +13,13 @@ public protocol SessionRepository: Sendable {
     func saveSession(_ session: Session) async throws -> Session
     func deleteSession(id: Int) async throws
     func cloneSession(id: Int) async throws -> Session
+    func sessionExists(id: Int) async throws -> Bool
+}
+
+public extension SessionRepository {
+    func sessionExists(id: Int) async throws -> Bool {
+        try await getSession(id: id) != nil
+    }
 }
 
 public protocol TrainingRepository: Sendable {
@@ -27,6 +34,13 @@ public protocol TrainingRepository: Sendable {
     func logSet(trainingId: Int, exerciseId: Int, set: ResistanceSet) async throws -> ResistanceSet
     func updateSet(trainingId: Int, exerciseId: Int, set: ResistanceSet) async throws -> ResistanceSet
     func deleteSet(trainingId: Int, exerciseId: Int, setNumber: Int) async throws
+    func trainingExists(id: Int) async throws -> Bool
+}
+
+extension TrainingRepository {
+    public func trainingExists(id: Int) async throws -> Bool {
+        try await getTraining(id: id) != nil
+    }
 }
 
 public protocol AthleteRepository: Sendable {

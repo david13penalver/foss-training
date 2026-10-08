@@ -43,11 +43,7 @@ extension TrainingRepository {
     }
 }
 
-public protocol AthleteRepository: Sendable {
-    func getBodyweightHistory() async throws -> [BodyweightEntry]
-    func logBodyweight(entry: BodyweightEntry) async throws -> BodyweightEntry
-    func deleteBodyweight(id: Int) async throws
-}
+
 
 public struct BackupDataPayload: Codable, Sendable {
     public let exportVersion: String

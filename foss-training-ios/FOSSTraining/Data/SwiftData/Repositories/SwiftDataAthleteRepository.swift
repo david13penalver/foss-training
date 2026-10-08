@@ -9,6 +9,30 @@ public final class SwiftDataAthleteRepository: AthleteRepository {
         self.modelContext = modelContext
     }
 
+    public func getProfile() async throws -> AthleteProfile? {
+        let descriptor = FetchDescriptor<SDAthleteProfile>()
+        let results = try modelContext.fetch(descriptor)
+        return results.first?.toDomain()
+    }
+
+    public func saveProfile(_ profile: AthleteProfile) async throws -> AthleteProfile {
+        let descriptor = FetchDescriptor<SDAthleteProfile>(predicate: #Predicate<SDAthleteProfile> { $0.id == profile.id })
+        if let existing = try modelContext.fetch(descriptor).first {
+            existing.displayName = profile.displayName
+            existing.genderRaw = profile.gender.rawValue
+            existing.dateOfBirth = profile.dateOfBirth
+            existing.heightCm = profile.heightCm
+            existing.experienceLevelRaw = profile.experienceLevel.rawValue
+            existing.targetGoal = profile.targetGoal
+            existing.preferredUnitRaw = profile.preferredUnit.rawValue
+        } else {
+            let newProfile = SDAthleteProfile.fromDomain(profile)
+            modelContext.insert(newProfile)
+        }
+        try modelContext.save()
+        return profile
+    }
+
     public func getBodyweightHistory() async throws -> [BodyweightEntry] {
         let descriptor = FetchDescriptor<SDBodyweightEntry>(sortBy: [SortDescriptor(\.measuredDate, order: .forward)])
         return try modelContext.fetch(descriptor).map { $0.toDomain() }
@@ -30,5 +54,19 @@ public final class SwiftDataAthleteRepository: AthleteRepository {
             modelContext.delete(existing)
             try modelContext.save()
         }
+    }
+
+    public func calculateRelativeStrength(
+        totalKg: Double,
+        bodyweightKg: Double,
+        gender: Gender,
+        formula: ScoringFormula
+    ) async throws -> RelativeStrengthScore {
+        RelativeStrengthCalculator.calculate(
+            totalKg: totalKg,
+            bodyweightKg: bodyweightKg,
+            gender: gender,
+            formula: formula
+        )
     }
 }

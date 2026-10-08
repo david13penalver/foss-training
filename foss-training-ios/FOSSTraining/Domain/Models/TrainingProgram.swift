@@ -18,11 +18,13 @@ public enum PeriodizationType: String, Codable, CaseIterable, Sendable {
     }
 }
 
-public enum ProgramLevel: String, Codable, CaseIterable, Sendable {
+public enum ProgramLevel: String, Codable, CaseIterable, Identifiable, Sendable {
     case beginner = "BEGINNER"
     case intermediate = "INTERMEDIATE"
     case advanced = "ADVANCED"
     case elite = "ELITE"
+
+    public var id: String { rawValue }
 
     public var displayName: String {
         switch self {

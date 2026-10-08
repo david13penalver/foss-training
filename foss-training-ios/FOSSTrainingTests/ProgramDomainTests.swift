@@ -145,6 +145,9 @@ struct ProgramDomainTests {
         #expect(ProgramLevel.elite.rawValue == "ELITE")
         #expect(ProgramLevel.elite.displayName == "Elite")
         #expect(ProgramLevel.allCases.count == 4)
+        for level in ProgramLevel.allCases {
+            #expect(level.id == level.rawValue)
+        }
     }
 
     @Test("ProgramWorkout dayName formatting")

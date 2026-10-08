@@ -13,6 +13,37 @@ public struct SettingsView: View {
     public var body: some View {
         NavigationStack {
             Form {
+                // Section 0: Athlete Profile & Powerlifting
+                Section {
+                    NavigationLink {
+                        AthleteProfileView(
+                            athleteRepository: appEnvironment.athleteRepository,
+                            trainingRepository: appEnvironment.trainingRepository
+                        )
+                    } label: {
+                        HStack(spacing: 12) {
+                            ZStack {
+                                Circle()
+                                    .fill(theme.selectedAccent.color.opacity(0.18))
+                                    .frame(width: 40, height: 40)
+                                Image(systemName: "person.crop.circle.fill")
+                                    .font(.title3)
+                                    .foregroundStyle(theme.selectedAccent.color)
+                            }
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Athlete Profile & Powerlifting")
+                                    .font(.headline)
+                                Text("Biometrics, Big 3 PRs, DOTS & Wilks scoring")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                        .padding(.vertical, 4)
+                    }
+                } header: {
+                    Label("Athlete Profile", systemImage: "person.fill")
+                }
+
                 // Section 1: Appearance & Color Personalization
                 Section {
                     VStack(alignment: .leading, spacing: 12) {

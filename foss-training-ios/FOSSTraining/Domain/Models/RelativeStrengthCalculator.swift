@@ -1,83 +1,58 @@
 import Foundation
 
-public enum AthleteGender: String, Codable, CaseIterable, Identifiable, Sendable {
-    case male = "MALE"
-    case female = "FEMALE"
-
-    public var id: String { rawValue }
-
-    public var displayName: String {
-        switch self {
-        case .male: return "Male"
-        case .female: return "Female"
-        }
-    }
-}
-
-public struct RelativeStrengthScore: Codable, Sendable {
-    public let totalWeightKg: Double
-    public let bodyweightKg: Double
-    public let gender: AthleteGender
-    public let relativeStrengthRatio: Double
-    public let dotsScore: Double
-    public let wilksScore: Double
-    public let classification: String
-
-    public init(
-        totalWeightKg: Double,
-        bodyweightKg: Double,
-        gender: AthleteGender,
-        relativeStrengthRatio: Double,
-        dotsScore: Double,
-        wilksScore: Double,
-        classification: String
-    ) {
-        self.totalWeightKg = totalWeightKg
-        self.bodyweightKg = bodyweightKg
-        self.gender = gender
-        self.relativeStrengthRatio = relativeStrengthRatio
-        self.dotsScore = dotsScore
-        self.wilksScore = wilksScore
-        self.classification = classification
-    }
-}
-
 public enum RelativeStrengthCalculator {
     public static func calculate(
         totalWeightKg: Double,
         bodyweightKg: Double,
-        gender: AthleteGender = .male
+        gender: Gender = .male
     ) -> RelativeStrengthScore {
-        guard totalWeightKg > 0, bodyweightKg > 0 else {
+        calculate(totalKg: totalWeightKg, bodyweightKg: bodyweightKg, gender: gender, formula: .dots)
+    }
+
+    public static func calculate(
+        totalKg: Double,
+        bodyweightKg: Double,
+        gender: Gender = .male,
+        formula: ScoringFormula = .dots
+    ) -> RelativeStrengthScore {
+        guard totalKg > 0, bodyweightKg > 0 else {
             return RelativeStrengthScore(
-                totalWeightKg: totalWeightKg,
-                bodyweightKg: bodyweightKg,
+                formula: formula,
+                score: 0.0,
+                totalKg: max(0.0, totalKg),
+                bodyweightKg: max(0.0, bodyweightKg),
                 gender: gender,
-                relativeStrengthRatio: 0,
-                dotsScore: 0,
-                wilksScore: 0,
-                classification: "Untrained"
+                strengthToWeightRatio: 0.0,
+                dotsScore: 0.0,
+                wilksScore: 0.0,
+                tier: .novice,
+                tierDescription: RelativeStrengthTier.novice.description
             )
         }
 
-        let ratio = ((totalWeightKg / bodyweightKg) * 100.0).rounded() / 100.0
-        let dots = calculateDots(totalKg: totalWeightKg, bwKg: bodyweightKg, gender: gender)
-        let wilks = calculateWilks(totalKg: totalWeightKg, bwKg: bodyweightKg, gender: gender)
-        let classification = classify(dotsScore: dots)
+        let ratio = ((totalKg / bodyweightKg) * 100.0).rounded() / 100.0
+        let dots = calculateDots(totalKg: totalKg, bwKg: bodyweightKg, gender: gender)
+        let wilks = calculateWilks(totalKg: totalKg, bwKg: bodyweightKg, gender: gender)
+        let tier = RelativeStrengthTier.evaluate(dotsScore: dots)
+        let selectedScore = (formula == .dots) ? dots : wilks
 
         return RelativeStrengthScore(
-            totalWeightKg: totalWeightKg,
+            formula: formula,
+            score: selectedScore,
+            totalKg: totalKg,
             bodyweightKg: bodyweightKg,
             gender: gender,
-            relativeStrengthRatio: ratio,
+            strengthToWeightRatio: ratio,
             dotsScore: dots,
             wilksScore: wilks,
-            classification: classification
+            tier: tier,
+            tierDescription: tier.description
         )
     }
 
-    private static func calculateDots(totalKg: Double, bwKg: Double, gender: AthleteGender) -> Double {
-        let x = bwKg
+    public static func calculateDots(totalKg: Double, bwKg: Double, gender: Gender) -> Double {
+        guard totalKg > 0, bwKg > 0 else { return 0.0 }
+        let x = min(210.0, max(40.0, bwKg))
         let denom: Double
         if gender == .female {
             denom = -0.0000010706 * pow(x, 4)
@@ -98,8 +73,9 @@ public enum RelativeStrengthCalculator {
         return (score * 100.0).rounded() / 100.0
     }
 
-    private static func calculateWilks(totalKg: Double, bwKg: Double, gender: AthleteGender) -> Double {
-        let x = bwKg
+    public static func calculateWilks(totalKg: Double, bwKg: Double, gender: Gender) -> Double {
+        guard totalKg > 0, bwKg > 0 else { return 0.0 }
+        let x = min(210.0, max(40.0, bwKg))
         let denom: Double
         if gender == .female {
             denom = 594.31747775582
@@ -120,15 +96,5 @@ public enum RelativeStrengthCalculator {
         guard denom > 0 else { return 0.0 }
         let score = totalKg * (500.0 / denom)
         return (score * 100.0).rounded() / 100.0
-    }
-
-    private static func classify(dotsScore: Double) -> String {
-        switch dotsScore {
-        case ..<250: return "Novice"
-        case 250..<325: return "Intermediate"
-        case 325..<400: return "Advanced"
-        case 400..<475: return "Elite"
-        default: return "International Elite"
-        }
     }
 }

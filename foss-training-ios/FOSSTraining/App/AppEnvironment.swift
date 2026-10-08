@@ -64,7 +64,8 @@ public final class AppEnvironment {
             SDTraining.self,
             SDBodyweightEntry.self,
             SDTrainingProgram.self,
-            SDProgramWorkout.self
+            SDProgramWorkout.self,
+            SDAthleteProfile.self
         ])
 
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: inMemory)
@@ -94,7 +95,7 @@ public final class AppEnvironment {
             self.exerciseRepository = RemoteExerciseRepository(client: networkClient)
             self.sessionRepository = RemoteSessionRepository(client: networkClient)
             self.trainingRepository = RemoteTrainingRepository(client: networkClient)
-            self.athleteRepository = localAth
+            self.athleteRepository = RemoteAthleteRepository(client: networkClient)
             self.dataPortabilityRepository = RemotePortabilityRepository(client: networkClient)
             self.trainingProgramRepository = RemoteTrainingProgramRepository(client: networkClient)
             self.analyticsRepository = RemoteAnalyticsRepository(client: networkClient)
@@ -117,7 +118,7 @@ public final class AppEnvironment {
             self.exerciseRepository = RemoteExerciseRepository(client: networkClient)
             self.sessionRepository = RemoteSessionRepository(client: networkClient)
             self.trainingRepository = RemoteTrainingRepository(client: networkClient)
-            self.athleteRepository = SwiftDataAthleteRepository(modelContext: modelContext)
+            self.athleteRepository = RemoteAthleteRepository(client: networkClient)
             self.dataPortabilityRepository = RemotePortabilityRepository(client: networkClient)
             self.trainingProgramRepository = RemoteTrainingProgramRepository(client: networkClient)
             self.analyticsRepository = RemoteAnalyticsRepository(client: networkClient)

@@ -51,6 +51,7 @@ public final class AppEnvironment {
     public private(set) var dataPortabilityRepository: DataPortabilityRepository
     public private(set) var trainingProgramRepository: TrainingProgramRepository
     public private(set) var analyticsRepository: AnalyticsRepository
+    public let settingsRepository: SettingsRepository
 
     // Local Repositories for Migration Bridge
     public let localPortabilityRepository: SwiftDataPortabilityRepository
@@ -82,6 +83,7 @@ public final class AppEnvironment {
         self.networkClient = NetworkClient(baseURLString: savedURL)
 
         self.localPortabilityRepository = SwiftDataPortabilityRepository(modelContext: modelContext)
+        self.settingsRepository = UserDefaultsSettingsRepository()
 
         // Initial repositories
         let localEx = SwiftDataExerciseRepository(modelContext: modelContext)

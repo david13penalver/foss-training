@@ -4,6 +4,7 @@ public struct SettingsView: View {
     @Environment(\.theme) private var theme
     @Bindable var appEnvironment: AppEnvironment
     @State private var viewModel: SettingsViewModel
+    @State private var isServerConfigSheetPresented: Bool = false
 
     public init(appEnvironment: AppEnvironment) {
         self.appEnvironment = appEnvironment
@@ -44,7 +45,119 @@ public struct SettingsView: View {
                     Label("Athlete Profile", systemImage: "person.fill")
                 }
 
-                // Section 0.5: Data Sovereignty & Portability
+                // Section 1: Appearance & Color Personalization
+                Section {
+                    AccentColorPicker()
+
+                    Picker("Surface Style", selection: Binding(
+                        get: { theme.surfaceStyle },
+                        set: { theme.setSurface($0) }
+                    )) {
+                        ForEach(SurfaceStyle.allCases) { style in
+                            Text(style.rawValue).tag(style)
+                        }
+                    }
+                } header: {
+                    Label("Appearance & Theme", systemImage: "paintpalette.fill")
+                } footer: {
+                    Text("Theme settings are applied instantly with zero startup latency.")
+                }
+
+                // Section 2: Gym Ergonomics & Sensory Feedback
+                Section {
+                    Toggle("Tactile Haptics", isOn: Binding(
+                        get: { theme.hapticsEnabled },
+                        set: { theme.hapticsEnabled = $0 }
+                    ))
+
+                    if theme.hapticsEnabled {
+                        Picker("Haptic Intensity", selection: Binding(
+                            get: { theme.hapticIntensity },
+                            set: { theme.setHapticIntensity($0) }
+                        )) {
+                            ForEach(HapticIntensity.allCases.filter { $0 != .disabled }) { intensity in
+                                Text(intensity.rawValue).tag(intensity)
+                            }
+                        }
+                    }
+
+                    Toggle("Rest Timer Audio Cues", isOn: Binding(
+                        get: { theme.soundEffectsEnabled },
+                        set: { theme.soundEffectsEnabled = $0 }
+                    ))
+
+                    Toggle("Keep Screen Awake in Workouts", isOn: Binding(
+                        get: { theme.keepScreenAwake },
+                        set: { theme.keepScreenAwake = $0 }
+                    ))
+
+                    Picker("Preferred Weight Unit", selection: Binding(
+                        get: { theme.weightUnit },
+                        set: { theme.setWeightUnit($0) }
+                    )) {
+                        ForEach(WeightUnit.allCases) { unit in
+                            Text(unit.displayName).tag(unit)
+                        }
+                    }
+                } header: {
+                    Label("Gym Ergonomics & Sensory", systemImage: "hand.tap.fill")
+                } footer: {
+                    Text("Haptics and audio alerts let you feel set progression without staring at your screen.")
+                }
+
+                // Section 3: Data Connectivity & Backend
+                Section {
+                    Picker("App Mode", selection: $appEnvironment.tierMode) {
+                        ForEach(AppTierMode.allCases) { mode in
+                            Text(mode.title).tag(mode)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    .padding(.vertical, 4)
+
+                    if appEnvironment.tierMode == .premium {
+                        Button {
+                            isServerConfigSheetPresented = true
+                        } label: {
+                            HStack {
+                                Label("Configure Server Connection", systemImage: "server.rack")
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                        .tint(theme.selectedAccent.color)
+
+                        Button {
+                            Task { await viewModel.syncLocalDataToCloud() }
+                        } label: {
+                            HStack {
+                                Label("Migrate Local Data to Cloud", systemImage: "arrow.triangle.2.circlepath.circle.fill")
+                                Spacer()
+                                if viewModel.isMigrating {
+                                    ProgressView()
+                                }
+                            }
+                        }
+                        .disabled(viewModel.isMigrating)
+                        .tint(theme.selectedAccent.color)
+
+                        if let msg = viewModel.migrationSuccessMessage {
+                            Text(msg)
+                                .font(.caption)
+                                .foregroundStyle(.green)
+                        }
+                    }
+                } header: {
+                    Label("Data & Connectivity", systemImage: "network")
+                } footer: {
+                    Text(appEnvironment.tierMode == .local
+                         ? "Local-First tier runs 100% offline using on-device SwiftData."
+                         : "Connected tier communicates directly with your self-hosted Spring Boot REST API.")
+                }
+
+                // Section 4: Data Sovereignty & Portability
                 Section {
                     NavigationLink {
                         DataPortabilityView(portabilityRepository: appEnvironment.dataPortabilityRepository)
@@ -72,136 +185,7 @@ public struct SettingsView: View {
                     Label("Data Sovereignty", systemImage: "externaldrive.badge.checkmark")
                 }
 
-                // Section 1: Appearance & Color Personalization
-                Section {
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("Accent Color")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-
-                        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 6), spacing: 12) {
-                            ForEach(AppAccentColor.allCases) { accent in
-                                Button {
-                                    theme.setAccent(accent)
-                                } label: {
-                                    ZStack {
-                                        Circle()
-                                            .fill(accent.color)
-                                            .frame(width: 44, height: 44)
-                                            .shadow(color: theme.selectedAccent == accent ? accent.glowColor : .clear, radius: 8)
-
-                                        if theme.selectedAccent == accent {
-                                            Circle()
-                                                .strokeBorder(Color.white, lineWidth: 3)
-                                                .frame(width: 48, height: 48)
-                                            Image(systemName: "checkmark")
-                                                .font(.headline.weight(.bold))
-                                                .foregroundStyle(accent.badgeTextColor)
-                                        }
-                                    }
-                                }
-                                .buttonStyle(.plain)
-                            }
-                        }
-                        .padding(.vertical, 4)
-
-                        Text("Current: \(theme.selectedAccent.rawValue)")
-                            .font(.caption)
-                            .foregroundStyle(theme.selectedAccent.color)
-                    }
-
-                    Picker("Surface Style", selection: Binding(
-                        get: { theme.surfaceStyle },
-                        set: { theme.setSurface($0) }
-                    )) {
-                        ForEach(SurfaceStyle.allCases) { style in
-                            Text(style.rawValue).tag(style)
-                        }
-                    }
-
-                    Toggle("Tactile Haptic Feedback", isOn: Binding(
-                        get: { theme.hapticsEnabled },
-                        set: { theme.hapticsEnabled = $0 }
-                    ))
-                } header: {
-                    Label("Personalization & Appearance", systemImage: "paintpalette.fill")
-                } footer: {
-                    Text("Colors and surface styles are instantly saved to local storage (@AppStorage) with zero startup latency.")
-                }
-
-                // Section 2: Operating Mode (Local vs Premium)
-                Section {
-                    Picker("App Mode", selection: $appEnvironment.tierMode) {
-                        ForEach(AppTierMode.allCases) { mode in
-                            Text(mode.title).tag(mode)
-                        }
-                    }
-                    .pickerStyle(.segmented)
-                    .padding(.vertical, 4)
-
-                    if appEnvironment.tierMode == .premium {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Backend API Host")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                            TextField("http://localhost:8080", text: $appEnvironment.backendURL)
-                                .textFieldStyle(.roundedBorder)
-                                .textInputAutocapitalization(.never)
-                                .autocorrectionDisabled()
-
-                            Button {
-                                Task { await viewModel.testConnection() }
-                            } label: {
-                                Label("Test Backend Connection", systemImage: "network")
-                            }
-                            .buttonStyle(.bordered)
-                            .tint(theme.selectedAccent.color)
-
-                            if let status = viewModel.connectionTestStatus {
-                                Text(status)
-                                    .font(.caption)
-                                    .foregroundStyle(.green)
-                            }
-                        }
-                    }
-                } header: {
-                    Label("Operating Mode", systemImage: "externaldrive.fill")
-                } footer: {
-                    Text(appEnvironment.tierMode == .local
-                         ? "Local tier runs 100% offline using SwiftData on your iPhone."
-                         : "Premium tier communicates directly with your Java Spring Boot REST API.")
-                }
-
-                // Section 3: Data Migration Bridge
-                if appEnvironment.tierMode == .premium {
-                    Section {
-                        Button {
-                            Task { await viewModel.syncLocalDataToCloud() }
-                        } label: {
-                            HStack {
-                                Label("Migrate Local Data to Cloud", systemImage: "arrow.triangle.2.circlepath.circle.fill")
-                                Spacer()
-                                if viewModel.isMigrating {
-                                    ProgressView()
-                                }
-                            }
-                        }
-                        .disabled(viewModel.isMigrating)
-                        .tint(theme.selectedAccent.color)
-
-                        if let msg = viewModel.migrationSuccessMessage {
-                            Text(msg)
-                                .font(.caption)
-                                .foregroundStyle(.green)
-                        }
-                    } header: {
-                        Label("Cloud Data Synchronization", systemImage: "icloud.and.arrow.up.fill")
-                    } footer: {
-                        Text("Uploads all exercises, templates, completed workouts, and bodyweight history from SwiftData to your Spring Boot database.")
-                    }
-                }
-
-                // Section 4: Diagnostics & Errors
+                // Section 5: Diagnostics & Status
                 if let err = viewModel.errorMessage {
                     Section("Status") {
                         Text(err)
@@ -209,8 +193,41 @@ public struct SettingsView: View {
                             .foregroundStyle(.red)
                     }
                 }
+
+                // Section 6: About & Open Source
+                Section {
+                    HStack {
+                        Text("Application")
+                        Spacer()
+                        Text("FOSS Training iOS")
+                            .foregroundStyle(.secondary)
+                    }
+                    HStack {
+                        Text("Version")
+                        Spacer()
+                        Text("1.0.0 (Build 26)")
+                            .foregroundStyle(.secondary)
+                    }
+                    HStack {
+                        Text("License")
+                        Spacer()
+                        Text("GPL v3 / Open Source")
+                            .foregroundStyle(.secondary)
+                    }
+                    HStack {
+                        Text("Architecture")
+                        Spacer()
+                        Text("Hexagonal (Ports & Adapters)")
+                            .foregroundStyle(.secondary)
+                    }
+                } header: {
+                    Label("About", systemImage: "info.circle.fill")
+                }
             }
             .navigationTitle("Settings")
+            .sheet(isPresented: $isServerConfigSheetPresented) {
+                ServerConfigurationSheet(viewModel: viewModel)
+            }
         }
     }
 }

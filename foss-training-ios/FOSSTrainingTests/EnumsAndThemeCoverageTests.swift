@@ -119,6 +119,22 @@ struct EnumsAndThemeCoverageTests {
         }
     }
 
+    @Test("HapticIntensity id and cases")
+    func testHapticIntensity() {
+        for intensity in HapticIntensity.allCases {
+            #expect(!intensity.id.isEmpty)
+            #expect(!intensity.rawValue.isEmpty)
+        }
+    }
+
+    @Test("AppConnectionMode id, displayName and cases")
+    func testAppConnectionMode() {
+        for mode in AppConnectionMode.allCases {
+            #expect(!mode.id.isEmpty)
+            #expect(!mode.displayName.isEmpty)
+        }
+    }
+
     @Test("ThemeManager accent, surface, and haptic mutators")
     func testThemeManagerMutators() {
         let manager = ThemeManager.shared

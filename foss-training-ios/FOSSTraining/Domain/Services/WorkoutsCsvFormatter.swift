@@ -102,9 +102,7 @@ public enum WorkoutsCsvFormatter {
 
         if !currentField.isEmpty || !currentRow.isEmpty {
             currentRow.append(currentField)
-            if !currentRow.isEmpty && !(currentRow.count == 1 && currentRow[0].isEmpty) {
-                rows.append(currentRow)
-            }
+            rows.append(currentRow)
         }
 
         guard rows.count > 1 else { return [] }

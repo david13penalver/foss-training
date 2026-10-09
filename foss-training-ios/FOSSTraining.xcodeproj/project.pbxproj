@@ -164,6 +164,17 @@
 		FEC15CB5686A7E0CA163872F /* BodyweightLogViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27D5D68894C6823E77538F1A /* BodyweightLogViewModel.swift */; };
 		FF2F7A08A99A8290A31198B0 /* LogWeightSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE079CA10E3F36B82B518190 /* LogWeightSheet.swift */; };
 		FF87BAB56FEEF33D1AE20FD9 /* SwiftDataTrainingProgramRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8FFD0E8B0447CBCE947AEE7 /* SwiftDataTrainingProgramRepositoryTests.swift */; };
+		AA0801010000000000000001 /* HapticIntensity.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0801010000000000000001 /* HapticIntensity.swift */; };
+		AA0801020000000000000002 /* AppConnectionMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0801020000000000000002 /* AppConnectionMode.swift */; };
+		AA0801030000000000000003 /* SettingsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0801030000000000000003 /* SettingsRepository.swift */; };
+		AA0801040000000000000004 /* UserDefaultsSettingsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0801040000000000000004 /* UserDefaultsSettingsRepository.swift */; };
+		AA0801050000000000000005 /* HapticManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0801050000000000000005 /* HapticManager.swift */; };
+		AA0801060000000000000006 /* SoundManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0801060000000000000006 /* SoundManager.swift */; };
+		AA0801070000000000000007 /* AccentColorPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0801070000000000000007 /* AccentColorPicker.swift */; };
+		AA0801080000000000000008 /* ServerConfigurationSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0801080000000000000008 /* ServerConfigurationSheet.swift */; };
+		AA0801090000000000000009 /* SensoryManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0801090000000000000009 /* SensoryManagerTests.swift */; };
+		AA0801100000000000000010 /* SettingsRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0801100000000000000010 /* SettingsRepositoryTests.swift */; };
+		AA0801110000000000000011 /* SettingsViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0801110000000000000011 /* SettingsViewModelTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -336,6 +347,17 @@
 		FCF31B879E978B71665D0C74 /* ImportSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportSummary.swift; sourceTree = "<group>"; };
 		FD90A9D7F25F6AE12B14FEB1 /* ExerciseCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseCardView.swift; sourceTree = "<group>"; };
 		FDEABD3339835FE2CB27DDDC /* PersonalRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalRecord.swift; sourceTree = "<group>"; };
+		BB0801010000000000000001 /* HapticIntensity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticIntensity.swift; sourceTree = "<group>"; };
+		BB0801020000000000000002 /* AppConnectionMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConnectionMode.swift; sourceTree = "<group>"; };
+		BB0801030000000000000003 /* SettingsRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsRepository.swift; sourceTree = "<group>"; };
+		BB0801040000000000000004 /* UserDefaultsSettingsRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsSettingsRepository.swift; sourceTree = "<group>"; };
+		BB0801050000000000000005 /* HapticManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticManager.swift; sourceTree = "<group>"; };
+		BB0801060000000000000006 /* SoundManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundManager.swift; sourceTree = "<group>"; };
+		BB0801070000000000000007 /* AccentColorPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccentColorPicker.swift; sourceTree = "<group>"; };
+		BB0801080000000000000008 /* ServerConfigurationSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerConfigurationSheet.swift; sourceTree = "<group>"; };
+		BB0801090000000000000009 /* SensoryManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SensoryManagerTests.swift; sourceTree = "<group>"; };
+		BB0801100000000000000010 /* SettingsRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsRepositoryTests.swift; sourceTree = "<group>"; };
+		BB0801110000000000000011 /* SettingsViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModelTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -430,6 +452,8 @@
 				24C4D46C1D23E3125579C410 /* RelativeStrengthTier.swift */,
 				088FEDE216C54B58268CE2A8 /* ScoringFormula.swift */,
 				E335B2DE871CD3FF4F7D5B65 /* WeightUnit.swift */,
+				BB0801020000000000000002 /* AppConnectionMode.swift */,
+				BB0801010000000000000001 /* HapticIntensity.swift */,
 			);
 			path = Enums;
 			sourceTree = "<group>";
@@ -513,6 +537,7 @@
 				ADF6364DEF446C0041D49739 /* SwiftDataSessionRepository.swift */,
 				A9FDA4BBB6C466823C05E979 /* SwiftDataTrainingProgramRepository.swift */,
 				0102342D2A43E6E34EF82433 /* SwiftDataTrainingRepository.swift */,
+				BB0801040000000000000004 /* UserDefaultsSettingsRepository.swift */,
 			);
 			path = Repositories;
 			sourceTree = "<group>";
@@ -552,6 +577,8 @@
 				D04C40047BAA1AF2F6721DEC /* DataPortabilityView.swift */,
 				AEF2AF13237A47DFDA1D8764 /* ImportConflictModal.swift */,
 				BFD6D7E72F026957821FEE18 /* SettingsView.swift */,
+				BB0801070000000000000007 /* AccentColorPicker.swift */,
+				BB0801080000000000000008 /* ServerConfigurationSheet.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -573,11 +600,21 @@
 			path = ViewModels;
 			sourceTree = "<group>";
 		};
+		CC0801013716CC3C88D90001 /* Sensory */ = {
+			isa = PBXGroup;
+			children = (
+				BB0801050000000000000005 /* HapticManager.swift */,
+				BB0801060000000000000006 /* SoundManager.swift */,
+			);
+			path = Sensory;
+			sourceTree = "<group>";
+		};
 		981DBAF95AFD4A3DD7B26D6F /* Core */ = {
 			isa = PBXGroup;
 			children = (
 				178D9E3B7DF7DDE411BCAECB /* LiveActivity */,
 				E4AEDC5C4463BB75F11159D3 /* Network */,
+				CC0801013716CC3C88D90001 /* Sensory */,
 				2614F05D3716CC3C88D9DEDC /* Theme */,
 			);
 			path = Core;
@@ -632,6 +669,7 @@
 				43EE7A464846763A1E74D8A7 /* DataPortabilityRepository.swift */,
 				7D27137052074395CD6DAB18 /* ExerciseRepository.swift */,
 				7A8E3BB4779EE432087AAB48 /* TrainingProgramRepository.swift */,
+				BB0801030000000000000003 /* SettingsRepository.swift */,
 			);
 			path = Repositories;
 			sourceTree = "<group>";
@@ -771,6 +809,9 @@
 				44A92B560CAF2F34174D625C /* ViewModelTests.swift */,
 				C597E19D9C7C98BB19990198 /* WilksCalculatorTests.swift */,
 				8B280AC5FFF6E1659A1C9866 /* WorkoutsCsvExportTests.swift */,
+				BB0801090000000000000009 /* SensoryManagerTests.swift */,
+				BB0801100000000000000010 /* SettingsRepositoryTests.swift */,
+				BB0801110000000000000011 /* SettingsViewModelTests.swift */,
 			);
 			path = FOSSTrainingTests;
 			sourceTree = "<group>";
@@ -1001,6 +1042,9 @@
 				8A26FFF7AA7C200765FC19D9 /* ViewModelsCoverageTests.swift in Sources */,
 				384F40DB468307871A018326 /* WilksCalculatorTests.swift in Sources */,
 				CD96DD33A13EBBE9B3A7997C /* WorkoutsCsvExportTests.swift in Sources */,
+				AA0801090000000000000009 /* SensoryManagerTests.swift in Sources */,
+				AA0801100000000000000010 /* SettingsRepositoryTests.swift in Sources */,
+				AA0801110000000000000011 /* SettingsViewModelTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1126,6 +1170,14 @@
 				B887F75BF62446028F716585 /* WorkoutDashboardViewModel.swift in Sources */,
 				F0E44DF3111D59892453D874 /* WorkoutHistoryCardView.swift in Sources */,
 				CEF924B36099266E467B23C4 /* WorkoutsCsvFormatter.swift in Sources */,
+				AA0801010000000000000001 /* HapticIntensity.swift in Sources */,
+				AA0801020000000000000002 /* AppConnectionMode.swift in Sources */,
+				AA0801030000000000000003 /* SettingsRepository.swift in Sources */,
+				AA0801040000000000000004 /* UserDefaultsSettingsRepository.swift in Sources */,
+				AA0801050000000000000005 /* HapticManager.swift in Sources */,
+				AA0801060000000000000006 /* SoundManager.swift in Sources */,
+				AA0801070000000000000007 /* AccentColorPicker.swift in Sources */,
+				AA0801080000000000000008 /* ServerConfigurationSheet.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

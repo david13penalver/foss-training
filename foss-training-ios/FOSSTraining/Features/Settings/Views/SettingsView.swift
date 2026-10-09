@@ -44,6 +44,34 @@ public struct SettingsView: View {
                     Label("Athlete Profile", systemImage: "person.fill")
                 }
 
+                // Section 0.5: Data Sovereignty & Portability
+                Section {
+                    NavigationLink {
+                        DataPortabilityView(portabilityRepository: appEnvironment.dataPortabilityRepository)
+                    } label: {
+                        HStack(spacing: 12) {
+                            ZStack {
+                                Circle()
+                                    .fill(theme.selectedAccent.color.opacity(0.18))
+                                    .frame(width: 40, height: 40)
+                                Image(systemName: "arrow.triangle.2.circlepath.circle.fill")
+                                    .font(.title3)
+                                    .foregroundStyle(theme.selectedAccent.color)
+                            }
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Data Sovereignty & Portability")
+                                    .font(.headline)
+                                Text("JSON backup, CSV export, cloud migration & restore")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                        .padding(.vertical, 4)
+                    }
+                } header: {
+                    Label("Data Sovereignty", systemImage: "externaldrive.badge.checkmark")
+                }
+
                 // Section 1: Appearance & Color Personalization
                 Section {
                     VStack(alignment: .leading, spacing: 12) {

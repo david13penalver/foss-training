@@ -43,35 +43,3 @@ extension TrainingRepository {
     }
 }
 
-
-
-public struct BackupDataPayload: Codable, Sendable {
-    public let exportVersion: String
-    public let exportedAt: Date
-    public let exercises: [Exercise]
-    public let sessions: [Session]
-    public let trainings: [Training]
-    public let bodyweightEntries: [BodyweightEntry]
-
-    public init(
-        exportVersion: String = "1.0",
-        exportedAt: Date = Date(),
-        exercises: [Exercise],
-        sessions: [Session],
-        trainings: [Training],
-        bodyweightEntries: [BodyweightEntry]
-    ) {
-        self.exportVersion = exportVersion
-        self.exportedAt = exportedAt
-        self.exercises = exercises
-        self.sessions = sessions
-        self.trainings = trainings
-        self.bodyweightEntries = bodyweightEntries
-    }
-}
-
-public protocol DataPortabilityRepository: Sendable {
-    func exportFullBackup() async throws -> BackupDataPayload
-    func importFullBackup(payload: BackupDataPayload) async throws -> Int
-    func exportWorkoutsCSV() async throws -> String
-}

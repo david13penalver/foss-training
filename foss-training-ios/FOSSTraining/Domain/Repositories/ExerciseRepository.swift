@@ -34,41 +34,12 @@ public protocol TrainingRepository: Sendable {
     func logSet(trainingId: Int, exerciseId: Int, set: ResistanceSet) async throws -> ResistanceSet
     func updateSet(trainingId: Int, exerciseId: Int, set: ResistanceSet) async throws -> ResistanceSet
     func deleteSet(trainingId: Int, exerciseId: Int, setNumber: Int) async throws
+    func trainingExists(id: Int) async throws -> Bool
 }
 
-public protocol AthleteRepository: Sendable {
-    func getBodyweightHistory() async throws -> [BodyweightEntry]
-    func logBodyweight(entry: BodyweightEntry) async throws -> BodyweightEntry
-    func deleteBodyweight(id: Int) async throws
-}
-
-public struct BackupDataPayload: Codable, Sendable {
-    public let exportVersion: String
-    public let exportedAt: Date
-    public let exercises: [Exercise]
-    public let sessions: [Session]
-    public let trainings: [Training]
-    public let bodyweightEntries: [BodyweightEntry]
-
-    public init(
-        exportVersion: String = "1.0",
-        exportedAt: Date = Date(),
-        exercises: [Exercise],
-        sessions: [Session],
-        trainings: [Training],
-        bodyweightEntries: [BodyweightEntry]
-    ) {
-        self.exportVersion = exportVersion
-        self.exportedAt = exportedAt
-        self.exercises = exercises
-        self.sessions = sessions
-        self.trainings = trainings
-        self.bodyweightEntries = bodyweightEntries
+extension TrainingRepository {
+    public func trainingExists(id: Int) async throws -> Bool {
+        try await getTraining(id: id) != nil
     }
 }
 
-public protocol DataPortabilityRepository: Sendable {
-    func exportFullBackup() async throws -> BackupDataPayload
-    func importFullBackup(payload: BackupDataPayload) async throws -> Int
-    func exportWorkoutsCSV() async throws -> String
-}

@@ -67,12 +67,17 @@ struct EnumsAndThemeCoverageTests {
         }
     }
 
-    @Test("SetType displayName and shortTag")
+    @Test("SetType displayName, shortTag and countsAsWorkingVolume")
     func testSetType() {
         for st in SetType.allCases {
             #expect(!st.id.isEmpty)
             #expect(!st.displayName.isEmpty)
             #expect(!st.shortTag.isEmpty)
+            if st == .warmUp {
+                #expect(!st.countsAsWorkingVolume)
+            } else {
+                #expect(st.countsAsWorkingVolume)
+            }
         }
     }
 
@@ -111,6 +116,22 @@ struct EnumsAndThemeCoverageTests {
         for tier in AppTierMode.allCases {
             #expect(!tier.id.isEmpty)
             #expect(!tier.title.isEmpty)
+        }
+    }
+
+    @Test("HapticIntensity id and cases")
+    func testHapticIntensity() {
+        for intensity in HapticIntensity.allCases {
+            #expect(!intensity.id.isEmpty)
+            #expect(!intensity.rawValue.isEmpty)
+        }
+    }
+
+    @Test("AppConnectionMode id, displayName and cases")
+    func testAppConnectionMode() {
+        for mode in AppConnectionMode.allCases {
+            #expect(!mode.id.isEmpty)
+            #expect(!mode.displayName.isEmpty)
         }
     }
 

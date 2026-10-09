@@ -428,5 +428,6 @@ struct ViewModelsCoverageTests {
         await vm.syncLocalDataToCloud()
         #expect(vm.migrationSuccessMessage?.contains("Successfully migrated") == true)
         #expect(vm.isMigrating == false)
+        env.tierMode = .local
     }
 }

@@ -364,7 +364,7 @@ struct RemoteRepositoriesAndNetworkCoverageTests {
             return (response, data)
         }
         let count = try await repo.importFullBackup(payload: payload)
-        #expect(count == 10)
+        #expect(count == 11)
 
         // importFullBackup with nil counts (tests ?? 0)
         let emptySummary = ImportSummaryDTO(exercisesImported: nil, sessionsImported: nil, trainingsImported: nil, bodyweightsImported: nil)
@@ -375,6 +375,61 @@ struct RemoteRepositoriesAndNetworkCoverageTests {
         }
         let zeroCount = try await repo.importFullBackup(payload: payload)
         #expect(zeroCount == 0)
+
+        // restoreBackup
+        MockURLProtocol.requestHandler = { request in
+            let data = try! JSONEncoder().encode(summaryDTO)
+            let response = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
+            return (response, data)
+        }
+        let restoredSummary = try await repo.restoreBackup(payload, mode: .overwrite)
+        #expect(restoredSummary.exercisesImported == 5)
+
+        // restoreBackup with nil DTO fields
+        MockURLProtocol.requestHandler = { request in
+            let data = try! JSONEncoder().encode(emptySummary)
+            let response = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
+            return (response, data)
+        }
+        let emptyRestored = try await repo.restoreBackup(payload, mode: .merge)
+        #expect(emptyRestored.exercisesImported == 0)
+
+        // importWorkoutsCsv
+        let csvImportSummary = try await repo.importWorkoutsCsv("header\n1\n")
+        #expect(csvImportSummary.trainingsImported == 0)
+
+        // purgeLocalDatabase
+        try await repo.purgeLocalDatabase()
+
+        // migrateToRemoteServer
+        MockURLProtocol.requestHandler = { request in
+            if request.url?.path() == "/api/data/export/backup" {
+                let data = self.encodeISO8601(payload)
+                let response = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
+                return (response, data)
+            } else {
+                let data = try! JSONEncoder().encode(summaryDTO)
+                let response = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
+                return (response, data)
+            }
+        }
+        let migratedSummary = try await repo.migrateToRemoteServer(serverUrl: URL(string: "http://mock.local")!)
+        #expect(migratedSummary.exercisesImported == 5)
+
+        // migrateToRemoteServer with nil DTO fields
+        MockURLProtocol.requestHandler = { request in
+            if request.url?.path() == "/api/data/export/backup" {
+                let data = self.encodeISO8601(payload)
+                let response = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
+                return (response, data)
+            } else {
+                let data = try! JSONEncoder().encode(emptySummary)
+                let response = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
+                return (response, data)
+            }
+        }
+        let emptyMigrated = try await repo.migrateToRemoteServer(serverUrl: URL(string: "http://mock.local")!)
+        #expect(emptyMigrated.exercisesImported == 0)
 
         // exportWorkoutsCSV
         URLProtocol.registerClass(MockURLProtocol.self)
@@ -398,16 +453,20 @@ struct RemoteRepositoriesAndNetworkCoverageTests {
 
     @Test("AppEnvironment: tier mode switching and backendURL updates")
     func testAppEnvironmentTierModeSwitching() {
+        UserDefaults.standard.set(AppTierMode.local.rawValue, forKey: "app_tier_mode")
         let env = AppEnvironment(inMemory: true)
+        #expect(env.analyticsRepository is SwiftDataAnalyticsRepository)
 
         env.tierMode = .premium
         #expect(env.tierMode == .premium)
+        #expect(env.analyticsRepository is RemoteAnalyticsRepository)
 
         env.backendURL = "http://127.0.0.1:8080"
         #expect(env.backendURL == "http://127.0.0.1:8080")
 
         env.tierMode = .local
         #expect(env.tierMode == .local)
+        #expect(env.analyticsRepository is SwiftDataAnalyticsRepository)
 
         // AppEnvironment init variations
         // 1. Missing keys in UserDefaults
@@ -426,6 +485,7 @@ struct RemoteRepositoriesAndNetworkCoverageTests {
         UserDefaults.standard.set(AppTierMode.premium.rawValue, forKey: "app_tier_mode")
         let envPremium = AppEnvironment(inMemory: true)
         #expect(envPremium.tierMode == .premium)
+        #expect(envPremium.analyticsRepository is RemoteAnalyticsRepository)
 
         // Reset to local
         UserDefaults.standard.set(AppTierMode.local.rawValue, forKey: "app_tier_mode")

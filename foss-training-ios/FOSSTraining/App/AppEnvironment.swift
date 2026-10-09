@@ -49,6 +49,9 @@ public final class AppEnvironment {
     public private(set) var trainingRepository: TrainingRepository
     public private(set) var athleteRepository: AthleteRepository
     public private(set) var dataPortabilityRepository: DataPortabilityRepository
+    public private(set) var trainingProgramRepository: TrainingProgramRepository
+    public private(set) var analyticsRepository: AnalyticsRepository
+    public let settingsRepository: SettingsRepository
 
     // Local Repositories for Migration Bridge
     public let localPortabilityRepository: SwiftDataPortabilityRepository
@@ -60,7 +63,10 @@ public final class AppEnvironment {
             SDSessionExercise.self,
             SDResistanceSet.self,
             SDTraining.self,
-            SDBodyweightEntry.self
+            SDBodyweightEntry.self,
+            SDTrainingProgram.self,
+            SDProgramWorkout.self,
+            SDAthleteProfile.self
         ])
 
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: inMemory)
@@ -77,25 +83,32 @@ public final class AppEnvironment {
         self.networkClient = NetworkClient(baseURLString: savedURL)
 
         self.localPortabilityRepository = SwiftDataPortabilityRepository(modelContext: modelContext)
+        self.settingsRepository = UserDefaultsSettingsRepository()
 
         // Initial repositories
         let localEx = SwiftDataExerciseRepository(modelContext: modelContext)
         let localSes = SwiftDataSessionRepository(modelContext: modelContext)
         let localTr = SwiftDataTrainingRepository(modelContext: modelContext)
         let localAth = SwiftDataAthleteRepository(modelContext: modelContext)
+        let localProg = SwiftDataTrainingProgramRepository(modelContext: modelContext)
+        let localAnalytics = SwiftDataAnalyticsRepository(modelContext: modelContext)
 
         if currentMode == .premium {
             self.exerciseRepository = RemoteExerciseRepository(client: networkClient)
             self.sessionRepository = RemoteSessionRepository(client: networkClient)
             self.trainingRepository = RemoteTrainingRepository(client: networkClient)
-            self.athleteRepository = localAth
+            self.athleteRepository = RemoteAthleteRepository(client: networkClient)
             self.dataPortabilityRepository = RemotePortabilityRepository(client: networkClient)
+            self.trainingProgramRepository = RemoteTrainingProgramRepository(client: networkClient)
+            self.analyticsRepository = RemoteAnalyticsRepository(client: networkClient)
         } else {
             self.exerciseRepository = localEx
             self.sessionRepository = localSes
             self.trainingRepository = localTr
             self.athleteRepository = localAth
             self.dataPortabilityRepository = localPortabilityRepository
+            self.trainingProgramRepository = localProg
+            self.analyticsRepository = localAnalytics
         }
 
         // Seed initial data if needed
@@ -107,14 +120,18 @@ public final class AppEnvironment {
             self.exerciseRepository = RemoteExerciseRepository(client: networkClient)
             self.sessionRepository = RemoteSessionRepository(client: networkClient)
             self.trainingRepository = RemoteTrainingRepository(client: networkClient)
-            self.athleteRepository = SwiftDataAthleteRepository(modelContext: modelContext)
+            self.athleteRepository = RemoteAthleteRepository(client: networkClient)
             self.dataPortabilityRepository = RemotePortabilityRepository(client: networkClient)
+            self.trainingProgramRepository = RemoteTrainingProgramRepository(client: networkClient)
+            self.analyticsRepository = RemoteAnalyticsRepository(client: networkClient)
         } else {
             self.exerciseRepository = SwiftDataExerciseRepository(modelContext: modelContext)
             self.sessionRepository = SwiftDataSessionRepository(modelContext: modelContext)
             self.trainingRepository = SwiftDataTrainingRepository(modelContext: modelContext)
             self.athleteRepository = SwiftDataAthleteRepository(modelContext: modelContext)
             self.dataPortabilityRepository = localPortabilityRepository
+            self.trainingProgramRepository = SwiftDataTrainingProgramRepository(modelContext: modelContext)
+            self.analyticsRepository = SwiftDataAnalyticsRepository(modelContext: modelContext)
         }
     }
 

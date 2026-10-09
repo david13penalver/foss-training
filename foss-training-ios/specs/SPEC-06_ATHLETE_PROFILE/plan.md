@@ -1,7 +1,7 @@
 # Implementation Plan: SPEC-06 — Athlete Profile & Powerlifting Scoring
 
 **Module:** `SPEC-06_ATHLETE_PROFILE`  
-**Status:** Planned  
+**Status:** Completed  
 **Target:** iOS 26+ (Swift 6, SwiftUI, Swift Charts, SwiftData, Swift Testing)  
 **Spec Document:** [SPEC-06_ATHLETE_PROFILE.md](../SPEC-06_ATHLETE_PROFILE.md)  
 

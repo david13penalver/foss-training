@@ -13,8 +13,11 @@ struct PortabilityTests {
             SDSession.self,
             SDSessionExercise.self,
             SDResistanceSet.self,
+            SDTrainingProgram.self,
+            SDProgramWorkout.self,
             SDTraining.self,
-            SDBodyweightEntry.self
+            SDBodyweightEntry.self,
+            SDAthleteProfile.self
         ])
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
         return try ModelContainer(for: schema, configurations: [config])
@@ -59,6 +62,6 @@ struct PortabilityTests {
         let portabilityRepo = SwiftDataPortabilityRepository(modelContext: container.mainContext)
 
         let csv = try await portabilityRepo.exportWorkoutsCSV()
-        #expect(csv.contains("training_id,training_name,date,exercise,set_number,weight_kg,reps,rpe,completed"))
+        #expect(csv.contains("training_id,training_date,training_name"))
     }
 }

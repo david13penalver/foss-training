@@ -28,6 +28,7 @@ targets:
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: UIInterfaceOrientationPortrait
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+        INFOPLIST_KEY_NSSupportsLiveActivities: YES
         SWIFT_EMIT_LOC_STRINGS: YES
   FOSSTrainingTests:
     type: bundle.unit-test
@@ -42,5 +43,6 @@ targets:
         PRODUCT_NAME: FOSSTrainingTests
         PRODUCT_BUNDLE_IDENTIFIER: com.david13penalver.fosstraining.tests
         GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_NSSupportsLiveActivities: YES
         SWIFT_VERSION: "6.0"
         SWIFT_STRICT_CONCURRENCY: complete

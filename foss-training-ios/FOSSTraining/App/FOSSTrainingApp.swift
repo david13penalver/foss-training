@@ -11,6 +11,14 @@ struct FOSSTrainingApp: App {
     @State private var themeManager = ThemeManager.shared
     @State private var appEnvironment = AppEnvironment(inMemory: isRunningTests)
 
+    init() {
+        if !Self.isRunningTests {
+            ThemeManager.shared.idleTimerSetter = { disabled in
+                UIApplication.shared.isIdleTimerDisabled = disabled
+            }
+        }
+    }
+
     var body: some Scene {
         WindowGroup {
             if Self.isRunningTests {

@@ -172,4 +172,9 @@ public final class SwiftDataTrainingRepository: TrainingRepository {
             }
         }
     }
+
+    public func trainingExists(id: Int) async throws -> Bool {
+        let descriptor = FetchDescriptor<SDTraining>(predicate: #Predicate<SDTraining> { $0.id == id })
+        return try modelContext.fetchCount(descriptor) > 0
+    }
 }
